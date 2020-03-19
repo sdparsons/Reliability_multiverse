@@ -1,0 +1,54 @@
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+\centering
+\includegraphics{Reliability_Multiverse_files/figure-latex/Hedge_internal_T1_Stroop_plot-1.pdf}
+\caption{(\#fig:Hedge\_internal\_T1\_Stroop\_plot)Internal consistency reliability multiverse for Stroop RT cost at time 1}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+\centering
+\includegraphics{Reliability_Multiverse_files/figure-latex/Hedge_internal_T2_Stroop_plot-1.pdf}
+\caption{(\#fig:Hedge\_internal\_T2\_Stroop\_plot)Internal consistency reliability multiverse for Stroop RT cost at time 2}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+\centering
+\includegraphics{Reliability_Multiverse_files/figure-latex/Hedge_retest_Stroop_plot-1.pdf}
+\caption{(\#fig:Hedge\_retest\_Stroop\_plot)Test-retest reliability multiverse for Stroop RT cost}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+\centering
+\includegraphics{Reliability_Multiverse_files/figure-latex/Hedge_internal_T1_Flanker_plot-1.pdf}
+\caption{(\#fig:Hedge\_internal\_T1\_Flanker\_plot)Internal consistency reliability multiverse for Flanker RT cost at time 1}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+\centering
+\includegraphics{Reliability_Multiverse_files/figure-latex/Hedge_internal_T2_Flanker_plot-1.pdf}
+\caption{(\#fig:Hedge\_internal\_T2\_Flanker\_plot)Internal consistency reliability multiverse for Flanker RT cost at time 2}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+
+\centering
+\includegraphics{Reliability_Multiverse_files/figure-latex/Hedge_retest_Flanker_plot-1.pdf}
+\caption{(\#fig:Hedge\_retest\_Flanker\_plot)Test-retest reliability multiverse for Flanker RT cost}
+\end{figure*}
+\efloatseparator
+ 

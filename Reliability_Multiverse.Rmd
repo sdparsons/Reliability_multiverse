@@ -1,0 +1,1566 @@
+---
+title             : "Exploring reliability heterogeneity with multiverse analyses: Data processing decisions unpredictably influence measurement reliability"
+shorttitle        : "Reliability multiverse"
+
+author: 
+  - name          : "Sam Parsons"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Department of Experimental Psychology, University of Oxford, New Radcliffe House, Radcliffe Observatory Quarter, Oxford, OX2 6AE"
+    email         : "sam.parsons@psy.ox.ac.uk"
+
+affiliation:
+  - id            : "1"
+    institution   : "University of Oxford"
+
+authornote: |
+  Submitted to Meta-Psychology. Click here to follow the fully transparent editorial process of this submission. Participate in open peer review by commenting through hypothes.is directly on this preprint.
+  
+  This work was supported by an ESRC grant [ES/R004285/1]
+
+
+abstract: |
+  Analytic flexibility is known to influence the results of statistical tests, e.g. effect sizes and _p_-values. Yet, the degree to which flexibility in data-processing decisions influences the reliability of our measures is unknown. In this paper I attempt to address this question using a series of reliability multiverse analyses. The methods section incorporates a brief tutorial for readers interested in implementing multiverse analyses reported in this manuscript; all functions are contained in the R package _splithalf_. I report six multiverse analyses of data-processing specifications, including accuracy and response time cutoffs. I used data from a Stroop task and Flanker task at two time points. This allowed for an internal consistency reliability multiverse at time 1 and 2, and a test-retest reliability multiverse between time 1 and 2. Largely arbitrary decisions in data-processing led to differences between the highest and lowest reliability estimate of at least .2. There was no consistent pattern in the data-processing specifications that led to greater reliability, across time as well as tasks. Together, data-processing decisions are highly influential, and largely unpredictable, on measure reliability. I discuss actions researchers could take to mitigate some of the influence of reliability heterogeneity, including adopting hierarchical modelling approaches. Yet, there are no approaches that can completely save us from measurement error. Measurement matters and I call on readers to help us move from what could be a measurement crisis towards a measurement revolution. 
+
+  
+keywords          : "reliability, multiverse, analytic flexibility, data processing"
+# wordcount         : "X"
+
+bibliography      : ["My_Library.bib", "r-references.bib"]
+
+floatsintext      : yes
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : no
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+
+header-includes:
+- \usepackage{float} #use the 'float' package
+- \usepackage{caption}
+- \usepackage{newunicodechar}
+- \floatplacement{figure}{H} #make every figure with caption = h
+- \raggedbottom
+
+---
+
+```{r setup, include = FALSE}
+# note: need to add the conditional stuff so that the correct version is loaded
+if(!"devtools" %in% rownames(installed.packages())) install.packages("devtools")
+if(!"papaja" %in% rownames(installed.packages())) devtools::install_github("crsh/papaja")
+if(!"tidyverse" %in% rownames(installed.packages())) install.packages("tidyverse")
+if(!"splithalf" %in% rownames(installed.packages())) devtools::install_github("sdparsons/splithalf")
+if(!"gridExtra" %in% rownames(installed.packages())) install.packages("gridExtra")
+if(!"psych" %in% rownames(installed.packages())) install.packages("psych")
+if(!"Cairo" %in% rownames(installed.packages())) install.packages("Cairo")
+if(!"patchwork" %in% rownames(installed.packages())) install.packages("patchwork")
+
+library("papaja")
+library("tidyverse")
+library("splithalf")
+library("gridExtra")
+library("psych")
+library("Cairo")
+library("patchwork")
+
+r_refs(file = "r-references.bib")
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(results = 'hide')
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(error = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(fig.pos = "h")
+
+```
+
+The vermilisitude of our conclusions rests on the quality, and the strength, of our evidence. Our evidence rests on the bedrock of our measurements. The quality of our measures defines the quality of our results. Without adequate focus on the validity of our measures, how can we be assured that we are capturing the concept or process that we are interested in? Without any attention to the reliability of our measures, how can we be sure that we are capturing a phenomenon with any precision? Psychological science – I concede some areas are better than others - has a guilty habit of neglecting these foundations. 
+
+In a recent paper, my colleagues and I argued for a widespread appreciation for the reliability of our cognitive measures [@parsons_psychological_2019]. Briefly; low reliability places doubt on the veracity of statistical analyses using that measure; measurement reliability restricts the observable range of effect sizes; and failing to correct for measurement error makes comparing effect sizes between, and within, studies difficult. These issues are compounded by the sad observation that the reporting of reliability (and validity) evidence is woefully poor. Scale validity and reliability is not routinely examined, and many scales are adapted on an ad hoc basis with little or no validation [@flake_construct_2017]. In other cases scales fail to pass deeper psychometric evaluation, including tests of measurement invariance [@hussey_hidden_2018]. This likely reflects issues with more superficial approaches to establishing validity evidence - i.e. reporting Cronbach’s alpha, stating it is adequate, and moving on. I concede that pockets of psychological science take a more enlightened approach. However, I feel it is reasonable to argue that the field at large is doing well in our measurement practices. Most relevant to this paper; it is the exception rather than the norm to evaluate the psychometric properties of cognitive measurements [@gawronski_response_2011-1]. 
+
+An important reminder: estimates of reliability refer to the measurement obtained - in a specific sample and under particular circumstances, including the task parameters. Reliability is therefore not fixed; it may differ between populations, samples, and testing conditions. Variations of a task may lead to the generation of more or less reliable measurements. For example, the stimulus presentation duration will likely influence the cognitive processes involved in completing the task, perhaps leading participants to perform more consistently in one version, relative to another.  Reliability is a property of the measurement, not of the task used to obtain it. Strictly speaking, we cannot state that a task is unreliable; although we might observe a consistent pattern of unreliability in measurements obtained that causes us to question further use of the task. 
+
+Thankfully, there is a growing awareness that measurement matters [@fried_measurement_2018]. A valuable term, Questionable Measurement Practices (QMPs), was recently added to our vernacular by Flake and Fried [-@flake_measurement_2019]. QMPs describe "undisclosed decisions researchers make that leave questions about the measurements in a study unanswered" (page 2). I hope that QMPs and the importance of measurement become as widely discussed as the parallel idiom, ‘Questionable Research Practices’ (QRPs). Most importantly, wider discussion of these practices should make it clear to all researchers that we make many potentially impactful decisions in the design of our measures, our data processing or cleaning, and our data analysis. 
+
+In this paper I was concerned with the influence analytic flexibility on measurement reliability, specifically in data processing or data cleaning. I was inspired in part from numerous papers reporting the unsettlingly low reliability of dot-probe attention bias indices [e.g. @jones_failed_2018-1; @schmukle_unreliability_2005; @staugaard_reliability_2009]. I was also inspired by other work investigating alternative analyses and data processing strategies, with the intention of yielding a more reliable measurement [e.g. @jones_failed_2018-1; @price_empirical_2015]. I was interested in visualising the influence of data processing steps on reliability. My rationale was that as all too often the focus is on decisions made in the beginning (task design) or at the end (data analysis) of the research process. I felt the intermediary stage in which the data is processed is often unexplored in relation to QRPs and QMPs. To fully explain my rationale, we first take a walk through the garden of forking paths.
+
+## Analytic flexibility and the garden of forking paths
+
+Every result presented in every research article is the culmination of many decisions made by one or more researchers; the sheer number of combinations of valid decisions is likely uncalculatable. The "garden of forking paths" [@gelman_garden_2013] is a useful analogy I use throughout this paper to illustrate this. With each decision that must be made, however arbitrary, the researcher comes to a fork in their research path, and selects one. To add a little suspense, there will be many cases when the researcher does not notice a fork in the road. Perhaps the researcher unconsciously makes the same turn as always, their feet working of their own accord. These forks in the path, the decisions researchers make (whether they are aware or not), may be reasonably combined to make a near uncountable number of paths. Each path also leads to a location; some paths end close to one another, and other times the paths diverge wildly. We can think of the end of the path as the statistical result our researcher arrives at. 
+
+The researcher has to decide their path, based on the soundest justifications they can make at each fork [e.g. @lakens_justify_2018]. Of course, psychological science has become fully aware of the detrimental effects of selecting one’s path retrospectively, based on where the path ends or the results most exciting to the researcher [read as: _p_ < .05; e.g. @simmons_false-positive_2011]. Extending the metaphor (hopefully not too painfully): Backtracking the route and selecting multiple paths until reaching a preferred location is akin to walking between the well-tended paths and stomping across the flowerbeds, damaging our colourful science garden. Analytic flexibility is not inherently bad. However, we must acknowledge the ramifications. The effects we observe, or do not, are potentially influenced by all of the decisions made to arrive at them. Thus, a range of possible effects may have been observed that are all equally valid based on the analytical decisions made. 
+
+In discussions of analytical flexibility, focus is usually given primarily to decisions made during statistical analysis. For example; should I control for age and gender? Do I reason that this is model more appropriate over that one? Or, where should I set my alpha and how should I justify the decision? Discussions of analytical flexibility often concern issues around _p_-hacking and other QRPs (intended or unintended). However, as Leek and Peng [-@leek_p_2015] note, _p_-values are the tip of the iceberg; not enough scrutiny is given to the impact of the many steps in the research pipeline that precede inference testing. I agree. In my estimation, flexibility in measurement and data handling do not receive the scrutiny they deserve. If the garden of forking paths concerns analytic flexibility, then measurement flexibility decides which door one enters the garden through in the first place. 
+
+## Mapping the garden of forking paths with multiverse analyses
+
+A multiverse analysis [@steegen_increasing_2016] offers us a "GPS in the garden of forking paths" [@quintana_gps_2019]. The process is remarkably simple. First, we define a set of reasonable data processing and analysis decisions. Second, we run the entire set of analyses. We can then examine results across the entire range of results. Specification curve analysis [@simonsohn_specification_2015] adds third step allowing for inference tests across the distribution of results generated in the multiverse [for insightful applications of specification curve analyses, see; @orben_association_2019; @rohrer_probing_2017]. In this paper I use ‘specification’ to refer to each combination of data processing decisions in the multiverse analysis. 
+
+Multiverse analyses enable us to explore how a researcher’s – sometimes arbitrary – choices in data processing (e.g. outlier removal) and analysis decisions (e.g. including covariates, splitting samples) influence statistical results, and the conclusions drawn from the analysis. From this we can examine which choices are more or less influential than others, as well as how robust the result is across the full set of specifications. 
+
+## A reliability multiverse from many data processing decisions
+
+In this paper I report multiverse analyses exploring the influence of data processing specifications on the reliability of a calculated measurement. I used openly accessible Stroop task and Flanker task data generously shared by Hedge and colleagues [@hedge_reliability_2018]. Following previous work in this area [@parsons_psychological_2019], I was interested in the stability and range of reliability estimates on cognitive-behavioural measures. Broadly, I was interested in the positive and negative impact of data processing decisions on reliability. It is possible that certain analytic decisions tend to yield higher reliability estimates; it may be that particular combinations of decisions are also better, or worse, than others. Beyond that, I was interested in the range of estimates. A small range would suggest that measure reliability is relatively stable as we make potentially arbitrary data processing decisions while walking the garden of forking paths. A large range suggests hidden measurement reliability heterogeneity. This is potentially an important, and underappreciated, contributor to the replicability crisis [@loken_measurement_2017]. Alternatively, this could be a herald for a crisis of measurement. 
+
+
+# Methods
+
+```{r splithalf.multiverse, eval = FALSE}
+
+# this code is included here for reference. It is copied from the splithalf code.
+
+splithalf.multiverse <- function(input,
+                                 specifications) {
+
+
+  # you'll need something here to differentiate between internal consistency and test-retest.
+
+  if(class(input) != "splithalf") {
+    stop("please use a splithalf object as the input")
+  }
+
+  ### new
+  subject = input$call$var.participant
+  correct = input$call$var.ACC
+
+  ###
+
+  # set up the output list ####################################################
+
+  outlist <- list("input" = input,
+                  "specifications" = specifications,
+                  "type" = "internal_consistency",
+                  "reliability" = "internal_consistency")
+
+  # create the full specificaiton list ########################################
+
+  # if anything is missing, add those variables
+
+  outlist$cols <- names(specifications)
+
+  if(!("ACC_cutoff" %in% names(specifications))){
+    specifications[["ACC_cutoff"]] <- 0
+  }
+  if(!("RT_min" %in% names(specifications))){
+    specifications[["RT_min"]] <- 0
+  }
+  if(!("RT_max" %in% names(specifications))){
+    specifications[["RT_max"]] <- 1000000
+  }
+  if(!("RT_sd_cutoff" %in% names(specifications))){
+    specifications[["RT_sd_cutoff"]] <- 0
+  }
+  if(!("split_by" %in% names(specifications))){
+    specifications[["split_by"]] <- "subject"
+  }
+  if(!("averaging_method" %in% names(specifications))){
+    specifications[["averaging_method"]] <- "mean"
+  }
+
+  # pass forward variables
+
+
+  outcome = input$call$outcome
+  score = input$call$score
+  conditionlist = input$call$conditionlist
+  halftype = input$call$halftype
+  permutations = input$call$permutations
+  var.RT = input$call$var.RT
+  var.ACC = input$call$var.ACC
+  var.condition = input$call$var.condition
+  var.participant = input$call$var.participant
+  var.trialnum = input$call$var.trialnum
+  var.compare = input$call$var.compare
+  compare1 = input$call$compare1
+  compare2 = input$call$compare2
+  average = input$call$average
+
+
+  # create empty objects for the purposes of binding global variables
+  #(and to pass CRAN checks)
+  n <- 0
+  ACC  <- 0
+  latency <- 0
+  blockcode <- 0
+  congruency <- 0
+  low <- 0
+  high <- 0
+  meanRT <- 0
+  Incongruent <- 0
+  Congruent <- 0
+  RTdiff <- 0
+
+
+
+  specs <- expand.grid(specifications)
+
+  nS <- nrow(specs)
+
+  ## add specs and nS to outlist
+
+  outlist$specs <- specs
+  outlist$nS <- nS
+
+  # process specifications ####################################################
+
+  print(paste("running", nS, "pre-processing specifications"))
+
+  # internal consistency
+
+
+  # calculate accuracy rates
+  temp_data <- input$data %>%
+    group_by(subject) %>%
+    mutate(ACC = sum(correct) / n())
+
+  # make all the datasets
+
+  perm_out <- list()
+
+  SE_out <- NULL
+
+  pb <- txtProgressBar(min = 0, max = nS, style = 3)
+  setTxtProgressBar(pb, 0)
+
+  for(perm in 1:nS) {
+
+    temp <- temp_data %>%
+      dplyr::filter(ACC >= specs[perm, "ACC_cutoff"]) %>%
+      dplyr::group_by(subject) %>%
+      dplyr::filter(correct == 1) %>%
+      dplyr::filter(latency >= specs[perm, "RT_min"],
+             latency <= specs[perm, "RT_max"]) %>%
+      dplyr::ungroup()
+
+    if(specs[perm, "split_by"] == "subject")
+      temp <- temp %>%
+        group_by(subject)
+    if(specs[perm, "split_by"] == "condition")
+      temp <- temp %>%
+        group_by(subject, blockcode)
+    if(specs[perm, "split_by"] == "trial")
+      temp <- temp %>%
+        group_by(subject, blockcode, congruency)
+
+    if(specs[perm, "RT_sd_cutoff"] != 0)
+      temp <- temp %>%
+        mutate(high  = mean(latency) + (specs[perm, "RT_sd_cutoff"]*sd(latency)),
+               low   = mean(latency) - (specs[perm, "RT_sd_cutoff"]*sd(latency))) %>%
+        dplyr::filter(latency >= low, latency <= high) %>%
+        ungroup() %>%
+        as.data.frame()
+
+    perm_out[[perm]] <- temp
+
+    SE_out[perm] <- temp %>%
+      group_by(subject, congruency) %>%
+      summarise(meanRT = mean(latency)) %>%
+      spread(congruency, meanRT) %>%
+      mutate(RTdiff = Incongruent - Congruent) %>%
+      ungroup() %>%
+      summarise(SE = sd(RTdiff)/sqrt(n())) %>%
+      as.double()
+
+    setTxtProgressBar(pb, perm)
+  }
+
+  outlist$sca  <- perm_out
+  outlist$SE   <- SE_out
+
+
+
+  nPar   <- 1:nS
+  nTrial <- 1:nS
+
+  for(i in 1:nS) {
+    nPar[i]   <- length(unique(perm_out[[i]]$subject))
+    nTrial[i] <- length(perm_out[[i]]$trialnum)
+  }
+
+  removals <- specs
+  removals$nPar <- nPar
+  removals$nTrial <- nTrial
+  removals$nTrialperPar <- removals$nTrial / removals$nPar
+
+  removals$pPar <- removals$nPar / length(unique(input$data$subject))
+  removals$pTrial <- removals$nTrial / length(input$data$trialnum)
+
+  outlist$removals <- removals
+
+  ##### Run reliability estimates ############################################
+
+  print("running reliability estimates")
+
+  estimates <- list()
+
+  # internal consistency
+
+  pb2 <- txtProgressBar(min = 0, max = nS, style = 3)
+  setTxtProgressBar(pb2, 0)
+
+  for(perm2 in 1:nS) {
+    capture.output({
+      suppressWarnings({
+        estimates[[perm2]] <- splithalf(data = perm_out[[perm2]],
+                                        outcome = input$call$outcome,
+                                        # conditionlist = c("angry"),
+                                        permutations = input$call$permutations,
+                                        average = specs[perm2, "averaging_method"],
+                                        # var.condition = "blockcode",
+                                        var.ACC = input$call$var.ACC,
+                                        var.RT = input$call$var.RT,
+                                        var.participant = input$call$var.participant,
+                                        var.trialnum = input$call$var.trialnum,
+                                        var.compare = input$call$var.compare,
+                                        compare1 = input$call$compare1,
+                                        compare2 = input$call$compare2,
+                                        round.to = 5)$final_estimates
+      })
+    })
+
+    setTxtProgressBar(pb2, perm2)
+  }
+
+
+  # test retest
+
+  outlist$MULTIVERSEestimates <- estimates
+
+
+  # get quantiles
+
+  # q <- 1:nS
+  #
+  # if(type == "internal_consistency")  {
+  # for(k in 1:length(q)){
+  #   q[k] <- estimates[[k]]$spearmanbrown
+  # }
+  # }
+  # if(type == "test_retest")  {
+  # for(k in 1:length(q)){
+  #   q[k] <- estimates[[k]]$ICC
+  # }
+  # }
+
+  outlist$estimates <- specs
+  for(i in 1:nS) {
+    outlist$estimates$estimate[i] <- estimates[[i]]$spearmanbrown
+    outlist$estimates$low[i]      <- estimates[[i]]$SB_low
+    outlist$estimates$high[i]     <- estimates[[i]]$SB_high
+  }
+
+
+
+  outlist$CI <- quantile(outlist$estimates$estimate, c(.025,.5, .975))
+
+  class(outlist) <- "multiverse"
+
+  return(outlist)
+}
+
+```
+
+```{r testretest.multiverse, eval = FALSE}
+
+testretest.multiverse <- function(input,
+                                  specifications,
+                                  test = "ICC2",
+                                  var.participant = "subject",
+                                  var.ACC = "correct",
+                                  var.RT = "RT") {
+
+
+  # you'll need something here to differentiate between internal consistency and test-retest.
+
+  ### new
+  subject = var.participant
+  correct = var.ACC
+
+  ###
+
+
+  # set up the output list ####################################################
+
+  outlist <- list("input" = input,
+                  "specifications" = specifications,
+                  "test" = test,
+                  "reliability" = "test_retest")
+
+
+  # create empty objects for the purposes of binding global variables
+  #(and to pass CRAN checks)
+  n <- 0
+  ACC  <- 0
+  latency <- 0
+  blockcode <- 0
+  congruency <- 0
+  low <- 0
+  high <- 0
+  RT <- 0
+  Incongruent <- 0
+  Congruent <- 0
+  time <- 0
+  difference <- 0
+  ICC <- 0
+
+  # create the full specificaiton list ########################################
+
+  # if anything is missing, add those variables
+
+  outlist$cols <- names(specifications)
+
+  if(!("ACC_cutoff" %in% names(specifications))){
+    specifications[["ACC_cutoff"]] <- 0
+  }
+  if(!("RT_min" %in% names(specifications))){
+    specifications[["RT_min"]] <- 0
+  }
+  if(!("RT_max" %in% names(specifications))){
+    specifications[["RT_max"]] <- 1000000
+  }
+  if(!("RT_sd_cutoff" %in% names(specifications))){
+    specifications[["RT_sd_cutoff"]] <- 0
+  }
+  if(!("split_by" %in% names(specifications))){
+    specifications[["split_by"]] <- "subject"
+  }
+  if(!("averaging_method" %in% names(specifications))){
+    specifications[["averaging_method"]] <- "mean"
+  }
+
+  specs <- expand.grid(specifications)
+
+  nS <- nrow(specs)
+
+  ## add specs and nS to outlist
+
+  outlist$specs <- specs
+  outlist$nS <- nS
+
+  # process specifications ####################################################
+
+  print(paste("running", nS, "pre-processing specifications"))
+
+  # calculate accuracy rates
+  temp_data <- input %>%
+    group_by(time, subject) %>%
+    mutate(ACC = sum(correct) / n())
+
+  # make all the datasets
+
+  perm_out <- list()
+
+  pb <- txtProgressBar(min = 0, max = nS, style = 3)
+  setTxtProgressBar(pb, 0)
+
+  for(perm in 1:nS) {
+
+    temp <- temp_data %>%
+      filter(ACC >= specs[perm, "ACC_cutoff"]) %>%
+      group_by(time, subject) %>%
+      filter(correct == 1) %>%
+      filter(latency >= specs[perm, "RT_min"],
+             latency <= specs[perm, "RT_max"]) %>%
+      ungroup()
+
+    if(specs[perm, "split_by"] == "subject")
+      temp <- temp %>%
+        group_by(time, subject)
+    if(specs[perm, "split_by"] == "condition")
+      temp <- temp %>%
+        group_by(time, subject, blockcode)
+    if(specs[perm, "split_by"] == "trial")
+      temp <- temp %>%
+        group_by(time, subject, blockcode, congruency)
+
+    if(specs[perm, "RT_sd_cutoff"] != 0)
+      temp <- temp %>%
+        mutate(high  = mean(latency) + (specs[perm, "RT_sd_cutoff"]*sd(latency)),
+               low   = mean(latency) - (specs[perm, "RT_sd_cutoff"]*sd(latency))) %>%
+        filter(latency >= low, latency <= high) %>%
+        ungroup() %>%
+        as.data.frame()
+
+    perm_out[[perm]] <- temp
+    setTxtProgressBar(pb, perm)
+  }
+
+  outlist$sca  <- perm_out
+
+
+
+  # check removals ############################################################
+  # note, needs tweaking for test-retest.
+
+  nPar   <- 1:nS
+  nTrial <- 1:nS
+
+  for(i in 1:nS) {
+    nPar[i]   <- length(unique(perm_out[[i]]$subject))
+    nTrial[i] <- length(perm_out[[i]]$trialnum)
+  }
+
+  removals <- specs
+  removals$nPar <- nPar
+  removals$nTrial <- nTrial
+  removals$nTrialperPar <- removals$nTrial / removals$nPar
+
+  removals$pPar <- removals$nPar / length(unique(input$subject))
+  removals$pTrial <- removals$nTrial / length(input$trialnum)
+
+  outlist$removals <- removals
+
+  ##### Run reliability estimates ############################################
+
+  print("running reliability estimates")
+
+  estimates <- list()
+
+  # internal consistency
+
+  # test retest
+
+  if(test == "ICC2")
+    icc <- 2
+  if(test == "ICC3")
+    icc <- 3
+
+  pb2 <- txtProgressBar(min = 0, max = nS, style = 3)
+  setTxtProgressBar(pb2, 0)
+
+  if(test == "ICC2" | test == "ICC3") {
+
+    for(perm2 in 1:nS) {
+      capture.output({
+
+        tmp <- perm_out[[perm2]] %>%
+          group_by(time, subject, congruency) %>%
+          summarise(RT = mean(latency)) %>%
+          spread(congruency, RT) %>%
+          mutate(difference = Incongruent - Congruent) %>%
+          select(-Congruent, -Incongruent) %>%
+          group_by(time) %>%
+          spread(time, difference)
+
+        estimates[[perm2]] <- ICC(tmp[,2:3])$results[icc,]
+
+      })
+      setTxtProgressBar(pb2, perm2)
+    }
+  }
+
+  if(test == "cor")
+  {
+    for(perm2 in 1:nS) {
+      capture.output({
+
+        tmp <<- perm_out[[perm2]] %>%
+          group_by(time, subject, congruency) %>%
+          summarise(RT = mean(latency)) %>%
+          spread(congruency, RT) %>%
+          mutate(difference = Incongruent - Congruent) %>%
+          select(-Congruent, -Incongruent) %>%
+          group_by(time) %>%
+          spread(time, difference) %>%
+          as.data.frame()
+
+        estimates[[perm2]] <- cor.test(tmp[,2],tmp[,3])
+
+      })
+      setTxtProgressBar(pb2, perm2)
+    }
+  }
+
+
+  outlist$MULTIVERSEestimates <- estimates
+
+  outlist$estimates <- specs
+
+  if(test == "ICC2" | test == "ICC3") {
+    for(i in 1:nS) {
+      outlist$estimates$estimate[i] <- estimates[[i]]$ICC
+      outlist$estimates$low[i]      <- estimates[[i]]$`lower bound`
+      outlist$estimates$high[i]     <- estimates[[i]]$`upper bound`
+    }
+  }
+
+  if(test == "cor") {
+    for(i in 1:nS) {
+      outlist$estimates$estimate[i] <- estimates[[i]]$estimate
+      outlist$estimates$low[i]      <- estimates[[i]]$conf.int[1]
+      outlist$estimates$high[i]     <- estimates[[i]]$conf.int[2]
+    }
+  }
+
+  outlist$CI <- quantile(outlist$estimates$estimate, c(.025,.5, .975), na.rm = TRUE)
+
+  class(outlist) <- "multiverse"
+
+  return(outlist)
+}
+
+```
+
+```{r multiverse.plot, eval = FALSE}
+# putting it all together
+
+multiverse.plot <- function(multiverse,
+                            title = "",
+                            vline = "none",
+                            heights = c(4,5),
+                            SE = FALSE) {
+
+  if(SE == TRUE & length(heights) != 3) {
+    stop("heights must be length 3 is SE = TRUE")
+  }
+
+  if(class(multiverse) == "list") {
+    x <- length(multiverse)
+
+    for(i in 1:x){
+      if(class(multiverse[[i]]) != "multiverse")
+        stop("not all list objects are of class multiverse")
+    }
+
+    # create empty objects for the purposes of binding global variables
+    #(and to pass CRAN checks)
+    estimate <- 0
+    low  <- 0
+    high <- 0
+    ns <- 0
+    time <- 0
+    Bigdecision <- 0
+    Decision <- 0
+
+
+    final <- NULL
+    final2 <- NULL
+    ord <- order(multiverse[[1]]$estimates[,"estimate"])
+
+
+    for(x in 1:length(multiverse)) {
+      final <- multiverse[[x]]$estimates
+      final$time <- toString(x)
+      final <- final[ord,]
+      final$ns <- 1:nrow(final)
+
+      final2 <- rbind(final2, final)
+
+    }
+
+
+    #final2 <- final
+    # %>%
+    #   group_by(time) %>%
+    #   mutate(order = order(estimate))
+
+
+
+  }
+
+
+  if(class(multiverse) == "multiverse"){
+    final2 <- multiverse$estimates
+    final2 <- final2[order(final2[,"estimate"]),]
+    final2$SE <- multiverse$SE
+  }
+
+  suppressWarnings({
+
+    if(class(multiverse) == "multiverse"){
+      final2$ns <- 1:multiverse$nS
+
+      reliability_plot <- ggplot(data = final2,
+                                 aes(x = 1:multiverse$nS, y = estimate)) +
+        geom_ribbon(aes(ymin = low, ymax = high), fill = "grey80", alpha = .8) +
+        {if(vline!="none")geom_vline(aes(), xintercept = round(multiverse$nS * vline), linetype = "dashed", colour = "black")} +
+        geom_point() +
+        scale_color_manual(values = c("#000000", "#FF0000")) +
+        labs(x = " ") +
+        theme(legend.position = "none",
+              strip.text.x = element_blank(),
+              strip.text.y = element_blank(),
+              strip.background = element_blank(),
+              text = element_text(size=10)) +
+        geom_hline(yintercept = 0)
+
+      if(SE == FALSE)
+        reliability_plot <- reliability_plot +
+        ggtitle(title) +
+        theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+    }
+
+    if(class(multiverse) == "list"){
+      reliability_plot <- ggplot(data = final2,
+                                 aes(x = ns, y = estimate, fill = time)) +
+        geom_ribbon(aes(ymin = low, ymax = high, fill = time), alpha = .1)  +
+        {if(vline!="none")geom_vline(aes(), xintercept = round(multiverse[[1]]$nS * vline), linetype = "dashed", colour = "black")} +
+        geom_point(aes(colour = time)) +
+        # geom_line(aes(colour = time)) +
+        labs(x = " ") +
+        theme(legend.position = "top",
+              legend.title = element_blank(),
+              strip.text.x = element_blank(),
+              strip.text.y = element_blank(),
+              strip.background = element_blank(),
+              text = element_text(size=10)) +
+        geom_hline(yintercept = 0) +
+        ggtitle(title) +
+        theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+    }
+
+  })
+
+  suppressWarnings({
+
+    if(class(multiverse) == "multiverse"){
+
+      final2$ns <- 1:multiverse$nS
+
+
+      final3 <- final2 %>%
+        gather(key = "Bigdecision",
+               value = "Decision",
+               -ns, -estimate, -low, -high)
+
+    }
+
+    if(class(multiverse) == "list"){
+      final3 <- final2 %>%
+        dplyr::filter(time == 1) %>%
+        tidyr::gather(key = "Bigdecision",
+               value = "Decision",
+               -ns, -estimate, -low, -high)
+    }
+
+  })
+
+  final3$Bigdecision <- factor(final3$Bigdecision, levels = c("ACC_cutoff",
+                                                              "RT_min",
+                                                              "RT_max",
+                                                              "RT_sd_cutoff",
+                                                              "split_by",
+                                                              "averaging_method"))
+
+  suppressWarnings({
+    if(class(multiverse) == "multiverse"){
+      dashboard <- ggplot(data = subset(final3, Bigdecision %in% multiverse$cols),
+                          aes(x = ns, y = Decision, colour = Bigdecision)) +
+        facet_grid(Bigdecision ~ ., scales = "free", space = "free", drop = ) +
+        {if(vline!="none")geom_vline(aes(), xintercept = round(multiverse$nS*vline), linetype = "dashed", colour = "black")} +
+        geom_point(aes(colour = Bigdecision), shape = 108, size = 6) +
+        labs(x = "specification number") +
+        theme_minimal() +
+        theme(legend.position = "none",
+              strip.text.x = element_blank(),
+              strip.text.y = element_blank(),
+              strip.background = element_blank(),
+              text = element_text(size=10))
+    }
+
+    if(class(multiverse) == "list"){
+      dashboard <- ggplot(data = subset(final3, Bigdecision %in% multiverse[[1]]$cols),
+                          aes(x = ns, y = Decision, colour = Bigdecision)) +
+        facet_grid(Bigdecision ~ ., scales = "free", space = "free", drop = ) +
+        {if(vline!="none")geom_vline(aes(), xintercept = round(multiverse[[1]]$nS*vline), linetype = "dashed", colour = "black")} +
+        geom_point(aes(colour = Bigdecision), shape = 108, size = 6) +
+        labs(x = "specification number") +
+        theme_minimal() +
+        theme(legend.position = "none",
+              strip.text.x = element_blank(),
+              strip.text.y = element_blank(),
+              strip.background = element_blank(),
+              text = element_text(size=10))
+    }
+  })
+
+  if(SE == TRUE) {
+    SE_plot <- ggplot(data = final2,
+                      aes(x = 1:multiverse$nS, y = SE)) +
+      geom_point() +
+      scale_color_manual(values = c("#000000", "#FF0000")) +
+      labs(x = " ") +
+      theme(legend.position = "none",
+            strip.text.x = element_blank(),
+            strip.text.y = element_blank(),
+            strip.background = element_blank(),
+            text = element_text(size=10)) +
+      geom_hline(yintercept = 0) +
+      ggtitle(title) +
+      theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  }
+
+
+  if(SE == FALSE) {
+    final_plot <- reliability_plot / dashboard + plot_layout(heights = heights)
+  }
+  if(SE == TRUE) {
+    final_plot <- SE_plot / reliability_plot / dashboard + plot_layout(heights = heights)
+  }
+
+  return(final_plot)
+
+}
+
+
+```
+
+```{r threshold, eval = FALSE}
+
+# porportion of specifications above a specified threshold
+
+threshold <- function(multiverse,
+                      threshold,
+                      use = "estimate",
+                      dir = "above") {
+
+  tmp <- 1:multiverse$nS
+
+  if(use == "estimate") {
+    tmp <- multiverse$estimates$estimate
+  }
+
+  if(use == "lower") {
+    tmp <- multiverse$estimates$low
+  }
+
+  if(use == "upper") {
+    tmp <- multiverse$estimates$high
+  }
+
+
+  if(dir == "above") {
+    threshold <- sum(tmp > threshold) / length(tmp)
+  }
+  if(dir == "below") {
+    threshold <- sum(tmp < threshold) / length(tmp)
+  }
+
+  return(threshold)
+}
+
+```
+
+## Data
+
+Data were obtained from the online repository for Hedge, Sumner, and Powell (-@hedge_reliability_2018; https://osf.io/cwzds/). Full details of the data collection, study design, and procedure can be found in Hedge et al. [-@hedge_reliability_2018]. These data are ideal for our purposes as they a) contain many trials, helping us obtain more precise estimates of reliability, and b) include two assessment time-points approximately 3-4 weeks apart, allowing us to explore both; internal consistency and test-retest reliability. The data were collected from different studies; for simplicity in this paper, the data across studies were pooled (n = 107 before any data processing – note that this may be different from the sample size presented by Hedge et al. due to differences in data processing). I explored data from the Stroop and the Flanker tasks. Interested readers can find the data and code used to perform the multiverse analyses and generate this manuscript in the Open Science Framework repository for this project (https://osf.io/haz6u/).^[I used the following R packages for all analyses and figures, and to generate this document: `r cite_r("r-references.bib")`]
+
+### Stroop task
+
+Participants made keyed responses to the colour of a word presented in the centre of the screen. In congruent conditions the word was the same as the font colour, whereas, in incongruent trials, the word was a different colour from the font colour. In a neutral condition, the word was not a colour word. Participants completed 240 of each trial type. The outcome index we explore here is the RT cost, calculated as the average RT for incongruent trials minus the average RT for congruent trials. 
+
+
+```{r Hedgeraw_Stroop, echo = FALSE, results = 'hide'}
+# time 1 - extract data for session 1
+t1_list_Stroop <- list.files(pattern = "*Stroop1.csv", 
+                      recursive = TRUE)
+
+time1_Stroop <- data.frame(Block = NULL,
+                    Trial = NULL,
+                    Arrow_direction = NULL,
+                    Condition = NULL,
+                    Correct = NULL,
+                    Reactiontime = NULL,
+                    ppid = NULL)
+
+for(i in t1_list_Stroop) {
+  temp <- read_csv(i,
+         col_names = c("Block",
+                       "Trial",
+                       "Arrow_direction",
+                       "Condition",
+                       "Correct",
+                       "Reactiontime"))
+  temp$ppid <- i
+  time1_Stroop <- rbind(time1_Stroop, temp)
+}
+
+time1_Stroop$time <- 1
+
+
+# time 2 - extract data for session 2
+t2_list_Stroop <- list.files(pattern = "*Stroop2.csv", 
+                      recursive = TRUE)
+
+time2_Stroop <- data.frame(Block = NULL,
+                    Trial = NULL,
+                    Arrow_direction = NULL,
+                    Condition = NULL,
+                    Correct = NULL,
+                    Reactiontime = NULL,
+                    ppid = NULL)
+
+for(j in t2_list_Stroop) {
+  temp2 <- read_csv(j,
+         col_names = c("Block",
+                       "Trial",
+                       "Arrow_direction",
+                       "Condition",
+                       "Correct",
+                       "Reactiontime"))
+  temp2$ppid <- j
+  time2_Stroop <- rbind(time2_Stroop, temp2)
+}
+
+time2_Stroop$time <- 2
+
+# Note: following Hedge et al.'s data README, 
+## we removed participants 25, 34, 38, and 54
+
+# remove superflous characters in the participant id variable
+time1_Stroop$ppid <- time1_Stroop$ppid %>%
+  gsub("RawData/Study1-Stroop/Study", "", .) %>%
+  gsub("RawData/Study2-Stroop/Study", "", .) %>%
+  gsub("Stroop1.csv", "", .) %>%
+  gsub("Stroop2.csv", "", .)
+
+time2_Stroop$ppid <- time2_Stroop$ppid %>%
+  gsub("RawData/Study1-Stroop/Study", "", .) %>%
+  gsub("RawData/Study2-Stroop/Study", "", .) %>%
+  gsub("Stroop1.csv", "", .) %>%
+  gsub("Stroop2.csv", "", .)
+
+# removing participants and recoding the condition variable
+time1_Stroop <- time1_Stroop %>%
+  filter(Condition != 1,
+         ppid != "P25", 
+         ppid != "P34",
+         ppid != "P38",
+         ppid != "P54") %>%
+  mutate(Condition = ifelse(Condition == 0, "congruent", "incongruent"))
+
+
+time2_Stroop <- time2_Stroop %>%
+  filter(Condition != 1,
+         ppid != "P25", 
+         ppid != "P34",
+         ppid != "P38",
+         ppid != "P54") %>%
+  mutate(Condition = ifelse(Condition == 0, "congruent", "incongruent"))
+
+Hedge_raw_Stroop <- rbind(time1_Stroop, time2_Stroop)
+
+# note: the original data uses seconds for the raw data and ms for the summary data, so here we convert the raw data to millisecond
+
+Hedge_raw_Stroop$Reactiontime <- Hedge_raw_Stroop$Reactiontime * 1000
+
+Hedge_raw_Stroop <- Hedge_raw_Stroop %>%
+  rename(subject = ppid,
+         congruency = Condition,
+         latency = Reactiontime,
+         trialnum = Trial,
+         correct = Correct,
+         blockcode = Block
+         ) %>%
+  mutate(congruency = ifelse(congruency == "incongruent", "Incongruent",
+                      ifelse(congruency == "congruent", "Congruent","NA")))
+
+```
+
+### Flanker task
+
+Participants made keyed responses to the direction of an arrow presented in the centre of the screen. The central arrow was flanked by two other symbols. Congruent trials presented flanking arrows in the same direction as the central arrow, whereas incongruent trials presented flanking arrows in the opposite direction to the central arrow. There was also a neutral condition in which flanking symbols were straight lines. Participants completed 240 of each trial type. The outcome index we explore here is the RT cost, calculated as the average RT for incongruent trials minus the average RT for congruent trials. 
+
+
+```{r Hedgeraw_Flanker, echo = FALSE, results = 'hide'}
+# time 1 - extract data for session 1
+t1_list_Flanker <- list.files(pattern = "*Flanker1.csv", 
+                      recursive = TRUE)
+
+time1_Flanker <- data.frame(Block = NULL,
+                    Trial = NULL,
+                    Arrow_direction = NULL,
+                    Condition = NULL,
+                    Correct = NULL,
+                    Reactiontime = NULL,
+                    ppid = NULL)
+
+for(i in t1_list_Flanker) {
+  temp <- read_csv(i,
+         col_names = c("Block",
+                       "Trial",
+                       "Arrow_direction",
+                       "Condition",
+                       "Correct",
+                       "Reactiontime"))
+  temp$ppid <- i
+  time1_Flanker <- rbind(time1_Flanker, temp)
+}
+
+time1_Flanker$time <- 1
+
+
+# time 2 - extract data for session 2
+t2_list_Flanker <- list.files(pattern = "*Flanker2.csv", 
+                      recursive = TRUE)
+
+time2_Flanker <- data.frame(Block = NULL,
+                    Trial = NULL,
+                    Arrow_direction = NULL,
+                    Condition = NULL,
+                    Correct = NULL,
+                    Reactiontime = NULL,
+                    ppid = NULL)
+
+for(j in t2_list_Flanker) {
+  temp2 <- read_csv(j,
+         col_names = c("Block",
+                       "Trial",
+                       "Arrow_direction",
+                       "Condition",
+                       "Correct",
+                       "Reactiontime"))
+  temp2$ppid <- j
+  time2_Flanker <- rbind(time2_Flanker, temp2)
+}
+
+time2_Flanker$time <- 2
+
+# Note: following Hedge et al.'s data README, 
+## we removed participants 25, 34, 38, and 54
+
+# remove superflous characters in the participant id variable
+time1_Flanker$ppid <- time1_Flanker$ppid %>%
+  gsub("RawData/Study1-Flanker/Study", "", .) %>%
+  gsub("RawData/Study2-Flanker/Study", "", .) %>%
+  gsub("Flanker1.csv", "", .) %>%
+  gsub("Flanker2.csv", "", .)
+
+time2_Flanker$ppid <- time2_Flanker$ppid %>%
+  gsub("RawData/Study1-Flanker/Study", "", .) %>%
+  gsub("RawData/Study2-Flanker/Study", "", .) %>%
+  gsub("Flanker1.csv", "", .) %>%
+  gsub("Flanker2.csv", "", .)
+
+# removing participants and recoding the condition variable
+time1_Flanker <- time1_Flanker %>%
+  filter(Condition != 1,
+         ppid != "P25", 
+         ppid != "P34",
+         ppid != "P38",
+         ppid != "P54") %>%
+  mutate(Condition = ifelse(Condition == 0, "congruent", "incongruent"))
+
+
+time2_Flanker <- time2_Flanker %>%
+  filter(Condition != 1,
+         ppid != "P25", 
+         ppid != "P34",
+         ppid != "P38",
+         ppid != "P54") %>%
+  mutate(Condition = ifelse(Condition == 0, "congruent", "incongruent"))
+
+Hedge_raw_Flanker <- rbind(time1_Flanker, time2_Flanker)
+
+# note: the original data uses seconds for the raw data and ms for the summary data, so here we convert the raw data to millisecond
+
+Hedge_raw_Flanker$Reactiontime <- Hedge_raw_Flanker$Reactiontime * 1000
+
+Hedge_raw_Flanker <- Hedge_raw_Flanker %>%
+  rename(subject = ppid,
+         congruency = Condition,
+         latency = Reactiontime,
+         trialnum = Trial,
+         correct = Correct,
+         blockcode = Block
+         ) %>%
+  mutate(congruency = ifelse(congruency == "incongruent", "Incongruent",
+                      ifelse(congruency == "congruent", "Congruent","NA")))
+
+```
+
+## Multiverse analysis
+
+In a personal effort to make my research reproducible, and also help others perform similar processes I have developed a simple functions to perform the multiverse analyses reported in this paper. The key functions are: *splithalf.multiverse*, *testretest.multiverse*, and *multiverse.plot*. These functions appear in the the _splithalf_ package (@parsons_splithalf:_2019; starting at version 0.7.1) and are also provided separately in the supplimental materials.  
+
+The functions use R packages _splithalf_ [@parsons_splithalf:_2019] and _psych_ [@revelle_psych:_2017-1] to estimate internal consistency and test-retest reliability, respectively. Moreover, this section acts as a brief tutorial with the aim of helping interested readers conduct their own reliability multiverse analysis with different data or sets of specifications (also see full code: https://osf.io/haz6u/).
+
+
+### Step 1. Creating a list of all specifications
+
+No data were removed before the multiverse analysis. To my knowledge, there are no fixed standards in the literature for processing Stroop or Flanker data. I identified six decisions common to processing RT data, though there are many more. For simplicity I stuck to RT difference scores as the outcome measure of interest. However, there are very different analytical techniques that might be applied to RT tasks such as this (for example, multilevel modelling and drift-diffusion modelling approaches). The decisions were as follows:
+
+* *Total accuracy.* Researchers may opt to remove participants with accuracy lower than a pre-specified (one hopes) cut-off; for example 80 of 90 per cent. I used three options; 80%, 90%, and no cut-off.
+
+* *Absolute response time removals.* Researchers will often remove trials faster than a minimum RT threshold and trials that exceed a maximum RT threshold. I use minimum RT cut-offs at 100ms, 200ms, as well as no cut-off. And, I use two maximum RT cutoffs; 3000ms, and 2000ms. 
+
+* *Relative RT cut offs.* After absolute RT cut-offs, researchers can decide to remove trials with RTs greater than a number of standard deviations from the mean. Three SDs from the mean would remove very extreme outliers; two SDs from the mean is common. I have not seen researchers use one SD from the mean as a cut off, as it is likely a too conservative threshold. As I was interested in a wide range of possible specifications, I included one standard deviation. I use no relative cut off, and one, two, and three SDs from the mean cutoffs in the multiverse. 
+
+* *Where to apply the relative cutoff.* The decision to remove trials based on a SD cutoff comes with its own decision. Namely, at what granularity? We could remove trials with RTs greater than 2SDs from the participant’s average RT, for example. We could also remove trials with RTs greater than 2SDs from the mean RT within each trial type (congruent and incongruent, for example). I included both options; participant level, and trial type level. 
+
+* *Averaging.* Most often the mean RT within each trial type is calculated, and may then be analysed directly, or a difference score calculated to analyse. Researchers may opt to use the median RT instead. I included both options.
+
+The number of possible combinations (data processing specifications) quickly increases with every additional option. Here we have 3 $\times$ 2 $\times$ 3 $\times$ 4 $\times$ 2 $\times$ 2 = 288 possible specifications. We can specify our list of decisions as follows:
+
+```{r the specifications, echo = TRUE}
+specifications <- list(
+ ACC_cutoff = c(0, .8, .9),  
+ RT_min           = c(0, 100, 200),
+ RT_max            = c(2000, 3000),
+ RT_sd_cutoff      = c(0, 1, 2, 3),
+ split_by          = c("subject", "trial"), 
+ averaging_method  = c("mean", "median")
+)
+
+```
+
+```{r permutations per splithalf, echo = FALSE, eval = TRUE}
+
+default_permutations = 500
+
+```
+
+```{r for testing, eval = FALSE}
+
+# this chunk is purely for testing knitting this script together with fewer specifications. Otherwise, eval should be set to false.
+
+  specifications <- list(
+    ACC_cutoff = c(0, .9),
+    RT_min           = c(100, 200),
+    RT_max            = c(2000),
+    RT_sd_cutoff      = c(1, 3)
+  )
+
+default_permutations = 50
+
+```
+
+### Step 2. Run all specifications and extract reliability estimates
+
+From this decision list, we have a complete list of 288 data processing specifications. In the multiverse analysis the data is processed following each specification parameters, before estimating the reliability of the resulting outcome measure. In the following example code we perform a multiverse analysis on the Stroop data from Hedge et al.’s first testing session. First, we run _splithalf_ on the full dataset and save the output into a splithalf object ^[Note that if users want to run a multiverse on multiple task conditions (e.g. happy and sad stimuli, or time 1 and time 2) they must specify separate multiverse analyses]. We then pass this object into _splithalf.multiverse._ The only required inputs are the specification list, and our saved splithalf object.
+
+```{r echo = TRUE, eval = FALSE}
+splithalf_1 <- splithalf(data = subset(Hedge_raw_Stroop, time == 1),
+                         permutations = 500,
+                         var.ACC = "Correct")
+
+multiverse_1 <- splithalf.multiverse(input = splithalf_1,
+                 specifications = specifications)
+
+```
+
+The output contains useful information, including; the data, the expanded specification list, each processed dataset, and information about the call. Most important is the ‘estimates’ data frame, which contains the reliability estimate for each specification. The ‘removals’ list can be used to inspect the number of participants and trials remaining following data reduction. ‘CI’ can be used to inspect the median and 95% CI of all reliability estimates.
+
+### Step 3. Visualising the multiverse
+
+I find that one of the joys of multiverse analyses are the visualisations; because sometimes science is more art than science. The results section is centred on these visualisations. We use the output from _splithalf.multiverse_ in the function multiverse.plot to visualise the specification curve of reliability estimates. It can be called with the following;
+
+```{r echo = TRUE, eval = FALSE}
+multiverse.plot(multiverse = multiverse_1,
+         title = "My first multiverse")
+```
+
+I explain the visualisations in the results section. I have also added functionality to visualise multiple multiverses in the same plot. To do so, the user can specify a list of multiverse objects. For example:
+
+```{r echo = TRUE, eval = FALSE}
+multiverse.plot(multiverse = list(multiverse_1,
+                                  multiverse_2))
+```
+
+### Inferences from the multiverse
+
+It is not my aim in this paper to make inferences from these reliability multiverse analyses as one would in a specification curve analysis [@simonsohn_specification_2015]. One could use this method to perform inference testing against the curve of reliability estimates. However, it is not clear what this would add: testing whether the reliability estimates significantly differ from zero is a low bar for assessing the reliability of a measure. 
+
+Descriptively, it will be useful to explore the full range of estimates. The multiverse objects contain a ‘CI’ object to help extract the median and 95% percentile estimates. The user can obtain these by running `internal.1_Stroop$CI`. I have also provided a small function *threshold* to inspect the proportion of reliability estimates above or below a set threshold. Users can specify whether they are interested in the point estimates or the Confidence Intervals. For example, the following will return the proportion of estimates above a .7 threshold (often the lowest bar to describe internal consistency estimates as ‘acceptable’). 
+
+```{r echo = TRUE, eval = FALSE}
+threshold(multiverse = internal.1_Stroop,
+          threshold = .7,
+          use = "estimate",
+          dir = "above")
+```
+
+## Analysis plan
+
+In total, I performed six multiverse analyses following the steps described above. Separately for each of the Stroop and Flanker task data, I examined internal consistency reliability at time 1 and at time 2, as well as test-retest reliability from time 1 to time 2. Internal consistency was estimated using 500 permutations of the splithalf procedure for each specification (5000 is standard, but 500 was selected to reduce processing time). For each multiverse I report the median estimate and it’s 95% Confidence Interval, the proportion of estimates exceeding .7, and the range of estimates in that multiverse.  In addition to visualising each multiverse, I also include visualisations overlapping the internal consistency multiverses from time 1 and time 2. These overlapped plots allow us to visually inspect whether the pattern of reliability estimates following the full range of data processing specifications are comparable across each time point.  
+
+# Results
+
+I include a visualisation for each multiverse analysis. The reliability estimates are presented on the y axis at the top of the figure; each estimate is represented by a black dot and the 95% confidence interval is represented by the shaded band. The x axis indicates each individual multiverse specification of processing decisions (288 total), displayed in the ‘dashboard’ at the bottom of the figure. The vertical dashed line running through the top panel and the bottom dashboard represents the median reliability estimate. This line is extended through the dashboard to demonstrate that the estimate is derived from the unique combination of data processing decisions, including (from top to bottom, in order of processing step); 1) participant removal below total accuracy threshold, 2) maximum RT cutoff, 3) minimum RT cutoff, 4) removal of RTs > this number of SDs from the mean, 5) whether this removal is at the trial or subject level, and 6) use of mean or median to derive averages.
+
+\newpage
+
+### Stroop Time 1: Internal Consistency
+
+```{r Hedge_internal_T1_Stroop}
+
+# first, run splithalf
+internal.1_Stroop_splithalf <- splithalf(data = subset(Hedge_raw_Stroop, time == 1),
+                                         permutations = default_permutations,
+                                         var.ACC = "Correct")
+
+# then, run splithalf.multiverse
+internal.1_Stroop <- splithalf.multiverse(input = internal.1_Stroop_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.1_Stroop, "multiverse_output/internal_1_Stroop.rds")
+
+```
+
+```{r Hedge_internal_T1_Stroop_output}
+internal.1_Stroop$CI
+
+T1_threshold_Stroop <- threshold(multiverse = internal.1_Stroop, 
+          threshold = .7,
+          use = "estimate",
+          dir = "above")
+```
+
+The median reliability estimate was `r round(internal.1_Stroop$CI[2],2)`, 95% CI [`r round(internal.1_Stroop$CI[1],2)`,`r round(internal.1_Stroop$CI[3],2)`]. Estimates ranged from `r round(min(internal.1_Stroop$estimates$estimate),2)` to `r round(max(internal.1_Stroop$estimates$estimate),2)`. `r round(T1_threshold_Stroop, 2)*100`% of the reliability estimates were > .7. 
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Stroop RT cost at time 1", fig.height = 7}
+Cairo::Cairo(file="Figures/internal1stroop.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = internal.1_Stroop,
+         title = "Stroop Time 1",
+         vline = .5)
+dev.off()
+
+```
+
+\newpage
+
+### Stroop Time 2: Internal Consistency
+
+```{r Hedge_internal_T2_Stroop}
+internal.2_Stroop_splithalf <- splithalf(data = subset(Hedge_raw_Stroop, time == 2),
+                                         permutations = default_permutations,
+                                         var.ACC = "Correct")
+
+internal.2_Stroop <- splithalf.multiverse(input = internal.2_Stroop_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.2_Stroop, "multiverse_output/internal_2_Stroop.rds")
+
+```
+
+```{r Hedge_internal_T2_Stroop_output}
+internal.2_Stroop$CI
+
+T2_threshold_Stroop <- threshold(multiverse = internal.2_Stroop, 
+          threshold = .7,
+          use = "estimate",
+          dir = "above")
+```
+
+The median reliability estimate was `r round(internal.2_Stroop$CI[2],2)`, 95% CI [`r round(internal.2_Stroop$CI[1],2)`,`r round(internal.2_Stroop$CI[3],2)`]. Estimates ranged from `r round(min(internal.2_Stroop$estimates$estimate),2)` to `r round(max(internal.2_Stroop$estimates$estimate),2)`. `r round(T2_threshold_Stroop, 2)*100`% of the reliability estimates were > .7. 
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Stroop RT cost at time 2", fig.height = 7}
+Cairo::Cairo(file="Figures/internal2stroop.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = internal.2_Stroop,
+         title = "Stroop Time 2",
+         vline = .5)
+dev.off()
+
+```
+
+\newpage
+
+### Stroop: test-retest
+
+```{r Hedge_retest_Stroop}
+retest_Stroop <- testretest.multiverse(input = Hedge_raw_Stroop,
+                 specifications = specifications,
+                 test = "ICC2",
+                 var.participant = "subject")
+
+saveRDS(retest_Stroop, "multiverse_output/testretest_Stroop.rds")
+
+
+```
+
+```{r Hedge_retest_Stroop_output}
+retest_Stroop$CI
+
+retest_threshold_Stroop <- threshold(multiverse = retest_Stroop, 
+          threshold = .7,
+          use = "estimate",
+          dir = "above")
+
+```
+
+
+The median reliability estimate was `r round(retest_Stroop$CI[2],2)`, 95% CI [`r round(retest_Stroop$CI[1],2)`,`r round(retest_Stroop$CI[3],2)`]. Estimates ranged from `r round(min(retest_Stroop$estimates$estimate),2)` to `r round(max(retest_Stroop$estimates$estimate),2)`. `r round(retest_threshold_Stroop, 2)*100`% of the reliability estimates were > .7. 
+
+```{r fig.show='asis', fig.cap="Test-retest reliability multiverse for Stroop RT cost", fig.height = 7}
+Cairo::Cairo(file="Figures/reteststroop.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = retest_Stroop,
+         title = "Stroop test-retest",
+         vline = .5)
+dev.off()
+
+```
+
+\newpage
+
+### Flanker Time 1: Internal Consistency
+
+```{r Hedge_internal_T1_Flanker}
+internal.1_Flanker_splithalf <- splithalf(data = subset(Hedge_raw_Flanker, time == 1),
+                                         permutations = default_permutations,
+                                         var.ACC = "Correct")
+
+internal.1_Flanker <- splithalf.multiverse(input = internal.1_Flanker_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.1_Flanker, "multiverse_output/internal_1_Flanker.rds")
+
+
+```
+
+```{r Hedge_internal_T1_Flanker_output}
+internal.1_Flanker$CI
+
+T1_threshold_Flanker <- threshold(multiverse = internal.1_Flanker, 
+          threshold = .7,
+          use = "estimate",
+          dir = "above")
+```
+
+The median reliability estimate was `r round(internal.1_Flanker$CI[2],2)`, 95% CI [`r round(internal.1_Flanker$CI[1],2)`,`r round(internal.1_Flanker$CI[3],2)`]. Estimates ranged from `r round(min(internal.1_Flanker$estimates$estimate),2)` to `r round(max(internal.1_Flanker$estimates$estimate),2)`. `r round(T1_threshold_Flanker, 2)*100`% of the reliability estimates were > .7. 
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Flanker RT cost at time 1", fig.height = 7}
+# note: figure chunks are unnamed to avoid the chunk name being added to the figure label
+
+Cairo::Cairo(file="Figures/internal1flanker.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = internal.1_Flanker,
+         title = "Flanker Time 1",
+         vline = .5)
+dev.off()
+
+```
+
+\newpage
+
+### Flanker Time 2: Internal Consistency
+
+```{r Hedge_internal_T2_Flanker}
+internal.2_Flanker_splithalf <- splithalf(data = subset(Hedge_raw_Flanker, time == 2),
+                                         permutations = default_permutations,
+                                         var.ACC = "Correct")
+
+internal.2_Flanker <- splithalf.multiverse(input = internal.2_Flanker_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.2_Flanker, "multiverse_output/internal_2_Flanker.rds")
+
+```
+
+```{r Hedge_internal_T2_Flanker_output}
+internal.2_Flanker$CI
+
+T2_threshold_Flanker <- threshold(multiverse = internal.2_Flanker, 
+          threshold = .7,
+          use = "estimate",
+          dir = "above")
+```
+
+The median reliability estimate was `r round(internal.2_Flanker$CI[2],2)`, 95% CI [`r round(internal.2_Flanker$CI[1],2)`,`r round(internal.2_Flanker$CI[3],2)`]. Estimates ranged from `r round(min(internal.2_Flanker$estimates$estimate),2)` to `r round(max(internal.2_Flanker$estimates$estimate),2)`. `r round(T2_threshold_Flanker, 2)*100`% of the reliability estimates were > .7. 
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Flanker RT cost at time 2", fig.height = 7}
+Cairo::Cairo(file="Figures/internal2flanker.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = internal.2_Flanker,
+         title = "Flanker Time 2",
+         vline = .5)
+dev.off()
+```
+
+\newpage
+
+### Flanker: test-retest
+
+```{r Hedge_retest_Flanker}
+retest_Flanker <- testretest.multiverse(input = Hedge_raw_Flanker,
+                 specifications = specifications,
+                 test = "ICC2")
+
+saveRDS(retest_Flanker, "multiverse_output/testretest_Flanker.rds")
+
+
+```
+
+```{r Hedge_retest_Flanker_output}
+retest_Flanker$CI
+
+retest_threshold_Flanker <- threshold(multiverse = retest_Flanker, 
+          threshold = .7,
+          use = "estimate",
+          dir = "above")
+
+```
+
+The median reliability estimate was `r round(retest_Flanker$CI[2],2)`, 95% CI [`r round(retest_Flanker$CI[1],2)`,`r round(retest_Flanker$CI[3],2)`]. Estimates ranged from `r round(min(retest_Flanker$estimates$estimate),2)` to `r round(max(retest_Flanker$estimates$estimate),2)`. `r round(retest_threshold_Flanker, 2)*100`% of the reliability estimates were > .7. 
+
+```{r fig.show='asis', fig.cap="Test-retest reliability multiverse for Flanker RT cost", fig.height = 7}
+Cairo::Cairo(file="Figures/retestflanker.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = retest_Flanker,
+         title = "FLANKER test-retest",
+         vline = .5)
+dev.off()
+```
+
+\newpage
+
+### Overlapping time 1 and time 2 multiverses
+
+In the final two figures I overlap the time 1 and time 2 multiverses, separately for the Stroop and Flanker data. The specifications are ordered by the reliability estimates at time 1 for each measure (Figures 1 and 3). These figures allow us to compare the patterns of reliability estimates following the same data processing decisions. 
+
+```{r fig.show = 'asis', fig.cap="Overlapped internal consistency reliability multiverse for Stroop RT cost at times 1 and 2", fig.height = 7}
+Cairo::Cairo(file="Figures/internaloverlapstroop.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = list(internal.1_Stroop, internal.2_Stroop),
+                 title = "Stroop - overlapping t1 and t2 reliabilities",
+                 heights = c(5, 4))
+dev.off()
+```
+
+
+```{r fig.show = 'asis', fig.cap="Overlapped internal consistency reliability multiverse for Flanker RT cost at times 1 and 2", fig.height = 7}
+Cairo::Cairo(file="Figures/internaloverlapflanker.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = list(internal.1_Flanker,internal.2_Flanker),
+                 title = "Flanker - overlapping t1 and t2 reliabilities",
+                heights = c(5, 4))
+dev.off()
+```
+
+# Discussion
+
+```{r collate estimates for paper}
+
+# consider changing this to calculate ranges rather than 
+internal_min <- c(min(internal.1_Stroop$estimates$estimate),
+  min(internal.2_Stroop$estimates$estimate),
+  min(internal.1_Flanker$estimates$estimate),
+  min(internal.2_Flanker$estimates$estimate))
+
+internal_max <- c(max(internal.1_Stroop$estimates$estimate),
+  max(internal.2_Stroop$estimates$estimate),
+  max(internal.1_Flanker$estimates$estimate),
+  max(internal.2_Flanker$estimates$estimate))
+
+internal_range <- round(internal_max - internal_min, 2)
+
+
+testretest_min <- c(min(retest_Stroop$estimates$estimate),
+  min(retest_Flanker$estimates$estimate))
+
+testretest_max <- c(max(retest_Stroop$estimates$estimate),
+  max(retest_Flanker$estimates$estimate))
+
+
+testretest_range <- round(testretest_max - testretest_min, 2)
+
+```
+
+In the results section I presented visualisations of six multiverse analyses and an additional two visualisations overlapping the internal consistency multiverses. The range of reliability estimates was `r min(internal_range)`-`r max(internal_range)`  for internal consistency and `r min(testretest_range)`-`r max(testretest_range)` for test-retest. In the introduction, I reminded the reader that reliability estimates are a product of the sample and the population they are drawn from, the task (including any differences in implementation), and the circumstances in which the measurement was obtained; i.e. reliability is not an inherent quality of the task itself. The first conclusion to take from these multiverse analyses is that data processing specifications are also an integral part of this list. 
+
+At the onset of this project, I thought it reasonable to assume that a particular feature of the data processing path might result in consistently higher (and lower) reliability estimates. The clearest indication we can take from these analyses is that there is no single set of data processing specifications, or combination of data processing decisions, that lead to improved reliability. The wide ranges of estimates are an additional cause for concern. Seemingly arbitrary data processing decisions can lead to differences of more than .3 in the reliability of a measure. The reliability multiverse analyses presented here demonstrate this using data from a Stroop and a Flanker task. As well as across tasks, overlapping the time 1 and time 2 multiverses for both tasks highlights that even the same set of specifications does not lead to directly comparable internal consistency reliability estimates over time. data processing decisions appear to be extremely important contributors to measure reliability, but their influence is unpredictable and arbitrary. 
+
+Despite this pessimistic outlook, there is a trend across the multiverse analyses that inspires some small hope. There is a trend for increased reliability in specifications that exclude trials based on a standard deviation cutoff away from the trial mean RT, rather than away from the participant’s grand average RT. The highest reliability estimates are also where a relative RT cut-off of one standard deviation from the mean is used. However, I have yet to read a paper that used such a conservative approach to removing outlier trials (approximately 30% of trials). I am not convinced that these small trends offer strong insight into how we should process task data to maximise reliability; further exploration is undoubtedly needed. In the core of this discussion I raise several open questions and suggest some plausible actions that could be taken to mitigate some of the risk reliability heterogeneity poses. 
+
+## How do we guard against reliability heterogeneity? 
+
+Low reliability attenuates effect sizes estimated from tests in which the measure is used. It is therefore important to take reliability heterogeneity into account when comparing effect sizes [for several clear examples, see @cooper_role_2017]. It is plausible that some studies may have obtained smaller or larger effect sizes than others based, in part, on the reliability of the measurements taken. Similarly, identical observed effect sizes may represent very different ‘true’ effect sizes, if reliability is taken into account. Recently, Wiernik and Dahlke [-@wiernik_obtaining_2020] made a strong case for correcting for measurement error in meta-analyses, and provide the necessary formula and code for doing so. There are several actions we can take to begin to account for reliability heterogeneity. 
+
+### Two simple recommendations. 
+
+To briefly reiterate two recommendations I and my colleagues have made previously: report all data processing steps taken, and report the reliability of measures analysed [@parsons_psychological_2019]. These recommendations will not ‘fix’ potential psychometric issues within one’s study, or reliability heterogeniety across studies. However, complete reporting of data processing will assist in the computational reproducibility of one’s results. Reporting psychometric information will assist in the interpretation of results, including comparisons of effect sizes, as well as provide useful information about the utility of a task in studies of individual differences. 
+
+### Adopt a modelling approach. 
+
+Incorporating trial level variation into our analyses with hierarchical modelling approaches will likely be a vital step in protecting us against reliability heterogeneity. Psychological effects are often heterogeneous across individuals [@bolger_causal_2019], and factors within tasks have important effects [e.g. stimuli differences; @debruine_understanding_2019]. It follows that our models should take trial-level variation into account. Using the Stroop and Flanker data from Hedge et al. [-@hedge_reliability_2018] Rouder, Kumar, and Haaf [-@rouder_why_2019; also see @rouder_psychometrics_2018] demonstrated that hierarchical models should be used to account for error in measurement [for additional guidance on applying this modelling, see @haines_thinking_2019]. Adopting this approach would have the benefit of ‘correcting’ the effect size estimate (and standard error) for measurement error as part of the model. Rouder and colleagues demonstrate that this is also a more effective approach than ‘correcting’ the effect size estimate using e.g. Spearman’s correction for attenuation formula [@spearman_proof_1904]. Yet, even better corrections cannot fully save us from measurement error.
+
+The benefits of adopting multilevel approaches could be demonstrated empirically with an extension of the multiverse approach adopted here. If we were to extract outcome data from the multiverse and correlate it with another variable (held constant across the multiverses), we would expect the correlation effect size to increase with increased reliability estimates. I expect that incorporating hierarchical modelling into the multiverse would lead to reduced heterogeneity across the effect size estimates as error has been accounted for in the model. Though, we should expect the confidence interval around the estimate to reduce in size with increasing reliability – reducing error is almost always a good thing. I believe this would be a strong argument for more widespread use of hierarchical models in the analysis of behavioural measures. 
+
+## Limitations and room for expansion
+
+One potential limitation of this study is the focus on only two tasks. It is possible that data from other tasks tend to yield more or less consistent patterns of reliability estimates across data processing specifications. Similarly, I have only examined RT costs (i.e. a difference score between two trial types) as the outcome measure. The analyses could have examined accuracy rates, RT averages, signal detection, and a wide variety of outcome measures. It is very possible that other outcome indices would be more or less consistently reliable across the range of data processing specifications. I opted for brevity in this paper by selecting only two tasks from Hedge et al. [-@hedge_reliability_2018] and looked at only RT costs as the outcome; I welcome future work seeking to examine a wider range of tasks and outcome indices. 
+
+There is a paradox in measurement reliability [see -@hedge_reliability_2018]: Experimental effects that are highly replicable (for example, the Stroop effect) may also show low reliability. Homogeneity within groups or experimental conditions allows for larger and more robust effects; researchers can opt to develop tasks that capitalise on homogeneity. Unfortunately, reliability requires robust individual differences (and vice versa). Highly reliable measures by necessity show consistent, potentially large, individual differences and would not be suitable for group differences research. As a result, measures tend to be more appropriate for questions of a) assessing differences between groups or experimental conditions, or b) correlational or individual differences. Thus, the discussions in this paper are limited to research in which cognitive measures are used in correlational analyses – though, the influence of data processing specifications on the robustness of experimental effects would also be a worthy research project. 
+
+## What about validity?
+
+Others have previously demonstrated that measures are often used ad hoc or with little reported validation efforts [e.g. @flake_construct_2017; @hussey_hidden_2018]. This study cannot begin to assess the influence of data processing flexibility on measure validity – nor did this paper attempt to address this question. Reliability is only one piece of evidence needed to demonstrate the validity of a measure. Yet, it is an important piece of evidence as "reliability provides an upper bound for validity" [@zuo_harnessing_2019, page 3]. While we cannot directly conclude that flexibility in data processing influences measure validity, we should look to further research to investigate. One possibility would be to conduct a validity multiverse analysis similar to the "Many Analysts, One Data Set" project [@silberzahn_many_2018]. In this project, 29 teams (61 analysts total) analysed the same dataset. The teams adopted a number of different analytic approaches which resulted in a range of results. The authors concluded that, "Uncertainty in interpreting research results is therefore not just a function of statistical power or the use of questionable research practices; it is also a function of the many reasonable decisions that researchers must make in order to conduct the research" (page 354). 
+
+## Returning to the garden
+
+My intention for this project was to provide some indication about the influence of data processing pathways on the reliability of our cognitive measurements. The influence can be profound; the multiverse analyses show large differences between the highest and lowest reliability estimates. Yet, we see little consistency in the pattern of decisions leading to higher, or lower, estimates. We have the worst of both worlds: data processing decisions are largely arbitrary, yet can have a large – relatively unpredictable – impact on the resulting reliability estimates. Briefly returning to the garden of forking paths metaphor; I imagined that this project would help illuminate the point in which our hypothetical researcher would enter the garden, based on their data processing decisions. But, our investigation has uncovered an unfortunate secret: Our researcher’s forking paths are almost entirely arbitrary and interwoven. Each path diverges wildly, leading to almost anywhere in the garden. It is as if our researcher is simply spinning in dizzy circles until they stumble somewhere along the fence of reliability. I discussed several actions researchers can take collectively to help with the issue. But, by no means were these remedies to our reliability issues, nor would they directly help issues with the validity of our measurements. 
+
+I am concerned that we sit on the precipice of a measurement crisis. The so-called replication crisis shook much of our field into widespread and ongoing reforms. Yet, much of the focus has been on improving methodological and statistical practices. This is undoubtedly worthwhile, but largely omits discussion of reliability and validity of our measurements – despite our measurements forming the basis of any outcome or inference. This oversight feels like repairing a damaged wall at the same time as ignoring the shifting foundations under it. I hope that this paper, and similar work, highlights the issue and encourages researchers to place more emphasis on quality measurement. As a field, we can orchestrate a measurement revolution [cf. the "credibility revolution", @vazire_implications_2018] in which the quality and validity of our measurements is placed an order of importance above obtaining desired results. If the reader takes home a single message from this paper, let it be "measurement matters". 
+
+
+
+
+\newpage
+
+# References
+```{r create_r-references}
+r_refs(file = "My_Library.bib")
+```
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id = "refs"></div>
+\endgroup
