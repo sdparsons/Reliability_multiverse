@@ -17,10 +17,12 @@ authornote: |
   Submitted to Meta-Psychology. Click here to follow the fully transparent editorial process of this submission. Participate in open peer review by commenting through hypothes.is directly on this preprint.
   
   This work was supported by an ESRC grant [ES/R004285/1]
+  
+  I would like to thank Ana Todorovic for her insightful feedback on an earlier version of this manuscript.
 
 
 abstract: |
-  Analytic flexibility is known to influence the results of statistical tests, e.g. effect sizes and _p_-values. Yet, the degree to which flexibility in data-processing decisions influences the reliability of our measures is unknown. In this paper I attempt to address this question using a series of reliability multiverse analyses. The methods section incorporates a brief tutorial for readers interested in implementing multiverse analyses reported in this manuscript; all functions are contained in the R package _splithalf_. I report six multiverse analyses of data-processing specifications, including accuracy and response time cutoffs. I used data from a Stroop task and Flanker task at two time points. This allowed for an internal consistency reliability multiverse at time 1 and 2, and a test-retest reliability multiverse between time 1 and 2. Largely arbitrary decisions in data-processing led to differences between the highest and lowest reliability estimate of at least .2. There was no consistent pattern in the data-processing specifications that led to greater reliability, across time as well as tasks. Together, data-processing decisions are highly influential, and largely unpredictable, on measure reliability. I discuss actions researchers could take to mitigate some of the influence of reliability heterogeneity, including adopting hierarchical modelling approaches. Yet, there are no approaches that can completely save us from measurement error. Measurement matters and I call on readers to help us move from what could be a measurement crisis towards a measurement revolution. 
+  Analytic flexibility is known to influence the results of statistical tests, e.g. effect sizes and _p_-values. Yet, the degree to which flexibility in data-processing decisions influences the reliability of our measures is unknown. In this paper I attempt to address this question using a series of reliability multiverse analyses. The methods section incorporates a brief tutorial for readers interested in implementing multiverse analyses reported in this manuscript; all functions are contained in the R package _splithalf_. I report six multiverse analyses of data-processing specifications, including accuracy and response time cutoffs. I used data from a Stroop task and Flanker task at two time points. This allowed for an internal consistency reliability multiverse at time 1 and 2, and a test-retest reliability multiverse between time 1 and 2. Largely arbitrary decisions in data-processing led to differences between the highest and lowest reliability estimate of at least 0.2. Importantly, there was no consistent pattern in the data-processing specifications that led to greater reliability, across time as well as tasks. Together, data-processing decisions are highly influential, and largely unpredictable, on measure reliability. I discuss actions researchers could take to mitigate some of the influence of reliability heterogeneity, including adopting hierarchical modelling approaches. Yet, there are no approaches that can completely save us from measurement error. Measurement matters and I call on readers to help us move from what could be a measurement crisis towards a measurement revolution. 
 
   
 keywords          : "reliability, multiverse, analytic flexibility, data processing"
@@ -1077,7 +1079,7 @@ Hedge_raw_Flanker <- Hedge_raw_Flanker %>%
 
 ## Multiverse analysis
 
-In a personal effort to make my research reproducible, and also help others perform similar processes I have developed a simple functions to perform the multiverse analyses reported in this paper. The key functions are: *splithalf.multiverse*, *testretest.multiverse*, and *multiverse.plot*. These functions appear in the the _splithalf_ package (@parsons_splithalf:_2019; starting at version 0.7.1) and are also provided separately in the supplimental materials.  
+In a personal effort to make my research reproducible, and also help others perform similar processes I have developed simple functions to perform the multiverse analyses reported in this paper. The key functions are: *splithalf.multiverse*, *testretest.multiverse*, and *multiverse.plot*. These functions appear in the the _splithalf_ package (@parsons_splithalf:_2019; starting at version 0.7.1) and are also provided separately in the supplemental materials.  
 
 The functions use R packages _splithalf_ [@parsons_splithalf:_2019] and _psych_ [@revelle_psych:_2017-1] to estimate internal consistency and test-retest reliability, respectively. Moreover, this section acts as a brief tutorial with the aim of helping interested readers conduct their own reliability multiverse analysis with different data or sets of specifications (also see full code: https://osf.io/haz6u/).
 
@@ -1086,11 +1088,11 @@ The functions use R packages _splithalf_ [@parsons_splithalf:_2019] and _psych_ 
 
 No data were removed before the multiverse analysis. To my knowledge, there are no fixed standards in the literature for processing Stroop or Flanker data. I identified six decisions common to processing RT data, though there are many more. For simplicity I stuck to RT difference scores as the outcome measure of interest. However, there are very different analytical techniques that might be applied to RT tasks such as this (for example, multilevel modelling and drift-diffusion modelling approaches). The decisions were as follows:
 
-* *Total accuracy.* Researchers may opt to remove participants with accuracy lower than a pre-specified (one hopes) cut-off; for example 80 of 90 per cent. I used three options; 80%, 90%, and no cut-off.
+* *Total accuracy.* Researchers may opt to remove participants with accuracy lower than a pre-specified cut-off; for example 80 of 90 per cent. I used three options; 80%, 90%, and no cut-off.
 
 * *Absolute response time removals.* Researchers will often remove trials faster than a minimum RT threshold and trials that exceed a maximum RT threshold. I use minimum RT cut-offs at 100ms, 200ms, as well as no cut-off. And, I use two maximum RT cutoffs; 3000ms, and 2000ms. 
 
-* *Relative RT cut offs.* After absolute RT cut-offs, researchers can decide to remove trials with RTs greater than a number of standard deviations from the mean. Three SDs from the mean would remove very extreme outliers; two SDs from the mean is common. I have not seen researchers use one SD from the mean as a cut off, as it is likely a too conservative threshold. As I was interested in a wide range of possible specifications, I included one standard deviation. I use no relative cut off, and one, two, and three SDs from the mean cutoffs in the multiverse. 
+* *Relative RT cut offs.* After absolute RT cut-offs, researchers can decide to remove trials with RTs greater than a number of standard deviations from the mean (sometimes called relative cut-offs or trimmed means). Three SDs from the mean would remove very extreme outliers; two SDs from the mean is common. I have not seen researchers use one SD from the mean as a cut off, as it is likely a too conservative threshold. As I was interested in a wide range of possible specifications, I included one standard deviation. I use no relative cut off, and one, two, and three SDs from the mean cutoffs in the multiverse. 
 
 * *Where to apply the relative cutoff.* The decision to remove trials based on a SD cutoff comes with its own decision. Namely, at what granularity? We could remove trials with RTs greater than 2SDs from the participant’s average RT, for example. We could also remove trials with RTs greater than 2SDs from the mean RT within each trial type (congruent and incongruent, for example). I included both options; participant level, and trial type level. 
 
@@ -1100,7 +1102,7 @@ The number of possible combinations (data processing specifications) quickly inc
 
 ```{r the specifications, echo = TRUE}
 specifications <- list(
- ACC_cutoff = c(0, .8, .9),  
+ ACC_cutoff = c(0, 0.8, 0.9),  
  RT_min           = c(0, 100, 200),
  RT_max            = c(2000, 3000),
  RT_sd_cutoff      = c(0, 1, 2, 3),
@@ -1167,18 +1169,18 @@ multiverse.plot(multiverse = list(multiverse_1,
 
 It is not my aim in this paper to make inferences from these reliability multiverse analyses as one would in a specification curve analysis [@simonsohn_specification_2015]. One could use this method to perform inference testing against the curve of reliability estimates. However, it is not clear what this would add: testing whether the reliability estimates significantly differ from zero is a low bar for assessing the reliability of a measure. 
 
-Descriptively, it will be useful to explore the full range of estimates. The multiverse objects contain a ‘CI’ object to help extract the median and 95% percentile estimates. The user can obtain these by running `internal.1_Stroop$CI`. I have also provided a small function *threshold* to inspect the proportion of reliability estimates above or below a set threshold. Users can specify whether they are interested in the point estimates or the Confidence Intervals. For example, the following will return the proportion of estimates above a .7 threshold (often the lowest bar to describe internal consistency estimates as ‘acceptable’). 
+Descriptively, it will be useful to explore the full range of estimates. The multiverse objects contain a ‘CI’ object to help extract the median and 95% percentile estimates. The user can obtain these by running `internal.1_Stroop$CI`. I have also provided a small function *threshold* to inspect the proportion of reliability estimates above or below a set threshold. Users can specify whether they are interested in the point estimates or the Confidence Intervals. For example, the following will return the proportion of estimates above a 0.7 threshold (often the lowest bar to describe internal consistency estimates as ‘acceptable’). 
 
 ```{r echo = TRUE, eval = FALSE}
 threshold(multiverse = internal.1_Stroop,
-          threshold = .7,
+          threshold = 0.7,
           use = "estimate",
           dir = "above")
 ```
 
 ## Analysis plan
 
-In total, I performed six multiverse analyses following the steps described above. Separately for each of the Stroop and Flanker task data, I examined internal consistency reliability at time 1 and at time 2, as well as test-retest reliability from time 1 to time 2. Internal consistency was estimated using 500 permutations of the splithalf procedure for each specification (5000 is standard, but 500 was selected to reduce processing time). For each multiverse I report the median estimate and it’s 95% Confidence Interval, the proportion of estimates exceeding .7, and the range of estimates in that multiverse.  In addition to visualising each multiverse, I also include visualisations overlapping the internal consistency multiverses from time 1 and time 2. These overlapped plots allow us to visually inspect whether the pattern of reliability estimates following the full range of data processing specifications are comparable across each time point.  
+In total, I performed six multiverse analyses following the steps described above. Separately for each of the Stroop and Flanker task data, I examined internal consistency reliability at time 1 and at time 2, as well as test-retest reliability from time 1 to time 2. Internal consistency was estimated using 500 permutations of the splithalf procedure for each specification (5000 is standard, but 500 was selected to reduce processing time). For each multiverse I report the median estimate and it’s 95% Confidence Interval, the proportion of estimates exceeding 0.7, and the range of estimates in that multiverse.  In addition to visualising each multiverse, I also include visualisations overlapping the internal consistency multiverses from time 1 and time 2. These overlapped plots allow us to visually inspect whether the pattern of reliability estimates following the full range of data processing specifications are comparable across each time point.  
 
 # Results
 
@@ -1207,12 +1209,12 @@ saveRDS(internal.1_Stroop, "multiverse_output/internal_1_Stroop.rds")
 internal.1_Stroop$CI
 
 T1_threshold_Stroop <- threshold(multiverse = internal.1_Stroop, 
-          threshold = .7,
+          threshold = 0.7,
           use = "estimate",
           dir = "above")
 ```
 
-The median reliability estimate was `r round(internal.1_Stroop$CI[2],2)`, 95% CI [`r round(internal.1_Stroop$CI[1],2)`,`r round(internal.1_Stroop$CI[3],2)`]. Estimates ranged from `r round(min(internal.1_Stroop$estimates$estimate),2)` to `r round(max(internal.1_Stroop$estimates$estimate),2)`. `r round(T1_threshold_Stroop, 2)*100`% of the reliability estimates were > .7. 
+The median reliability estimate was `r round(internal.1_Stroop$CI[2],2)`, 95% CI [`r round(internal.1_Stroop$CI[1],2)`,`r round(internal.1_Stroop$CI[3],2)`]. Estimates ranged from `r round(min(internal.1_Stroop$estimates$estimate),2)` to `r round(max(internal.1_Stroop$estimates$estimate),2)`. `r round(T1_threshold_Stroop, 2)*100`% of the reliability estimates were > 0.7. 
 
 ```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Stroop RT cost at time 1", fig.height = 7}
 Cairo::Cairo(file="Figures/internal1stroop.png", 
@@ -1225,7 +1227,7 @@ Cairo::Cairo(file="Figures/internal1stroop.png",
       dpi=144)
 multiverse.plot(multiverse = internal.1_Stroop,
          title = "Stroop Time 1",
-         vline = .5)
+         vline = 0.5)
 dev.off()
 
 ```
@@ -1250,12 +1252,12 @@ saveRDS(internal.2_Stroop, "multiverse_output/internal_2_Stroop.rds")
 internal.2_Stroop$CI
 
 T2_threshold_Stroop <- threshold(multiverse = internal.2_Stroop, 
-          threshold = .7,
+          threshold = 0.7,
           use = "estimate",
           dir = "above")
 ```
 
-The median reliability estimate was `r round(internal.2_Stroop$CI[2],2)`, 95% CI [`r round(internal.2_Stroop$CI[1],2)`,`r round(internal.2_Stroop$CI[3],2)`]. Estimates ranged from `r round(min(internal.2_Stroop$estimates$estimate),2)` to `r round(max(internal.2_Stroop$estimates$estimate),2)`. `r round(T2_threshold_Stroop, 2)*100`% of the reliability estimates were > .7. 
+The median reliability estimate was `r round(internal.2_Stroop$CI[2],2)`, 95% CI [`r round(internal.2_Stroop$CI[1],2)`,`r round(internal.2_Stroop$CI[3],2)`]. Estimates ranged from `r round(min(internal.2_Stroop$estimates$estimate),2)` to `r round(max(internal.2_Stroop$estimates$estimate),2)`. `r round(T2_threshold_Stroop, 2)*100`% of the reliability estimates were > 0.7. 
 
 ```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Stroop RT cost at time 2", fig.height = 7}
 Cairo::Cairo(file="Figures/internal2stroop.png", 
@@ -1268,7 +1270,7 @@ Cairo::Cairo(file="Figures/internal2stroop.png",
       dpi=144)
 multiverse.plot(multiverse = internal.2_Stroop,
          title = "Stroop Time 2",
-         vline = .5)
+         vline = 0.5)
 dev.off()
 
 ```
@@ -1292,14 +1294,14 @@ saveRDS(retest_Stroop, "multiverse_output/testretest_Stroop.rds")
 retest_Stroop$CI
 
 retest_threshold_Stroop <- threshold(multiverse = retest_Stroop, 
-          threshold = .7,
+          threshold = 0.7,
           use = "estimate",
           dir = "above")
 
 ```
 
 
-The median reliability estimate was `r round(retest_Stroop$CI[2],2)`, 95% CI [`r round(retest_Stroop$CI[1],2)`,`r round(retest_Stroop$CI[3],2)`]. Estimates ranged from `r round(min(retest_Stroop$estimates$estimate),2)` to `r round(max(retest_Stroop$estimates$estimate),2)`. `r round(retest_threshold_Stroop, 2)*100`% of the reliability estimates were > .7. 
+The median reliability estimate was `r round(retest_Stroop$CI[2],2)`, 95% CI [`r round(retest_Stroop$CI[1],2)`,`r round(retest_Stroop$CI[3],2)`]. Estimates ranged from `r round(min(retest_Stroop$estimates$estimate),2)` to `r round(max(retest_Stroop$estimates$estimate),2)`. `r round(retest_threshold_Stroop, 2)*100`% of the reliability estimates were > 0.7. 
 
 ```{r fig.show='asis', fig.cap="Test-retest reliability multiverse for Stroop RT cost", fig.height = 7}
 Cairo::Cairo(file="Figures/reteststroop.png", 
@@ -1312,7 +1314,7 @@ Cairo::Cairo(file="Figures/reteststroop.png",
       dpi=144)
 multiverse.plot(multiverse = retest_Stroop,
          title = "Stroop test-retest",
-         vline = .5)
+         vline = 0.5)
 dev.off()
 
 ```
@@ -1338,12 +1340,12 @@ saveRDS(internal.1_Flanker, "multiverse_output/internal_1_Flanker.rds")
 internal.1_Flanker$CI
 
 T1_threshold_Flanker <- threshold(multiverse = internal.1_Flanker, 
-          threshold = .7,
+          threshold = 0.7,
           use = "estimate",
           dir = "above")
 ```
 
-The median reliability estimate was `r round(internal.1_Flanker$CI[2],2)`, 95% CI [`r round(internal.1_Flanker$CI[1],2)`,`r round(internal.1_Flanker$CI[3],2)`]. Estimates ranged from `r round(min(internal.1_Flanker$estimates$estimate),2)` to `r round(max(internal.1_Flanker$estimates$estimate),2)`. `r round(T1_threshold_Flanker, 2)*100`% of the reliability estimates were > .7. 
+The median reliability estimate was `r round(internal.1_Flanker$CI[2],2)`, 95% CI [`r round(internal.1_Flanker$CI[1],2)`,`r round(internal.1_Flanker$CI[3],2)`]. Estimates ranged from `r round(min(internal.1_Flanker$estimates$estimate),2)` to `r round(max(internal.1_Flanker$estimates$estimate),2)`. `r round(T1_threshold_Flanker, 2)*100`% of the reliability estimates were > 0.7. 
 
 ```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Flanker RT cost at time 1", fig.height = 7}
 # note: figure chunks are unnamed to avoid the chunk name being added to the figure label
@@ -1358,7 +1360,7 @@ Cairo::Cairo(file="Figures/internal1flanker.png",
       dpi=144)
 multiverse.plot(multiverse = internal.1_Flanker,
          title = "Flanker Time 1",
-         vline = .5)
+         vline = 0.5)
 dev.off()
 
 ```
@@ -1383,12 +1385,12 @@ saveRDS(internal.2_Flanker, "multiverse_output/internal_2_Flanker.rds")
 internal.2_Flanker$CI
 
 T2_threshold_Flanker <- threshold(multiverse = internal.2_Flanker, 
-          threshold = .7,
+          threshold = 0.7,
           use = "estimate",
           dir = "above")
 ```
 
-The median reliability estimate was `r round(internal.2_Flanker$CI[2],2)`, 95% CI [`r round(internal.2_Flanker$CI[1],2)`,`r round(internal.2_Flanker$CI[3],2)`]. Estimates ranged from `r round(min(internal.2_Flanker$estimates$estimate),2)` to `r round(max(internal.2_Flanker$estimates$estimate),2)`. `r round(T2_threshold_Flanker, 2)*100`% of the reliability estimates were > .7. 
+The median reliability estimate was `r round(internal.2_Flanker$CI[2],2)`, 95% CI [`r round(internal.2_Flanker$CI[1],2)`,`r round(internal.2_Flanker$CI[3],2)`]. Estimates ranged from `r round(min(internal.2_Flanker$estimates$estimate),2)` to `r round(max(internal.2_Flanker$estimates$estimate),2)`. `r round(T2_threshold_Flanker, 2)*100`% of the reliability estimates were > 0.7. 
 
 ```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Flanker RT cost at time 2", fig.height = 7}
 Cairo::Cairo(file="Figures/internal2flanker.png", 
@@ -1401,7 +1403,7 @@ Cairo::Cairo(file="Figures/internal2flanker.png",
       dpi=144)
 multiverse.plot(multiverse = internal.2_Flanker,
          title = "Flanker Time 2",
-         vline = .5)
+         vline = 0.5)
 dev.off()
 ```
 
@@ -1423,13 +1425,13 @@ saveRDS(retest_Flanker, "multiverse_output/testretest_Flanker.rds")
 retest_Flanker$CI
 
 retest_threshold_Flanker <- threshold(multiverse = retest_Flanker, 
-          threshold = .7,
+          threshold = 0.7,
           use = "estimate",
           dir = "above")
 
 ```
 
-The median reliability estimate was `r round(retest_Flanker$CI[2],2)`, 95% CI [`r round(retest_Flanker$CI[1],2)`,`r round(retest_Flanker$CI[3],2)`]. Estimates ranged from `r round(min(retest_Flanker$estimates$estimate),2)` to `r round(max(retest_Flanker$estimates$estimate),2)`. `r round(retest_threshold_Flanker, 2)*100`% of the reliability estimates were > .7. 
+The median reliability estimate was `r round(retest_Flanker$CI[2],2)`, 95% CI [`r round(retest_Flanker$CI[1],2)`,`r round(retest_Flanker$CI[3],2)`]. Estimates ranged from `r round(min(retest_Flanker$estimates$estimate),2)` to `r round(max(retest_Flanker$estimates$estimate),2)`. `r round(retest_threshold_Flanker, 2)*100`% of the reliability estimates were > 0.7. 
 
 ```{r fig.show='asis', fig.cap="Test-retest reliability multiverse for Flanker RT cost", fig.height = 7}
 Cairo::Cairo(file="Figures/retestflanker.png", 
@@ -1442,7 +1444,7 @@ Cairo::Cairo(file="Figures/retestflanker.png",
       dpi=144)
 multiverse.plot(multiverse = retest_Flanker,
          title = "FLANKER test-retest",
-         vline = .5)
+         vline = 0.5)
 dev.off()
 ```
 
@@ -1514,7 +1516,7 @@ testretest_range <- round(testretest_max - testretest_min, 2)
 
 In the results section I presented visualisations of six multiverse analyses and an additional two visualisations overlapping the internal consistency multiverses. The range of reliability estimates was `r min(internal_range)`-`r max(internal_range)`  for internal consistency and `r min(testretest_range)`-`r max(testretest_range)` for test-retest. In the introduction, I reminded the reader that reliability estimates are a product of the sample and the population they are drawn from, the task (including any differences in implementation), and the circumstances in which the measurement was obtained; i.e. reliability is not an inherent quality of the task itself. The first conclusion to take from these multiverse analyses is that data processing specifications are also an integral part of this list. 
 
-At the onset of this project, I thought it reasonable to assume that a particular feature of the data processing path might result in consistently higher (and lower) reliability estimates. The clearest indication we can take from these analyses is that there is no single set of data processing specifications, or combination of data processing decisions, that lead to improved reliability. The wide ranges of estimates are an additional cause for concern. Seemingly arbitrary data processing decisions can lead to differences of more than .3 in the reliability of a measure. The reliability multiverse analyses presented here demonstrate this using data from a Stroop and a Flanker task. As well as across tasks, overlapping the time 1 and time 2 multiverses for both tasks highlights that even the same set of specifications does not lead to directly comparable internal consistency reliability estimates over time. data processing decisions appear to be extremely important contributors to measure reliability, but their influence is unpredictable and arbitrary. 
+At the onset of this project, I thought it reasonable to assume that a particular feature of the data processing path might result in consistently higher (and lower) reliability estimates. The clearest indication we can take from these analyses is that there is no single set of data processing specifications, or combination of data processing decisions, that lead to improved reliability. The wide ranges of estimates are an additional cause for concern. Seemingly arbitrary data processing decisions can lead to differences of more than .3 in the reliability of a measure. These decisions are equally reasonable and logical choices, and we should not expect them to have meaningful impact on the theoretical questions being asked of the data. The reliability multiverse analyses presented here demonstrate this using data from a Stroop and a Flanker task. As well as across tasks, overlapping the time 1 and time 2 multiverses for both tasks highlights that even the same set of specifications does not lead to directly comparable internal consistency reliability estimates over time. data processing decisions appear to be extremely important contributors to measure reliability, but their influence is unpredictable and arbitrary. 
 
 Despite this pessimistic outlook, there is a trend across the multiverse analyses that inspires some small hope. There is a trend for increased reliability in specifications that exclude trials based on a standard deviation cutoff away from the trial mean RT, rather than away from the participant’s grand average RT. The highest reliability estimates are also where a relative RT cut-off of one standard deviation from the mean is used. However, I have yet to read a paper that used such a conservative approach to removing outlier trials (approximately 30% of trials). I am not convinced that these small trends offer strong insight into how we should process task data to maximise reliability; further exploration is undoubtedly needed. In the core of this discussion I raise several open questions and suggest some plausible actions that could be taken to mitigate some of the risk reliability heterogeneity poses. 
 
@@ -1536,7 +1538,9 @@ The benefits of adopting multilevel approaches could be demonstrated empirically
 
 One potential limitation of this study is the focus on only two tasks. It is possible that data from other tasks tend to yield more or less consistent patterns of reliability estimates across data processing specifications. Similarly, I have only examined RT costs (i.e. a difference score between two trial types) as the outcome measure. The analyses could have examined accuracy rates, RT averages, signal detection, and a wide variety of outcome measures. It is very possible that other outcome indices would be more or less consistently reliable across the range of data processing specifications. I opted for brevity in this paper by selecting only two tasks from Hedge et al. [-@hedge_reliability_2018] and looked at only RT costs as the outcome; I welcome future work seeking to examine a wider range of tasks and outcome indices. 
 
-There is a paradox in measurement reliability [see -@hedge_reliability_2018]: Experimental effects that are highly replicable (for example, the Stroop effect) may also show low reliability. Homogeneity within groups or experimental conditions allows for larger and more robust effects; researchers can opt to develop tasks that capitalise on homogeneity. Unfortunately, reliability requires robust individual differences (and vice versa). Highly reliable measures by necessity show consistent, potentially large, individual differences and would not be suitable for group differences research. As a result, measures tend to be more appropriate for questions of a) assessing differences between groups or experimental conditions, or b) correlational or individual differences. Thus, the discussions in this paper are limited to research in which cognitive measures are used in correlational analyses – though, the influence of data processing specifications on the robustness of experimental effects would also be a worthy research project. 
+There is a paradox in measurement reliability [see -@hedge_reliability_2018]: Experimental effects that are highly replicable (for example, the Stroop effect) may also show low reliability. Homogeneity within groups or experimental conditions allows for larger and more robust effects; researchers can opt to develop tasks that capitalise on homogeneity. Unfortunately, reliability requires robust individual differences (and vice versa). Highly reliable measures by necessity show consistent, potentially large, individual differences and would not be suitable for group differences or experimental research. 
+
+As a result, measures tend to be more appropriate for questions of a) assessing differences between groups or experimental conditions, or b) correlational or individual differences. I was primarily concerned with the use of these measures in individual differences research - hence the focus on reliability. Yet, it would be overly simplistic to assert that the discussions in this paper do not also relate to experimental differences questions. Indeed, the data processing specifications that maximise the measure's utility in individual differences analyses will also hinder the measure's utility in experimental quesitons. Further research would be needed to quantify the relative influences on correlational vs experimental analyses. Yet, large fluctuations in relative between-subjects vs within-subjects variance, due to data processing, holds importance for any research question. 
 
 ## What about validity?
 

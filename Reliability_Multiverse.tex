@@ -1,39 +1,47 @@
-\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 %
-\documentclass[english,man,floatsintext]{apa6}
+\documentclass[
+  english,
+  man,floatsintext]{apa6}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
-\usepackage{fixltx2e} % provides \textsubscript
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
-  \usepackage{textcomp} % provides euro and other symbols
-\else % if luatex or xelatex
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
   \usepackage{unicode-math}
-  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
-% use upquote if available, for straight quotes in verbatim environments
+% Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-% use microtype if available
-\IfFileExists{microtype.sty}{%
-\usepackage[]{microtype}
-\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
-\IfFileExists{parskip.sty}{%
-\usepackage{parskip}
-}{% else
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt plus 2pt minus 1pt}
-}
-\usepackage{hyperref}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-            pdftitle={Exploring reliability heterogeneity with multiverse analyses: Data processing decisions unpredictably influence measurement reliability},
-            pdfkeywords={reliability, multiverse, analytic flexibility, data processing},
-            pdfborder={0 0 0},
-            breaklinks=true}
-\urlstyle{same}  % don't use monospace font for urls
+  pdftitle={Exploring reliability heterogeneity with multiverse analyses: Data processing decisions unpredictably influence measurement reliability},
+  pdfkeywords={reliability, multiverse, analytic flexibility, data processing},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
 \usepackage{color}
 \usepackage{fancyvrb}
 \newcommand{\VerbBar}{|}
@@ -83,16 +91,23 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-\setlength{\emergencystretch}{3em}  % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{0}
-
-% set default figure placement to htbp
+% Set default figure placement to htbp
 \makeatletter
 \def\fps@figure{htbp}
 \makeatother
-
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% Make \paragraph and \subparagraph free-standing
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
 % Manuscript styling
 \usepackage{upgreek}
 \captionsetup{font=singlespacing,justification=justified}
@@ -139,6 +154,8 @@
 
 This work was supported by an ESRC grant [ES/R004285/1]
 
+I would like to thank Ana Todorovic for her insightful feedback on an earlier version of this manuscript.
+
 
 Correspondence concerning this article should be addressed to Sam Parsons, Department of Experimental Psychology, University of Oxford, New Radcliffe House, Radcliffe Observatory Quarter, Oxford, OX2 6AE. E-mail: sam.parsons@psy.ox.ac.uk}
 \keywords{reliability, multiverse, analytic flexibility, data processing}
@@ -148,12 +165,12 @@ Correspondence concerning this article should be addressed to Sam Parsons, Depar
 \usepackage{newunicodechar}
 \floatplacement{figure}{H}
 \raggedbottom
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
-  \usepackage[shorthands=off,main=english]{babel}
-\else
-  % load polyglossia as late as possible as it *could* call bidi if RTL lang (e.g. Hebrew or Arabic)
+\ifxetex
+  % Load polyglossia as late as possible: uses bidi with RTL langages (e.g. Hebrew, Arabic)
   \usepackage{polyglossia}
   \setmainlanguage[]{english}
+\else
+  \usepackage[shorthands=off,main=english]{babel}
 \fi
 
 \title{Exploring reliability heterogeneity with multiverse analyses: Data processing decisions unpredictably influence measurement reliability}
@@ -161,7 +178,7 @@ Correspondence concerning this article should be addressed to Sam Parsons, Depar
 \date{}
 
 \abstract{
-Analytic flexibility is known to influence the results of statistical tests, e.g.~effect sizes and \emph{p}-values. Yet, the degree to which flexibility in data-processing decisions influences the reliability of our measures is unknown. In this paper I attempt to address this question using a series of reliability multiverse analyses. The methods section incorporates a brief tutorial for readers interested in implementing multiverse analyses reported in this manuscript; all functions are contained in the R package \emph{splithalf}. I report six multiverse analyses of data-processing specifications, including accuracy and response time cutoffs. I used data from a Stroop task and Flanker task at two time points. This allowed for an internal consistency reliability multiverse at time 1 and 2, and a test-retest reliability multiverse between time 1 and 2. Largely arbitrary decisions in data-processing led to differences between the highest and lowest reliability estimate of at least .2. There was no consistent pattern in the data-processing specifications that led to greater reliability, across time as well as tasks. Together, data-processing decisions are highly influential, and largely unpredictable, on measure reliability. I discuss actions researchers could take to mitigate some of the influence of reliability heterogeneity, including adopting hierarchical modelling approaches. Yet, there are no approaches that can completely save us from measurement error. Measurement matters and I call on readers to help us move from what could be a measurement crisis towards a measurement revolution.
+Analytic flexibility is known to influence the results of statistical tests, e.g.~effect sizes and \emph{p}-values. Yet, the degree to which flexibility in data-processing decisions influences the reliability of our measures is unknown. In this paper I attempt to address this question using a series of reliability multiverse analyses. The methods section incorporates a brief tutorial for readers interested in implementing multiverse analyses reported in this manuscript; all functions are contained in the R package \emph{splithalf}. I report six multiverse analyses of data-processing specifications, including accuracy and response time cutoffs. I used data from a Stroop task and Flanker task at two time points. This allowed for an internal consistency reliability multiverse at time 1 and 2, and a test-retest reliability multiverse between time 1 and 2. Largely arbitrary decisions in data-processing led to differences between the highest and lowest reliability estimate of at least 0.2. Importantly, there was no consistent pattern in the data-processing specifications that led to greater reliability, across time as well as tasks. Together, data-processing decisions are highly influential, and largely unpredictable, on measure reliability. I discuss actions researchers could take to mitigate some of the influence of reliability heterogeneity, including adopting hierarchical modelling approaches. Yet, there are no approaches that can completely save us from measurement error. Measurement matters and I call on readers to help us move from what could be a measurement crisis towards a measurement revolution.
 }
 
 \begin{document}
@@ -175,14 +192,14 @@ An important reminder: estimates of reliability refer to the measurement obtaine
 
 Thankfully, there is a growing awareness that measurement matters (Fried \& Flake, 2018). A valuable term, Questionable Measurement Practices (QMPs), was recently added to our vernacular by Flake and Fried (2019). QMPs describe \enquote{undisclosed decisions researchers make that leave questions about the measurements in a study unanswered} (page 2). I hope that QMPs and the importance of measurement become as widely discussed as the parallel idiom, \enquote{Questionable Research Practices} (QRPs). Most importantly, wider discussion of these practices should make it clear to all researchers that we make many potentially impactful decisions in the design of our measures, our data processing or cleaning, and our data analysis.
 
-In this paper I was concerned with the influence analytic flexibility on measurement reliability, specifically in data processing or data cleaning. I was inspired in part from numerous papers reporting the unsettlingly low reliability of dot-probe attention bias indices (e.g. Jones, Christiansen, \& Field, 2018; Schmukle, 2005; Staugaard, 2009). I was also inspired by other work investigating alternative analyses and data processing strategies, with the intention of yielding a more reliable measurement (e.g. Jones et al., 2018; Price et al., 2015). I was interested in visualising the influence of data processing steps on reliability. My rationale was that as all too often the focus is on decisions made in the beginning (task design) or at the end (data analysis) of the research process. I felt the intermediary stage in which the data is processed is often unexplored in relation to QRPs and QMPs. To fully explain my rationale, we first take a walk through the garden of forking paths.
+In this paper I was concerned with the influence analytic flexibility on measurement reliability, specifically in data processing or data cleaning. I was inspired in part from numerous papers reporting the unsettlingly low reliability of dot-probe attention bias indices (e.g.~Jones, Christiansen, \& Field, 2018; Schmukle, 2005; Staugaard, 2009). I was also inspired by other work investigating alternative analyses and data processing strategies, with the intention of yielding a more reliable measurement (e.g.~Jones et al., 2018; Price et al., 2015). I was interested in visualising the influence of data processing steps on reliability. My rationale was that as all too often the focus is on decisions made in the beginning (task design) or at the end (data analysis) of the research process. I felt the intermediary stage in which the data is processed is often unexplored in relation to QRPs and QMPs. To fully explain my rationale, we first take a walk through the garden of forking paths.
 
 \hypertarget{analytic-flexibility-and-the-garden-of-forking-paths}{%
 \subsection{Analytic flexibility and the garden of forking paths}\label{analytic-flexibility-and-the-garden-of-forking-paths}}
 
 Every result presented in every research article is the culmination of many decisions made by one or more researchers; the sheer number of combinations of valid decisions is likely uncalculatable. The \enquote{garden of forking paths} (Gelman \& Loken, 2013) is a useful analogy I use throughout this paper to illustrate this. With each decision that must be made, however arbitrary, the researcher comes to a fork in their research path, and selects one. To add a little suspense, there will be many cases when the researcher does not notice a fork in the road. Perhaps the researcher unconsciously makes the same turn as always, their feet working of their own accord. These forks in the path, the decisions researchers make (whether they are aware or not), may be reasonably combined to make a near uncountable number of paths. Each path also leads to a location; some paths end close to one another, and other times the paths diverge wildly. We can think of the end of the path as the statistical result our researcher arrives at.
 
-The researcher has to decide their path, based on the soundest justifications they can make at each fork (e.g. Lakens et al., 2018). Of course, psychological science has become fully aware of the detrimental effects of selecting one's path retrospectively, based on where the path ends or the results most exciting to the researcher (read as: \emph{p} \textless{} .05; e.g. Simmons, Nelson, \& Simonsohn, 2011). Extending the metaphor (hopefully not too painfully): Backtracking the route and selecting multiple paths until reaching a preferred location is akin to walking between the well-tended paths and stomping across the flowerbeds, damaging our colourful science garden. Analytic flexibility is not inherently bad. However, we must acknowledge the ramifications. The effects we observe, or do not, are potentially influenced by all of the decisions made to arrive at them. Thus, a range of possible effects may have been observed that are all equally valid based on the analytical decisions made.
+The researcher has to decide their path, based on the soundest justifications they can make at each fork (e.g.~Lakens et al., 2018). Of course, psychological science has become fully aware of the detrimental effects of selecting one's path retrospectively, based on where the path ends or the results most exciting to the researcher (read as: \emph{p} \textless{} .05; e.g.~Simmons, Nelson, \& Simonsohn, 2011). Extending the metaphor (hopefully not too painfully): Backtracking the route and selecting multiple paths until reaching a preferred location is akin to walking between the well-tended paths and stomping across the flowerbeds, damaging our colourful science garden. Analytic flexibility is not inherently bad. However, we must acknowledge the ramifications. The effects we observe, or do not, are potentially influenced by all of the decisions made to arrive at them. Thus, a range of possible effects may have been observed that are all equally valid based on the analytical decisions made.
 
 In discussions of analytical flexibility, focus is usually given primarily to decisions made during statistical analysis. For example; should I control for age and gender? Do I reason that this is model more appropriate over that one? Or, where should I set my alpha and how should I justify the decision? Discussions of analytical flexibility often concern issues around \emph{p}-hacking and other QRPs (intended or unintended). However, as Leek and Peng (2015) note, \emph{p}-values are the tip of the iceberg; not enough scrutiny is given to the impact of the many steps in the research pipeline that precede inference testing. I agree. In my estimation, flexibility in measurement and data handling do not receive the scrutiny they deserve. If the garden of forking paths concerns analytic flexibility, then measurement flexibility decides which door one enters the garden through in the first place.
 
@@ -204,7 +221,7 @@ In this paper I report multiverse analyses exploring the influence of data proce
 \hypertarget{data}{%
 \subsection{Data}\label{data}}
 
-Data were obtained from the online repository for Hedge, Sumner, and Powell ((2018); \url{https://osf.io/cwzds/}). Full details of the data collection, study design, and procedure can be found in Hedge et al. (2018). These data are ideal for our purposes as they a) contain many trials, helping us obtain more precise estimates of reliability, and b) include two assessment time-points approximately 3-4 weeks apart, allowing us to explore both; internal consistency and test-retest reliability. The data were collected from different studies; for simplicity in this paper, the data across studies were pooled (n = 107 before any data processing -- note that this may be different from the sample size presented by Hedge et al.~due to differences in data processing). I explored data from the Stroop and the Flanker tasks. Interested readers can find the data and code used to perform the multiverse analyses and generate this manuscript in the Open Science Framework repository for this project (\url{https://osf.io/haz6u/}).\footnote{I used the following R packages for all analyses and figures, and to generate this document: R (Version 3.5.1; R Core Team, 2018) and the R-packages \emph{Cairo} (Version 1.5.10; Urbanek \& Horner, 2019), \emph{dplyr} (Version 0.8.3; Wickham et al., 2019), \emph{forcats} (Version 0.4.0; Wickham, 2019a), \emph{ggplot2} (Version 3.2.1; Wickham, 2016), \emph{gridExtra} (Version 2.3; Auguie, 2017), \emph{papaja} (Version 0.1.0.9942; Aust \& Barth, 2020), \emph{patchwork} (Version 1.0.0; Pedersen, 2019), \emph{psych} (Version 1.9.12; Revelle, 2019), \emph{purrr} (Version 0.3.3; Henry \& Wickham, 2019), \emph{readr} (Version 1.3.1; Wickham, Hester, \& Francois, 2018), \emph{splithalf} (Version 0.7.1; Parsons, 2020), \emph{stringr} (Version 1.4.0; Wickham, 2019b), \emph{tibble} (Version 2.1.3; Müller \& Wickham, 2019), \emph{tidyr} (Version 1.0.0; Wickham \& Henry, 2019), and \emph{tidyverse} (Version 1.3.0; Wickham, Averick, et al., 2019)}
+Data were obtained from the online repository for Hedge, Sumner, and Powell ((2018); \url{https://osf.io/cwzds/}). Full details of the data collection, study design, and procedure can be found in Hedge et al.~(2018). These data are ideal for our purposes as they a) contain many trials, helping us obtain more precise estimates of reliability, and b) include two assessment time-points approximately 3-4 weeks apart, allowing us to explore both; internal consistency and test-retest reliability. The data were collected from different studies; for simplicity in this paper, the data across studies were pooled (n = 107 before any data processing -- note that this may be different from the sample size presented by Hedge et al.~due to differences in data processing). I explored data from the Stroop and the Flanker tasks. Interested readers can find the data and code used to perform the multiverse analyses and generate this manuscript in the Open Science Framework repository for this project (\url{https://osf.io/haz6u/}).\footnote{I used the following R packages for all analyses and figures, and to generate this document: R (Version 3.6.3; R Core Team, 2018) and the R-packages \emph{Cairo} (Version 1.5.12; Urbanek \& Horner, 2019), \emph{dplyr} (Version 0.8.5; Wickham et al., 2019), \emph{forcats} (Version 0.5.0; Wickham, 2019a), \emph{ggplot2} (Version 3.3.0; Wickham, 2016), \emph{gridExtra} (Version 2.3; Auguie, 2017), \emph{papaja} (Version 0.1.0.9942; Aust \& Barth, 2020), \emph{patchwork} (Version 1.0.0; Pedersen, 2019), \emph{psych} (Version 1.9.12.31; Revelle, 2019), \emph{purrr} (Version 0.3.4; Henry \& Wickham, 2019), \emph{readr} (Version 1.3.1; Wickham, Hester, \& Francois, 2018), \emph{splithalf} (Version 0.7.1; Parsons, 2020), \emph{stringr} (Version 1.4.0; Wickham, 2019b), \emph{tibble} (Version 3.0.1; Müller \& Wickham, 2019), \emph{tidyr} (Version 1.1.0; Wickham \& Henry, 2019), and \emph{tidyverse} (Version 1.3.0; Wickham, Averick, et al., 2019)}
 
 \hypertarget{stroop-task}{%
 \subsubsection{Stroop task}\label{stroop-task}}
@@ -219,7 +236,7 @@ Participants made keyed responses to the direction of an arrow presented in the 
 \hypertarget{multiverse-analysis}{%
 \subsection{Multiverse analysis}\label{multiverse-analysis}}
 
-In a personal effort to make my research reproducible, and also help others perform similar processes I have developed a simple functions to perform the multiverse analyses reported in this paper. The key functions are: \emph{splithalf.multiverse}, \emph{testretest.multiverse}, and \emph{multiverse.plot}. These functions appear in the the \emph{splithalf} package (Parsons (2019); starting at version 0.7.1) and are also provided separately in the supplimental materials.
+In a personal effort to make my research reproducible, and also help others perform similar processes I have developed simple functions to perform the multiverse analyses reported in this paper. The key functions are: \emph{splithalf.multiverse}, \emph{testretest.multiverse}, and \emph{multiverse.plot}. These functions appear in the the \emph{splithalf} package (Parsons (2019); starting at version 0.7.1) and are also provided separately in the supplemental materials.
 
 The functions use R packages \emph{splithalf} (Parsons, 2019) and \emph{psych} (Revelle, 2017) to estimate internal consistency and test-retest reliability, respectively. Moreover, this section acts as a brief tutorial with the aim of helping interested readers conduct their own reliability multiverse analysis with different data or sets of specifications (also see full code: \url{https://osf.io/haz6u/}).
 
@@ -230,11 +247,11 @@ No data were removed before the multiverse analysis. To my knowledge, there are 
 
 \begin{itemize}
 \item
-  \emph{Total accuracy.} Researchers may opt to remove participants with accuracy lower than a pre-specified (one hopes) cut-off; for example 80 of 90 per cent. I used three options; 80\%, 90\%, and no cut-off.
+  \emph{Total accuracy.} Researchers may opt to remove participants with accuracy lower than a pre-specified cut-off; for example 80 of 90 per cent. I used three options; 80\%, 90\%, and no cut-off.
 \item
   \emph{Absolute response time removals.} Researchers will often remove trials faster than a minimum RT threshold and trials that exceed a maximum RT threshold. I use minimum RT cut-offs at 100ms, 200ms, as well as no cut-off. And, I use two maximum RT cutoffs; 3000ms, and 2000ms.
 \item
-  \emph{Relative RT cut offs.} After absolute RT cut-offs, researchers can decide to remove trials with RTs greater than a number of standard deviations from the mean. Three SDs from the mean would remove very extreme outliers; two SDs from the mean is common. I have not seen researchers use one SD from the mean as a cut off, as it is likely a too conservative threshold. As I was interested in a wide range of possible specifications, I included one standard deviation. I use no relative cut off, and one, two, and three SDs from the mean cutoffs in the multiverse.
+  \emph{Relative RT cut offs.} After absolute RT cut-offs, researchers can decide to remove trials with RTs greater than a number of standard deviations from the mean (sometimes called relative cut-offs or trimmed means). Three SDs from the mean would remove very extreme outliers; two SDs from the mean is common. I have not seen researchers use one SD from the mean as a cut off, as it is likely a too conservative threshold. As I was interested in a wide range of possible specifications, I included one standard deviation. I use no relative cut off, and one, two, and three SDs from the mean cutoffs in the multiverse.
 \item
   \emph{Where to apply the relative cutoff.} The decision to remove trials based on a SD cutoff comes with its own decision. Namely, at what granularity? We could remove trials with RTs greater than 2SDs from the participant's average RT, for example. We could also remove trials with RTs greater than 2SDs from the mean RT within each trial type (congruent and incongruent, for example). I included both options; participant level, and trial type level.
 \item
@@ -246,7 +263,7 @@ The number of possible combinations (data processing specifications) quickly inc
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{specifications <-}\StringTok{ }\KeywordTok{list}\NormalTok{(}
- \DataTypeTok{ACC_cutoff =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{.8}\NormalTok{, }\FloatTok{.9}\NormalTok{),  }
+ \DataTypeTok{ACC_cutoff =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.8}\NormalTok{, }\FloatTok{0.9}\NormalTok{),  }
  \DataTypeTok{RT_min           =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{100}\NormalTok{, }\DecValTok{200}\NormalTok{),}
  \DataTypeTok{RT_max            =} \KeywordTok{c}\NormalTok{(}\DecValTok{2000}\NormalTok{, }\DecValTok{3000}\NormalTok{),}
  \DataTypeTok{RT_sd_cutoff      =} \KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{),}
@@ -300,12 +317,12 @@ I explain the visualisations in the results section. I have also added functiona
 
 It is not my aim in this paper to make inferences from these reliability multiverse analyses as one would in a specification curve analysis (Simonsohn et al., 2015). One could use this method to perform inference testing against the curve of reliability estimates. However, it is not clear what this would add: testing whether the reliability estimates significantly differ from zero is a low bar for assessing the reliability of a measure.
 
-Descriptively, it will be useful to explore the full range of estimates. The multiverse objects contain a \enquote{CI} object to help extract the median and 95\% percentile estimates. The user can obtain these by running \texttt{internal.1\_Stroop\$CI}. I have also provided a small function \emph{threshold} to inspect the proportion of reliability estimates above or below a set threshold. Users can specify whether they are interested in the point estimates or the Confidence Intervals. For example, the following will return the proportion of estimates above a .7 threshold (often the lowest bar to describe internal consistency estimates as \enquote{acceptable}).
+Descriptively, it will be useful to explore the full range of estimates. The multiverse objects contain a \enquote{CI} object to help extract the median and 95\% percentile estimates. The user can obtain these by running \texttt{internal.1\_Stroop\$CI}. I have also provided a small function \emph{threshold} to inspect the proportion of reliability estimates above or below a set threshold. Users can specify whether they are interested in the point estimates or the Confidence Intervals. For example, the following will return the proportion of estimates above a 0.7 threshold (often the lowest bar to describe internal consistency estimates as \enquote{acceptable}).
 
 \begin{Shaded}
 \begin{Highlighting}[]
 \KeywordTok{threshold}\NormalTok{(}\DataTypeTok{multiverse =}\NormalTok{ internal}\FloatTok{.1}\NormalTok{_Stroop,}
-          \DataTypeTok{threshold =} \FloatTok{.7}\NormalTok{,}
+          \DataTypeTok{threshold =} \FloatTok{0.7}\NormalTok{,}
           \DataTypeTok{use =} \StringTok{"estimate"}\NormalTok{,}
           \DataTypeTok{dir =} \StringTok{"above"}\NormalTok{)}
 \end{Highlighting}
@@ -314,7 +331,7 @@ Descriptively, it will be useful to explore the full range of estimates. The mul
 \hypertarget{analysis-plan}{%
 \subsection{Analysis plan}\label{analysis-plan}}
 
-In total, I performed six multiverse analyses following the steps described above. Separately for each of the Stroop and Flanker task data, I examined internal consistency reliability at time 1 and at time 2, as well as test-retest reliability from time 1 to time 2. Internal consistency was estimated using 500 permutations of the splithalf procedure for each specification (5000 is standard, but 500 was selected to reduce processing time). For each multiverse I report the median estimate and it's 95\% Confidence Interval, the proportion of estimates exceeding .7, and the range of estimates in that multiverse. In addition to visualising each multiverse, I also include visualisations overlapping the internal consistency multiverses from time 1 and time 2. These overlapped plots allow us to visually inspect whether the pattern of reliability estimates following the full range of data processing specifications are comparable across each time point.
+In total, I performed six multiverse analyses following the steps described above. Separately for each of the Stroop and Flanker task data, I examined internal consistency reliability at time 1 and at time 2, as well as test-retest reliability from time 1 to time 2. Internal consistency was estimated using 500 permutations of the splithalf procedure for each specification (5000 is standard, but 500 was selected to reduce processing time). For each multiverse I report the median estimate and it's 95\% Confidence Interval, the proportion of estimates exceeding 0.7, and the range of estimates in that multiverse. In addition to visualising each multiverse, I also include visualisations overlapping the internal consistency multiverses from time 1 and time 2. These overlapped plots allow us to visually inspect whether the pattern of reliability estimates following the full range of data processing specifications are comparable across each time point.
 
 \hypertarget{results}{%
 \section{Results}\label{results}}
@@ -326,7 +343,7 @@ I include a visualisation for each multiverse analysis. The reliability estimate
 \hypertarget{stroop-time-1-internal-consistency}{%
 \subsubsection{Stroop Time 1: Internal Consistency}\label{stroop-time-1-internal-consistency}}
 
-The median reliability estimate was 0.77, 95\% CI {[}0.69,0.91{]}. Estimates ranged from 0.68 to 0.91. 95\% of the reliability estimates were \textgreater{} .7.
+The median reliability estimate was 0.77, 95\% CI {[}0.69,0.91{]}. Estimates ranged from 0.68 to 0.91. 96\% of the reliability estimates were \textgreater{} 0.7.
 
 \begin{figure}
 \centering
@@ -339,7 +356,7 @@ The median reliability estimate was 0.77, 95\% CI {[}0.69,0.91{]}. Estimates ran
 \hypertarget{stroop-time-2-internal-consistency}{%
 \subsubsection{Stroop Time 2: Internal Consistency}\label{stroop-time-2-internal-consistency}}
 
-The median reliability estimate was 0.67, 95\% CI {[}0.61,0.88{]}. Estimates ranged from 0.59 to 0.89. 29.00\% of the reliability estimates were \textgreater{} .7.
+The median reliability estimate was 0.67, 95\% CI {[}0.61,0.88{]}. Estimates ranged from 0.59 to 0.89. 29.00\% of the reliability estimates were \textgreater{} 0.7.
 
 \begin{figure}
 \centering
@@ -352,7 +369,7 @@ The median reliability estimate was 0.67, 95\% CI {[}0.61,0.88{]}. Estimates ran
 \hypertarget{stroop-test-retest}{%
 \subsubsection{Stroop: test-retest}\label{stroop-test-retest}}
 
-The median reliability estimate was 0.56, 95\% CI {[}0.50,0.63{]}. Estimates ranged from 0.47 to 0.63. 0\% of the reliability estimates were \textgreater{} .7.
+The median reliability estimate was 0.56, 95\% CI {[}0.50,0.63{]}. Estimates ranged from 0.47 to 0.63. 0\% of the reliability estimates were \textgreater{} 0.7.
 
 \begin{figure}
 \centering
@@ -365,7 +382,7 @@ The median reliability estimate was 0.56, 95\% CI {[}0.50,0.63{]}. Estimates ran
 \hypertarget{flanker-time-1-internal-consistency}{%
 \subsubsection{Flanker Time 1: Internal Consistency}\label{flanker-time-1-internal-consistency}}
 
-The median reliability estimate was 0.84, 95\% CI {[}0.71,0.92{]}. Estimates ranged from 0.63 to 0.93. 98\% of the reliability estimates were \textgreater{} .7.
+The median reliability estimate was 0.84, 95\% CI {[}0.70,0.92{]}. Estimates ranged from 0.63 to 0.93. 98\% of the reliability estimates were \textgreater{} 0.7.
 
 \begin{figure}
 \centering
@@ -378,7 +395,7 @@ The median reliability estimate was 0.84, 95\% CI {[}0.71,0.92{]}. Estimates ran
 \hypertarget{flanker-time-2-internal-consistency}{%
 \subsubsection{Flanker Time 2: Internal Consistency}\label{flanker-time-2-internal-consistency}}
 
-The median reliability estimate was 0.74, 95\% CI {[}0.63,0.88{]}. Estimates ranged from 0.60 to 0.90. 65\% of the reliability estimates were \textgreater{} .7.
+The median reliability estimate was 0.74, 95\% CI {[}0.63,0.88{]}. Estimates ranged from 0.59 to 0.90. 66\% of the reliability estimates were \textgreater{} 0.7.
 
 \begin{figure}
 \centering
@@ -391,7 +408,7 @@ The median reliability estimate was 0.74, 95\% CI {[}0.63,0.88{]}. Estimates ran
 \hypertarget{flanker-test-retest}{%
 \subsubsection{Flanker: test-retest}\label{flanker-test-retest}}
 
-The median reliability estimate was 0.55, 95\% CI {[}0.30,0.69{]}. Estimates ranged from 0.28 to 0.72. 2\% of the reliability estimates were \textgreater{} .7.
+The median reliability estimate was 0.55, 95\% CI {[}0.30,0.69{]}. Estimates ranged from 0.28 to 0.72. 2\% of the reliability estimates were \textgreater{} 0.7.
 
 \begin{figure}
 \centering
@@ -423,7 +440,7 @@ In the final two figures I overlap the time 1 and time 2 multiverses, separately
 
 In the results section I presented visualisations of six multiverse analyses and an additional two visualisations overlapping the internal consistency multiverses. The range of reliability estimates was 0.24-0.31 for internal consistency and 0.16-0.43 for test-retest. In the introduction, I reminded the reader that reliability estimates are a product of the sample and the population they are drawn from, the task (including any differences in implementation), and the circumstances in which the measurement was obtained; i.e.~reliability is not an inherent quality of the task itself. The first conclusion to take from these multiverse analyses is that data processing specifications are also an integral part of this list.
 
-At the onset of this project, I thought it reasonable to assume that a particular feature of the data processing path might result in consistently higher (and lower) reliability estimates. The clearest indication we can take from these analyses is that there is no single set of data processing specifications, or combination of data processing decisions, that lead to improved reliability. The wide ranges of estimates are an additional cause for concern. Seemingly arbitrary data processing decisions can lead to differences of more than .3 in the reliability of a measure. The reliability multiverse analyses presented here demonstrate this using data from a Stroop and a Flanker task. As well as across tasks, overlapping the time 1 and time 2 multiverses for both tasks highlights that even the same set of specifications does not lead to directly comparable internal consistency reliability estimates over time. data processing decisions appear to be extremely important contributors to measure reliability, but their influence is unpredictable and arbitrary.
+At the onset of this project, I thought it reasonable to assume that a particular feature of the data processing path might result in consistently higher (and lower) reliability estimates. The clearest indication we can take from these analyses is that there is no single set of data processing specifications, or combination of data processing decisions, that lead to improved reliability. The wide ranges of estimates are an additional cause for concern. Seemingly arbitrary data processing decisions can lead to differences of more than .3 in the reliability of a measure. These decisions are equally reasonable and logical choices, and we should not expect them to have meaningful impact on the theoretical questions being asked of the data. The reliability multiverse analyses presented here demonstrate this using data from a Stroop and a Flanker task. As well as across tasks, overlapping the time 1 and time 2 multiverses for both tasks highlights that even the same set of specifications does not lead to directly comparable internal consistency reliability estimates over time. data processing decisions appear to be extremely important contributors to measure reliability, but their influence is unpredictable and arbitrary.
 
 Despite this pessimistic outlook, there is a trend across the multiverse analyses that inspires some small hope. There is a trend for increased reliability in specifications that exclude trials based on a standard deviation cutoff away from the trial mean RT, rather than away from the participant's grand average RT. The highest reliability estimates are also where a relative RT cut-off of one standard deviation from the mean is used. However, I have yet to read a paper that used such a conservative approach to removing outlier trials (approximately 30\% of trials). I am not convinced that these small trends offer strong insight into how we should process task data to maximise reliability; further exploration is undoubtedly needed. In the core of this discussion I raise several open questions and suggest some plausible actions that could be taken to mitigate some of the risk reliability heterogeneity poses.
 
@@ -440,21 +457,23 @@ To briefly reiterate two recommendations I and my colleagues have made previousl
 \hypertarget{adopt-a-modelling-approach.}{%
 \subsubsection{Adopt a modelling approach.}\label{adopt-a-modelling-approach.}}
 
-Incorporating trial level variation into our analyses with hierarchical modelling approaches will likely be a vital step in protecting us against reliability heterogeneity. Psychological effects are often heterogeneous across individuals (Bolger, Zee, Rossignac-Milon, \& Hassin, 2019), and factors within tasks have important effects (e.g.~stimuli differences; DeBruine \& Barr, 2019). It follows that our models should take trial-level variation into account. Using the Stroop and Flanker data from Hedge et al. (2018) Rouder, Kumar, and Haaf (2019; also see Rouder \& Haaf, 2018) demonstrated that hierarchical models should be used to account for error in measurement (for additional guidance on applying this modelling, see Haines, 2019). Adopting this approach would have the benefit of \enquote{correcting} the effect size estimate (and standard error) for measurement error as part of the model. Rouder and colleagues demonstrate that this is also a more effective approach than \enquote{correcting} the effect size estimate using e.g.~Spearman's correction for attenuation formula (Spearman, 1904). Yet, even better corrections cannot fully save us from measurement error.
+Incorporating trial level variation into our analyses with hierarchical modelling approaches will likely be a vital step in protecting us against reliability heterogeneity. Psychological effects are often heterogeneous across individuals (Bolger, Zee, Rossignac-Milon, \& Hassin, 2019), and factors within tasks have important effects (e.g.~stimuli differences; DeBruine \& Barr, 2019). It follows that our models should take trial-level variation into account. Using the Stroop and Flanker data from Hedge et al.~(2018) Rouder, Kumar, and Haaf (2019; also see Rouder \& Haaf, 2018) demonstrated that hierarchical models should be used to account for error in measurement (for additional guidance on applying this modelling, see Haines, 2019). Adopting this approach would have the benefit of \enquote{correcting} the effect size estimate (and standard error) for measurement error as part of the model. Rouder and colleagues demonstrate that this is also a more effective approach than \enquote{correcting} the effect size estimate using e.g.~Spearman's correction for attenuation formula (Spearman, 1904). Yet, even better corrections cannot fully save us from measurement error.
 
 The benefits of adopting multilevel approaches could be demonstrated empirically with an extension of the multiverse approach adopted here. If we were to extract outcome data from the multiverse and correlate it with another variable (held constant across the multiverses), we would expect the correlation effect size to increase with increased reliability estimates. I expect that incorporating hierarchical modelling into the multiverse would lead to reduced heterogeneity across the effect size estimates as error has been accounted for in the model. Though, we should expect the confidence interval around the estimate to reduce in size with increasing reliability -- reducing error is almost always a good thing. I believe this would be a strong argument for more widespread use of hierarchical models in the analysis of behavioural measures.
 
 \hypertarget{limitations-and-room-for-expansion}{%
 \subsection{Limitations and room for expansion}\label{limitations-and-room-for-expansion}}
 
-One potential limitation of this study is the focus on only two tasks. It is possible that data from other tasks tend to yield more or less consistent patterns of reliability estimates across data processing specifications. Similarly, I have only examined RT costs (i.e.~a difference score between two trial types) as the outcome measure. The analyses could have examined accuracy rates, RT averages, signal detection, and a wide variety of outcome measures. It is very possible that other outcome indices would be more or less consistently reliable across the range of data processing specifications. I opted for brevity in this paper by selecting only two tasks from Hedge et al. (2018) and looked at only RT costs as the outcome; I welcome future work seeking to examine a wider range of tasks and outcome indices.
+One potential limitation of this study is the focus on only two tasks. It is possible that data from other tasks tend to yield more or less consistent patterns of reliability estimates across data processing specifications. Similarly, I have only examined RT costs (i.e.~a difference score between two trial types) as the outcome measure. The analyses could have examined accuracy rates, RT averages, signal detection, and a wide variety of outcome measures. It is very possible that other outcome indices would be more or less consistently reliable across the range of data processing specifications. I opted for brevity in this paper by selecting only two tasks from Hedge et al.~(2018) and looked at only RT costs as the outcome; I welcome future work seeking to examine a wider range of tasks and outcome indices.
 
-There is a paradox in measurement reliability (see 2018): Experimental effects that are highly replicable (for example, the Stroop effect) may also show low reliability. Homogeneity within groups or experimental conditions allows for larger and more robust effects; researchers can opt to develop tasks that capitalise on homogeneity. Unfortunately, reliability requires robust individual differences (and vice versa). Highly reliable measures by necessity show consistent, potentially large, individual differences and would not be suitable for group differences research. As a result, measures tend to be more appropriate for questions of a) assessing differences between groups or experimental conditions, or b) correlational or individual differences. Thus, the discussions in this paper are limited to research in which cognitive measures are used in correlational analyses -- though, the influence of data processing specifications on the robustness of experimental effects would also be a worthy research project.
+There is a paradox in measurement reliability (see 2018): Experimental effects that are highly replicable (for example, the Stroop effect) may also show low reliability. Homogeneity within groups or experimental conditions allows for larger and more robust effects; researchers can opt to develop tasks that capitalise on homogeneity. Unfortunately, reliability requires robust individual differences (and vice versa). Highly reliable measures by necessity show consistent, potentially large, individual differences and would not be suitable for group differences or experimental research.
+
+As a result, measures tend to be more appropriate for questions of a) assessing differences between groups or experimental conditions, or b) correlational or individual differences. I was primarily concerned with the use of these measures in individual differences research - hence the focus on reliability. Yet, it would be overly simplistic to assert that the discussions in this paper do not also relate to experimental differences questions. Indeed, the data processing specifications that maximise the measure's utility in individual differences analyses will also hinder the measure's utility in experimental quesitons. Further research would be needed to quantify the relative influences on correlational vs experimental analyses. Yet, large fluctuations in relative between-subjects vs within-subjects variance, due to data processing, holds importance for any research question.
 
 \hypertarget{what-about-validity}{%
 \subsection{What about validity?}\label{what-about-validity}}
 
-Others have previously demonstrated that measures are often used ad hoc or with little reported validation efforts (e.g. Flake et al., 2017; Hussey \& Hughes, 2018). This study cannot begin to assess the influence of data processing flexibility on measure validity -- nor did this paper attempt to address this question. Reliability is only one piece of evidence needed to demonstrate the validity of a measure. Yet, it is an important piece of evidence as \enquote{reliability provides an upper bound for validity} (Zuo, Xu, \& Milham, 2019, p. 3). While we cannot directly conclude that flexibility in data processing influences measure validity, we should look to further research to investigate. One possibility would be to conduct a validity multiverse analysis similar to the \enquote{Many Analysts, One Data Set} project (Silberzahn et al., 2018). In this project, 29 teams (61 analysts total) analysed the same dataset. The teams adopted a number of different analytic approaches which resulted in a range of results. The authors concluded that, \enquote{Uncertainty in interpreting research results is therefore not just a function of statistical power or the use of questionable research practices; it is also a function of the many reasonable decisions that researchers must make in order to conduct the research} (page 354).
+Others have previously demonstrated that measures are often used ad hoc or with little reported validation efforts (e.g.~Flake et al., 2017; Hussey \& Hughes, 2018). This study cannot begin to assess the influence of data processing flexibility on measure validity -- nor did this paper attempt to address this question. Reliability is only one piece of evidence needed to demonstrate the validity of a measure. Yet, it is an important piece of evidence as \enquote{reliability provides an upper bound for validity} (Zuo, Xu, \& Milham, 2019, p. 3). While we cannot directly conclude that flexibility in data processing influences measure validity, we should look to further research to investigate. One possibility would be to conduct a validity multiverse analysis similar to the \enquote{Many Analysts, One Data Set} project (Silberzahn et al., 2018). In this project, 29 teams (61 analysts total) analysed the same dataset. The teams adopted a number of different analytic approaches which resulted in a range of results. The authors concluded that, \enquote{Uncertainty in interpreting research results is therefore not just a function of statistical power or the use of questionable research practices; it is also a function of the many reasonable decisions that researchers must make in order to conduct the research} (page 354).
 
 \hypertarget{returning-to-the-garden}{%
 \subsection{Returning to the garden}\label{returning-to-the-garden}}
