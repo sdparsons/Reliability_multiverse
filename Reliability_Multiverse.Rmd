@@ -6,24 +6,23 @@ author:
   - name          : "Sam Parsons"
     affiliation   : "1"
     corresponding : yes    # Define only one corresponding author
-    address       : "Department of Experimental Psychology, University of Oxford, New Radcliffe House, Radcliffe Observatory Quarter, Oxford, OX2 6AE"
-    email         : "sam.parsons@psy.ox.ac.uk"
+    address       : "Cognitive Neuroscience Department, Donders Institute for Brain, Cognition and Behavior, Radboud University Medical Center, Nijmegen, the Netherlands"
+    email         : "sam.parsons@radboudumc.nl"
 
 affiliation:
   - id            : "1"
-    institution   : "University of Oxford"
+    institution   : "Radboud University Medical Center"
 
 authornote: |
   Submitted to Meta-Psychology. Click here to follow the fully transparent editorial process of this submission. Participate in open peer review by commenting through hypothes.is directly on this preprint.
   
-  This work was supported by an ESRC grant [ES/R004285/1]
+  Sam Parsons is currently supported by a Radboud Excellence Fellowship. This work was initually supported by an ESRC grant [ES/R004285/1]
   
   I would like to thank Ana Todorovic for her insightful feedback on an earlier version of this manuscript.
 
 
 abstract: |
-  Analytic flexibility is known to influence the results of statistical tests, e.g. effect sizes and _p_-values. Yet, the degree to which flexibility in data-processing decisions influences the reliability of our measures is unknown. In this paper I attempt to address this question using a series of reliability multiverse analyses. The methods section incorporates a brief tutorial for readers interested in implementing multiverse analyses reported in this manuscript; all functions are contained in the R package _splithalf_. I report six multiverse analyses of data-processing specifications, including accuracy and response time cutoffs. I used data from a Stroop task and Flanker task at two time points. This allowed for an internal consistency reliability multiverse at time 1 and 2, and a test-retest reliability multiverse between time 1 and 2. Largely arbitrary decisions in data-processing led to differences between the highest and lowest reliability estimate of at least 0.2. Importantly, there was no consistent pattern in the data-processing specifications that led to greater reliability, across time as well as tasks. Together, data-processing decisions are highly influential, and largely unpredictable, on measure reliability. I discuss actions researchers could take to mitigate some of the influence of reliability heterogeneity, including adopting hierarchical modelling approaches. Yet, there are no approaches that can completely save us from measurement error. Measurement matters and I call on readers to help us move from what could be a measurement crisis towards a measurement revolution. 
-
+  Analytic flexibility is known to influence the results of statistical tests, e.g. effect sizes and p-values. Yet, the degree to which flexibility in data processing decisions influences measurement reliability is unknown. In this paper I attempt to address this question using a series of 36 reliability multiverse analyses, each with 288 data processing specifications, including accuracy and response time cut-offs. I used data from a Stroop task and Flanker task at two time points, as well as a Dot Probe task across three stimuli conditions and three timepoints. This allowed for broad overview of internal consistency reliability and test-retest estimates across a multiverse of data processing specifications. Largely arbitrary decisions in data processing led to differences between the highest and lowest reliability estimate of at least 0.2, but potentially exceeding 0.7. Importantly, there was no consistent pattern in reliability estimates resulting from the data processing specifications, across time as well as tasks. Together, data processing decisions are highly influential, and largely unpredictable, on measure reliability. I discuss actions researchers could take to mitigate some of the influence of reliability heterogeneity, including adopting hierarchical modelling approaches. Yet, there are no approaches that can completely save us from measurement error. Measurement matters and I call on readers to help us move from what could be a measurement crisis towards a measurement revolution.
   
 keywords          : "reliability, multiverse, analytic flexibility, data processing"
 # wordcount         : "X"
@@ -81,34 +80,33 @@ knitr::opts_chunk$set(fig.pos = "h")
 
 ```
 
-The vermilisitude of our conclusions rests on the quality, and the strength, of our evidence. Our evidence rests on the bedrock of our measurements. The quality of our measures defines the quality of our results. Without adequate focus on the validity of our measures, how can we be assured that we are capturing the concept or process that we are interested in? Without any attention to the reliability of our measures, how can we be sure that we are capturing a phenomenon with any precision? Psychological science – I concede some areas are better than others - has a guilty habit of neglecting these foundations. 
+In this paper I was concerned with the influence analytic flexibility on measurement reliability, specifically in data processing or data cleaning. I took inspiration from numerous papers reporting the unsettlingly low reliability of Dot Probe attention bias indices [e.g. @jones_failed_2018-1; @schmukle_unreliability_2005; @staugaard_reliability_2009] and other work investigating alternative analyses and data processing strategies, with the intention of yielding a more reliable measurement [e.g. @jones_failed_2018-1; @price_empirical_2015]. When considering the impact of researcher degrees of freedom, focus is drawn to decisions made in the beginning (task design) or at the end (data analysis) of the research process. I was interested in the middle step: data processing and measure reliability. In this paper, I explore and visualise the influence of data processing steps on reliability using a series of reliability multiverse analyses.
 
-In a recent paper, my colleagues and I argued for a widespread appreciation for the reliability of our cognitive measures [@parsons_psychological_2019]. Briefly; low reliability places doubt on the veracity of statistical analyses using that measure; measurement reliability restricts the observable range of effect sizes; and failing to correct for measurement error makes comparing effect sizes between, and within, studies difficult. These issues are compounded by the sad observation that the reporting of reliability (and validity) evidence is woefully poor. Scale validity and reliability is not routinely examined, and many scales are adapted on an ad hoc basis with little or no validation [@flake_construct_2017]. In other cases scales fail to pass deeper psychometric evaluation, including tests of measurement invariance [@hussey_hidden_2018]. This likely reflects issues with more superficial approaches to establishing validity evidence - i.e. reporting Cronbach’s alpha, stating it is adequate, and moving on. I concede that pockets of psychological science take a more enlightened approach. However, I feel it is reasonable to argue that the field at large is doing well in our measurement practices. Most relevant to this paper; it is the exception rather than the norm to evaluate the psychometric properties of cognitive measurements [@gawronski_response_2011-1]. 
+## Getting up to speed with reliability
 
-An important reminder: estimates of reliability refer to the measurement obtained - in a specific sample and under particular circumstances, including the task parameters. Reliability is therefore not fixed; it may differ between populations, samples, and testing conditions. Variations of a task may lead to the generation of more or less reliable measurements. For example, the stimulus presentation duration will likely influence the cognitive processes involved in completing the task, perhaps leading participants to perform more consistently in one version, relative to another.  Reliability is a property of the measurement, not of the task used to obtain it. Strictly speaking, we cannot state that a task is unreliable; although we might observe a consistent pattern of unreliability in measurements obtained that causes us to question further use of the task. 
+The accuracy of our conclusions rests on the quality, and the strength, of our evidence. Our evidence rests on the bedrock of our measurements. The quality of our measures defines the quality of our results. Without adequate focus on the validity of our measures, how can we be assured that we are capturing the concept or process that we are interested in? Without any attention to the reliability of our measures, how can we be sure that we are capturing a phenomenon with any precision? Psychological science has a guilty habit of neglecting these foundations, though of course some areas fair better than others. 
 
-Thankfully, there is a growing awareness that measurement matters [@fried_measurement_2018]. A valuable term, Questionable Measurement Practices (QMPs), was recently added to our vernacular by Flake and Fried [-@flake_measurement_2019]. QMPs describe "undisclosed decisions researchers make that leave questions about the measurements in a study unanswered" (page 2). I hope that QMPs and the importance of measurement become as widely discussed as the parallel idiom, ‘Questionable Research Practices’ (QRPs). Most importantly, wider discussion of these practices should make it clear to all researchers that we make many potentially impactful decisions in the design of our measures, our data processing or cleaning, and our data analysis. 
+In a recent paper, my colleagues and I argued for a widespread appreciation for the reliability of our cognitive measures  [@parsons_psychological_2019]. Briefly, low reliability places doubt on the veracity of statistical analyses using that measure; measurement reliability restricts the observable range of effect sizes in simple correlational analyses, and unpredictably in more complicated models; and failing to correct for measurement error makes comparing effect sizes between, and within, studies difficult. These issues are compounded by the sad observation that the reporting of reliability (and validity) evidence is woefully poor. Scale validity and reliability is not routinely examined, and many scales are adapted on an ad hoc basis with little or no validation [@flake_construct_2017]. In other cases scales fail to pass deeper psychometric evaluation, including tests of measurement invariance [@hussey_hidden_2018]. This likely reflects issues with more superficial approaches to establishing validity evidence - i.e. reporting Cronbach’s alpha, stating it is adequate, and moving on. Pockets of psychological science take a more enlightened approach. However, I feel it is reasonable to argue that the field at large is not doing well in our measurement practices. Most relevant to this paper; it is the exception rather than the norm to evaluate the psychometric properties of cognitive measurements [@gawronski_response_2011-1]. 
 
-In this paper I was concerned with the influence analytic flexibility on measurement reliability, specifically in data processing or data cleaning. I was inspired in part from numerous papers reporting the unsettlingly low reliability of dot-probe attention bias indices [e.g. @jones_failed_2018-1; @schmukle_unreliability_2005; @staugaard_reliability_2009]. I was also inspired by other work investigating alternative analyses and data processing strategies, with the intention of yielding a more reliable measurement [e.g. @jones_failed_2018-1; @price_empirical_2015]. I was interested in visualising the influence of data processing steps on reliability. My rationale was that as all too often the focus is on decisions made in the beginning (task design) or at the end (data analysis) of the research process. I felt the intermediary stage in which the data is processed is often unexplored in relation to QRPs and QMPs. To fully explain my rationale, we first take a walk through the garden of forking paths.
+Strictly speaking, we cannot state that a task is unreliable; although we might observe a consistent pattern of unreliability in measurements obtained that causes us to question further use of the task. An important reminder: estimates of reliability refer to the measurement obtained - in a specific sample and under particular circumstances, including the task parameters. Reliability is therefore not fixed; it may differ between populations, samples, and testing conditions. Variations of a task may lead to the generation of more or less reliable measurements. For example, the stimulus presentation duration will likely influence the cognitive processes involved in completing the task, perhaps leading participants to perform more consistently in one version, relative to another. Reliability is a property of the measurement, not of the task used to obtain it. In this study, we are concerned with the data processing steps researchers take and how these influence our measurement, and the resulting reliability estimates. To explore this, I invite you to join me, dear reader, on a walk through the garden of forking paths.
 
 ## Analytic flexibility and the garden of forking paths
 
-Every result presented in every research article is the culmination of many decisions made by one or more researchers; the sheer number of combinations of valid decisions is likely uncalculatable. The "garden of forking paths" [@gelman_garden_2013] is a useful analogy I use throughout this paper to illustrate this. With each decision that must be made, however arbitrary, the researcher comes to a fork in their research path, and selects one. To add a little suspense, there will be many cases when the researcher does not notice a fork in the road. Perhaps the researcher unconsciously makes the same turn as always, their feet working of their own accord. These forks in the path, the decisions researchers make (whether they are aware or not), may be reasonably combined to make a near uncountable number of paths. Each path also leads to a location; some paths end close to one another, and other times the paths diverge wildly. We can think of the end of the path as the statistical result our researcher arrives at. 
+Every result presented in every research article is the culmination of many decisions made by one or more researchers; the sheer number of combinations of valid decisions is likely uncalculatable. The “garden of forking paths”  [@gelman_garden_2013] is a useful analogy to illustrate this. With each decision that must be made, however arbitrary, the researcher comes to a fork in their research path and selects one. To add a little suspense, there will be many cases when the researcher does not notice a fork in the road. Perhaps the researcher unconsciously makes the same turn as always, their feet working of their own accord. These forks in the path, the decisions researchers make (whether they are aware or not), may be reasonably combined to make a near uncountable number of paths. Each path also leads to a location; some paths end close to one another, and other times the paths diverge wildly. We can think of the end of the path as the statistical result our researcher arrives at. 
 
-The researcher has to decide their path, based on the soundest justifications they can make at each fork [e.g. @lakens_justify_2018]. Of course, psychological science has become fully aware of the detrimental effects of selecting one’s path retrospectively, based on where the path ends or the results most exciting to the researcher [read as: _p_ < .05; e.g. @simmons_false-positive_2011]. Extending the metaphor (hopefully not too painfully): Backtracking the route and selecting multiple paths until reaching a preferred location is akin to walking between the well-tended paths and stomping across the flowerbeds, damaging our colourful science garden. Analytic flexibility is not inherently bad. However, we must acknowledge the ramifications. The effects we observe, or do not, are potentially influenced by all of the decisions made to arrive at them. Thus, a range of possible effects may have been observed that are all equally valid based on the analytical decisions made. 
+The researcher has to decide their path, based on the soundest justifications they can make at each fork [e.g. @lakens_justify_2018]. Of course, psychological science has become fully aware of the detrimental effects of selecting one’s path retrospectively, based on where the path ends or the results most exciting to the researcher [read as: _p_ < .05; e.g. @simmons_false-positive_2011]. Analytic flexibility is not inherently bad. However, we must acknowledge the ramifications. The effects we observe, or do not, are potentially influenced by all of the decisions made to arrive at them. Thus, a range of possible effects may have been observed that could be more or less equally valid or justifiable based on the analytical decisions made.
 
-In discussions of analytical flexibility, focus is usually given primarily to decisions made during statistical analysis. For example; should I control for age and gender? Do I reason that this is model more appropriate over that one? Or, where should I set my alpha and how should I justify the decision? Discussions of analytical flexibility often concern issues around _p_-hacking and other QRPs (intended or unintended). However, as Leek and Peng [-@leek_p_2015] note, _p_-values are the tip of the iceberg; not enough scrutiny is given to the impact of the many steps in the research pipeline that precede inference testing. I agree. In my estimation, flexibility in measurement and data handling do not receive the scrutiny they deserve. If the garden of forking paths concerns analytic flexibility, then measurement flexibility decides which door one enters the garden through in the first place. 
+In discussions of analytical flexibility, focus is usually given primarily to decisions made during statistical analysis. For example, should I control for age and gender? Do I reason that this is model more appropriate over that one? Or where should I set my alpha and how should I justify the decision? Discussions of analytical flexibility often concern issues around _p_-hacking and other QRPs (intended or unintended). However, as Leek and Peng [-@leek_p_2015] note, _p_-values are the tip of the iceberg; not enough scrutiny is given to the impact of the many steps in the research pipeline that precede inference testing. I agree. In my estimation, flexibility in measurement and data handling do not receive the scrutiny they deserve. If the garden of forking paths concerns analytic flexibility, then measurement flexibility decides which gateway one enters the garden through in the first place. As an example, a recent review highlighted the lack of consensus around the processing of task data from tasks in the attention control literature, including but not limited to the data pre-processing used in this paper [@von_bastian_advancing_2020, p. 47-48]
 
 ## Mapping the garden of forking paths with multiverse analyses
 
-A multiverse analysis [@steegen_increasing_2016] offers us a "GPS in the garden of forking paths" [@quintana_gps_2019]. The process is remarkably simple. First, we define a set of reasonable data processing and analysis decisions. Second, we run the entire set of analyses. We can then examine results across the entire range of results. Specification curve analysis [@simonsohn_specification_2015] adds third step allowing for inference tests across the distribution of results generated in the multiverse [for insightful applications of specification curve analyses, see; @orben_association_2019; @rohrer_probing_2017]. In this paper I use ‘specification’ to refer to each combination of data processing decisions in the multiverse analysis. 
+Multiverse analyses [@steegen_increasing_2016] offers us a "GPS in the garden of forking paths" [@quintana_gps_2019]. The process is simpler than one might expect. First, we define a set of reasonable data processing and analysis decisions. Second, we run the entire set of analyses. We can then examine results across the entire range of results. Specification curve analysis  [@simonsohn_specification_2015] adds third step allowing for inference tests across the distribution of results generated in the multiverse [for insightful applications of specification curve analyses, see @orben_association_2019; @rohrer_probing_2017]. In this paper I use ‘specification’ to refer to each combination of data processing decisions in the multiverse analysis. 
 
-Multiverse analyses enable us to explore how a researcher’s – sometimes arbitrary – choices in data processing (e.g. outlier removal) and analysis decisions (e.g. including covariates, splitting samples) influence statistical results, and the conclusions drawn from the analysis. From this we can examine which choices are more or less influential than others, as well as how robust the result is across the full set of specifications. 
+Multiverse analyses enable us to explore how a researcher’s – sometimes arbitrary – choices in data processing (e.g. outlier removal) and analysis decisions (e.g. including covariates, splitting samples) influence statistical results, and the conclusions drawn from the analysis. From this we can examine which choices are more or less influential than others, as well as how robust the result is across the full set of specifications.
 
 ## A reliability multiverse from many data processing decisions
 
-In this paper I report multiverse analyses exploring the influence of data processing specifications on the reliability of a calculated measurement. I used openly accessible Stroop task and Flanker task data generously shared by Hedge and colleagues [@hedge_reliability_2018]. Following previous work in this area [@parsons_psychological_2019], I was interested in the stability and range of reliability estimates on cognitive-behavioural measures. Broadly, I was interested in the positive and negative impact of data processing decisions on reliability. It is possible that certain analytic decisions tend to yield higher reliability estimates; it may be that particular combinations of decisions are also better, or worse, than others. Beyond that, I was interested in the range of estimates. A small range would suggest that measure reliability is relatively stable as we make potentially arbitrary data processing decisions while walking the garden of forking paths. A large range suggests hidden measurement reliability heterogeneity. This is potentially an important, and underappreciated, contributor to the replicability crisis [@loken_measurement_2017]. Alternatively, this could be a herald for a crisis of measurement. 
-
+In this paper I report multiverse analyses exploring the influence of data processing specifications on the reliability of a calculated measurement. I used openly accessible Stroop task and Flanker task data generously shared by Hedge and colleagues  [@hedge_reliability_2018] and Dot Probe task data from the CogBIAS project [@booth_cogbias_2017; @booth_cogbias_2019]. Following our previous work in this area [@parsons_psychological_2019], I was interested in the stability and range of reliability estimates on cognitive-behavioural measures. Broadly, I was interested in the impact of data processing decisions on reliability. It is possible that certain analytic decisions tend to yield higher reliability estimates; it may be that particular combinations of decisions are also better, or worse, than others. Beyond that, I was interested in the range of estimates. A small range would suggest that measure reliability is relatively stable as we make potentially arbitrary data processing decisions while walking the garden of forking paths. A large range suggests hidden measurement reliability heterogeneity. This is potentially an important, and underappreciated, contributor to the replicability crisis [@loken_measurement_2017]. Alternatively, this could be a herald for a crisis of measurement. 
 
 # Methods
 
@@ -851,12 +849,15 @@ threshold <- function(multiverse,
 
 ## Data
 
-Data were obtained from the online repository for Hedge, Sumner, and Powell (-@hedge_reliability_2018; https://osf.io/cwzds/). Full details of the data collection, study design, and procedure can be found in Hedge et al. [-@hedge_reliability_2018]. These data are ideal for our purposes as they a) contain many trials, helping us obtain more precise estimates of reliability, and b) include two assessment time-points approximately 3-4 weeks apart, allowing us to explore both; internal consistency and test-retest reliability. The data were collected from different studies; for simplicity in this paper, the data across studies were pooled (n = 107 before any data processing – note that this may be different from the sample size presented by Hedge et al. due to differences in data processing). I explored data from the Stroop and the Flanker tasks. Interested readers can find the data and code used to perform the multiverse analyses and generate this manuscript in the Open Science Framework repository for this project (https://osf.io/haz6u/).^[I used the following R packages for all analyses and figures, and to generate this document: `r cite_r("r-references.bib")`]
+Stroop and Flanker task data were obtained from the online repository for Hedge, Sumner, and Powell [-@hedge_reliability_2018, https://osf.io/cwzds/]. Full details of the data collection, study design, and procedure can be found in Hedge et al.  [-@hedge_reliability_2018]. These data are ideal for our purposes as they a) contain many trials, helping us obtain more precise estimates of reliability, and b) include two assessment time-points approximately 3-4 weeks apart, allowing us to explore both: internal consistency and test-retest reliability. The data were collected from different studies; for simplicity in this paper, the data across studies were pooled (n = 107 before any data processing – note that this may be different from the sample size presented by Hedge et al. due to differences in data processing). 
+
+Dot Probe data were obtained from the CogBIAS project [@booth_cogbias_2017; @booth_cogbias_2019]. Full details of the full study and data collection can be found in Booth et al. (2017, 2019). These data complement the Stroop and Flanker data as they provide a longer test-retest duration (approximately 1.5 years between repeated measures) across three timepoints. In addition, the task incorporated three stimuli conditions, allowing us cross-sectional comparisons of reliability stability within the same task. The Dot Probe data were pooled such that only a subset of participants completing the task at all three timepoints were retained (n = 285). 
+
+Interested readers can find the data and code used to perform the multiverse analyses and generate this manuscript in the Open Science Framework repository for this project (https://osf.io/haz6u/).^[I used the following R packages for all analyses and figures, and to generate this document: `r cite_r("r-references.bib")`]
 
 ### Stroop task
 
-Participants made keyed responses to the colour of a word presented in the centre of the screen. In congruent conditions the word was the same as the font colour, whereas, in incongruent trials, the word was a different colour from the font colour. In a neutral condition, the word was not a colour word. Participants completed 240 of each trial type. The outcome index we explore here is the RT cost, calculated as the average RT for incongruent trials minus the average RT for congruent trials. 
-
+Participants made keyed responses to the colour of a word presented in the centre of the screen. In congruent conditions the word was the same as the font colour, whereas, in incongruent trials, the word was a different colour from the font colour. In a neutral condition, the word was not a colour word. Participants completed 240 of each trial type. The outcome index we explore here is the RT cost, calculated as the average RT for incongruent trials minus the average RT for congruent trials.
 
 ```{r Hedgeraw_Stroop, echo = FALSE, results = 'hide'}
 # time 1 - extract data for session 1
@@ -961,14 +962,14 @@ Hedge_raw_Stroop <- Hedge_raw_Stroop %>%
          blockcode = Block
          ) %>%
   mutate(congruency = ifelse(congruency == "incongruent", "Incongruent",
-                      ifelse(congruency == "congruent", "Congruent","NA")))
+                      ifelse(congruency == "congruent", "Congruent","NA"))) %>%
+  as.data.frame()
 
 ```
 
 ### Flanker task
 
-Participants made keyed responses to the direction of an arrow presented in the centre of the screen. The central arrow was flanked by two other symbols. Congruent trials presented flanking arrows in the same direction as the central arrow, whereas incongruent trials presented flanking arrows in the opposite direction to the central arrow. There was also a neutral condition in which flanking symbols were straight lines. Participants completed 240 of each trial type. The outcome index we explore here is the RT cost, calculated as the average RT for incongruent trials minus the average RT for congruent trials. 
-
+Participants made keyed responses to the colour of a word presented in the centre of the screen. In congruent conditions the word was the same as the font colour, whereas, in incongruent trials, the word was a different colour from the font colour. In a neutral condition, the word was not a colour word. Participants completed 240 of each trial type. The outcome index we explore here is the RT cost, calculated as the average RT for incongruent trials minus the average RT for congruent trials.
 
 ```{r Hedgeraw_Flanker, echo = FALSE, results = 'hide'}
 # time 1 - extract data for session 1
@@ -1073,20 +1074,37 @@ Hedge_raw_Flanker <- Hedge_raw_Flanker %>%
          blockcode = Block
          ) %>%
   mutate(congruency = ifelse(congruency == "incongruent", "Incongruent",
-                      ifelse(congruency == "congruent", "Congruent","NA")))
+                      ifelse(congruency == "congruent", "Congruent","NA"))) %>%
+  as.data.frame()
+
+```
+
+### Dot Probe Task
+
+Participants made keyed responses to the identity of a probe presented on screen. The probe was presented in the same location as one of the paired faces presented on screen for 500ms prior. The paired faces were an emotional face (angry, pained, and happy) paired with a neutral face [taken from the STOIC faces database, @roy_stoic:_2009]. In congruent trials, the probe was presented in the same location as the emotional face. In incongruent trials, the probe was presented in the same location as the neutral face. Participants completed three blocks of 56 trials corresponding to the emotion presented. The ‘attention bias’ outcome index [@MacLeod1986] was calculated as calculated as the average RT for incongruent trials minus the average RT for congruent trials. 
+
+```{r DotProbe, echo = FALSE, results = 'hide'}
+DPT_all <- read.csv("Data/CogBIAS_DPT.csv") 
+
+DPT_angry <- DPT_all %>%
+  filter(blockcode == "angry")
+
+DPT_happy <- DPT_all %>%
+  filter(blockcode == "happy")
+
+DPT_pain <- DPT_all %>%
+  filter(blockcode == "pain")
 
 ```
 
 ## Multiverse analysis
 
-In a personal effort to make my research reproducible, and also help others perform similar processes I have developed simple functions to perform the multiverse analyses reported in this paper. The key functions are: *splithalf.multiverse*, *testretest.multiverse*, and *multiverse.plot*. These functions appear in the the _splithalf_ package (@parsons_splithalf:_2019; starting at version 0.7.1) and are also provided separately in the supplemental materials.  
-
-The functions use R packages _splithalf_ [@parsons_splithalf:_2019] and _psych_ [@revelle_psych:_2017-1] to estimate internal consistency and test-retest reliability, respectively. Moreover, this section acts as a brief tutorial with the aim of helping interested readers conduct their own reliability multiverse analysis with different data or sets of specifications (also see full code: https://osf.io/haz6u/).
+In a personal effort to make my research reproducible, and also help others perform similar processes I have developed simple functions to perform the multiverse analyses reported in this paper. Readers interested in performing similar analyses can find these functions within the splithalf package [@parsons_splithalf_2021] and tutorials on the related GitHub page (https://github.com/sdparsons/splithalf). The key functions are: _splithalf.multiverse_, _testretest.multiverse_, and _multiverse.plot_. Intraclass Correlation Coefficients (ICC2) were estimated using the psych R package [@R-psych]. Interested readers can also inspect the code used to perform the analyses in this paper (https://osf.io/haz6u/).
 
 
 ### Step 1. Creating a list of all specifications
 
-No data were removed before the multiverse analysis. To my knowledge, there are no fixed standards in the literature for processing Stroop or Flanker data. I identified six decisions common to processing RT data, though there are many more. For simplicity I stuck to RT difference scores as the outcome measure of interest. However, there are very different analytical techniques that might be applied to RT tasks such as this (for example, multilevel modelling and drift-diffusion modelling approaches). The decisions were as follows:
+No data were removed before the multiverse analysis. To my knowledge, there are no fixed standards in the literature for processing data from any of the tasks. I identified six decisions common to processing RT data, though there are many more. For simplicity I stuck to RT difference scores as the outcome measure of interest. However, there are very different analytical techniques that might be applied to RT tasks such as this (for example, multilevel modelling and drift-diffusion modelling approaches). The decisions were as follows:
 
 * *Total accuracy.* Researchers may opt to remove participants with accuracy lower than a pre-specified cut-off; for example 80 of 90 per cent. I used three options; 80%, 90%, and no cut-off.
 
@@ -1098,9 +1116,9 @@ No data were removed before the multiverse analysis. To my knowledge, there are 
 
 * *Averaging.* Most often the mean RT within each trial type is calculated, and may then be analysed directly, or a difference score calculated to analyse. Researchers may opt to use the median RT instead. I included both options.
 
-The number of possible combinations (data processing specifications) quickly increases with every additional option. Here we have 3 $\times$ 2 $\times$ 3 $\times$ 4 $\times$ 2 $\times$ 2 = 288 possible specifications. We can specify our list of decisions as follows:
+The number of possible combinations (data processing specifications) quickly increases with every additional option. Here we have 3 $\times$ 2 $\times$ 3 $\times$ 4 $\times$ 2 $\times$ 2 = 288 possible specifications.
 
-```{r the specifications, echo = TRUE}
+```{r the specifications, echo = FALSE}
 specifications <- list(
  ACC_cutoff = c(0, 0.8, 0.9),  
  RT_min           = c(0, 100, 200),
@@ -1110,17 +1128,14 @@ specifications <- list(
  averaging_method  = c("mean", "median")
 )
 
-```
-
-```{r permutations per splithalf, echo = FALSE, eval = TRUE}
-
 default_permutations = 500
+
 
 ```
 
 ```{r for testing, eval = FALSE}
 
-# this chunk is purely for testing knitting this script together with fewer specifications. Otherwise, eval should be set to false.
+# this chunk is purely for testing knitting this script together with fewer specifications. Otherwise, eval should be set to FALSE for generating the manuscript
 
   specifications <- list(
     ACC_cutoff = c(0, .9),
@@ -1135,43 +1150,35 @@ default_permutations = 50
 
 ### Step 2. Run all specifications and extract reliability estimates
 
-From this decision list, we have a complete list of 288 data processing specifications. In the multiverse analysis the data is processed following each specification parameters, before estimating the reliability of the resulting outcome measure. In the following example code we perform a multiverse analysis on the Stroop data from Hedge et al.’s first testing session. First, we run _splithalf_ on the full dataset and save the output into a splithalf object ^[Note that if users want to run a multiverse on multiple task conditions (e.g. happy and sad stimuli, or time 1 and time 2) they must specify separate multiverse analyses]. We then pass this object into _splithalf.multiverse._ The only required inputs are the specification list, and our saved splithalf object.
+From this decision list, we have a complete list of 288 data processing specifications. In the multiverse analysis the data is processed following each specification parameters, before estimating the reliability of the resulting outcome measure.  Internal consistency was estimated using 500 permutations of the splithalf [@parsons_splithalf_2021] procedure for each specification (5000 is standard, but 500 was selected to reduce processing time). Following Hedge et al. (2018), and because ICC relates to both the correlation and the agreement among repeated measures, test-retest reliability was estimated using ICC2k [@koo_guideline_2016].
 
-```{r echo = TRUE, eval = FALSE}
+```{r echo = FALSE, eval = FALSE}
 splithalf_1 <- splithalf(data = subset(Hedge_raw_Stroop, time == 1),
                          permutations = 500,
-                         var.ACC = "Correct")
+                         var.ACC = "correct")
 
 multiverse_1 <- splithalf.multiverse(input = splithalf_1,
                  specifications = specifications)
 
 ```
 
-The output contains useful information, including; the data, the expanded specification list, each processed dataset, and information about the call. Most important is the ‘estimates’ data frame, which contains the reliability estimate for each specification. The ‘removals’ list can be used to inspect the number of participants and trials remaining following data reduction. ‘CI’ can be used to inspect the median and 95% CI of all reliability estimates.
-
 ### Step 3. Visualising the multiverse
 
-I find that one of the joys of multiverse analyses are the visualisations; because sometimes science is more art than science. The results section is centred on these visualisations. We use the output from _splithalf.multiverse_ in the function multiverse.plot to visualise the specification curve of reliability estimates. It can be called with the following;
+I find that one of the joys of multiverse analyses are the visualisations, because sometimes science is more art than science. I explain the visualisations in the results section. 
 
-```{r echo = TRUE, eval = FALSE}
+```{r echo = FALSE, eval = FALSE}
 multiverse.plot(multiverse = multiverse_1,
          title = "My first multiverse")
 ```
 
-I explain the visualisations in the results section. I have also added functionality to visualise multiple multiverses in the same plot. To do so, the user can specify a list of multiverse objects. For example:
 
-```{r echo = TRUE, eval = FALSE}
+```{r echo = FALSE, eval = FALSE}
 multiverse.plot(multiverse = list(multiverse_1,
                                   multiverse_2))
 ```
 
-### Inferences from the multiverse
 
-It is not my aim in this paper to make inferences from these reliability multiverse analyses as one would in a specification curve analysis [@simonsohn_specification_2015]. One could use this method to perform inference testing against the curve of reliability estimates. However, it is not clear what this would add: testing whether the reliability estimates significantly differ from zero is a low bar for assessing the reliability of a measure. 
-
-Descriptively, it will be useful to explore the full range of estimates. The multiverse objects contain a ‘CI’ object to help extract the median and 95% percentile estimates. The user can obtain these by running `internal.1_Stroop$CI`. I have also provided a small function *threshold* to inspect the proportion of reliability estimates above or below a set threshold. Users can specify whether they are interested in the point estimates or the Confidence Intervals. For example, the following will return the proportion of estimates above a 0.7 threshold (often the lowest bar to describe internal consistency estimates as ‘acceptable’). 
-
-```{r echo = TRUE, eval = FALSE}
+```{r echo = FALSE, eval = FALSE}
 threshold(multiverse = internal.1_Stroop,
           threshold = 0.7,
           use = "estimate",
@@ -1180,11 +1187,15 @@ threshold(multiverse = internal.1_Stroop,
 
 ## Analysis plan
 
-In total, I performed six multiverse analyses following the steps described above. Separately for each of the Stroop and Flanker task data, I examined internal consistency reliability at time 1 and at time 2, as well as test-retest reliability from time 1 to time 2. Internal consistency was estimated using 500 permutations of the splithalf procedure for each specification (5000 is standard, but 500 was selected to reduce processing time). For each multiverse I report the median estimate and it’s 95% Confidence Interval, the proportion of estimates exceeding 0.7, and the range of estimates in that multiverse.  In addition to visualising each multiverse, I also include visualisations overlapping the internal consistency multiverses from time 1 and time 2. These overlapped plots allow us to visually inspect whether the pattern of reliability estimates following the full range of data processing specifications are comparable across each time point.  
+For the core analysis I performed 18 multiverse analyses following the steps described above. Separately for each of the Stroop and Flanker task data, I examined internal consistency reliability at time 1 and at time 2, as well as test-retest reliability from time 1 to time 2. For the Dot Probe data, I examined internal consistency reliability at each of the three timepoints, separately for the three task conditions, as well as test-retest reliability at across timepoints. For each multiverse I report the median estimate and it’s 95% Confidence Interval, the proportion of estimates exceeding 0.7, and the range of estimates in that multiverse. In addition to visualising each multiverse, I also include visualisations overlapping the internal consistency multiverses over time. These overlapped plots allow us to visually inspect whether the pattern of reliability estimates following the full range of data processing specifications are comparable across each time point.
+
+### Inferences from the multiverse
+
+It is not my aim in this paper to make inferences from these reliability multiverse analyses as one would in a specification curve analysis [@simonsohn_specification_2015]. One could use this method to perform inference testing against the curve of reliability estimates. However, it is not clear what this would add: testing whether the reliability estimates significantly differ from zero is a low bar for assessing the reliability of a measure.
 
 # Results
 
-I include a visualisation for each multiverse analysis. The reliability estimates are presented on the y axis at the top of the figure; each estimate is represented by a black dot and the 95% confidence interval is represented by the shaded band. The x axis indicates each individual multiverse specification of processing decisions (288 total), displayed in the ‘dashboard’ at the bottom of the figure. The vertical dashed line running through the top panel and the bottom dashboard represents the median reliability estimate. This line is extended through the dashboard to demonstrate that the estimate is derived from the unique combination of data processing decisions, including (from top to bottom, in order of processing step); 1) participant removal below total accuracy threshold, 2) maximum RT cutoff, 3) minimum RT cutoff, 4) removal of RTs > this number of SDs from the mean, 5) whether this removal is at the trial or subject level, and 6) use of mean or median to derive averages.
+I include a visualisation for each multiverse analysis. The reliability estimates are presented on the y-axis at the top of the figure; each estimate is represented by a black dot and the 95% confidence interval is represented by the shaded band. The x-axis indicates each individual multiverse specification of processing decisions (288 total), displayed in the ‘dashboard’ at the bottom of the figure. The vertical dashed line running through the top panel and the bottom dashboard represents the median reliability estimate. This line is extended through the dashboard to demonstrate that the estimate is derived from the unique combination of data processing decisions, including (from top to bottom, in order of processing step); 1) participant removal below total accuracy threshold, 2) maximum RT cut-off, 3) minimum RT cut-off, 4) removal of RTs > this number of SDs from the mean, 5) whether this removal is at the trial or subject level, and 6) use of mean or median to derive averages.
 
 \newpage
 
@@ -1195,7 +1206,7 @@ I include a visualisation for each multiverse analysis. The reliability estimate
 # first, run splithalf
 internal.1_Stroop_splithalf <- splithalf(data = subset(Hedge_raw_Stroop, time == 1),
                                          permutations = default_permutations,
-                                         var.ACC = "Correct")
+                                         var.ACC = "correct")
 
 # then, run splithalf.multiverse
 internal.1_Stroop <- splithalf.multiverse(input = internal.1_Stroop_splithalf,
@@ -1239,7 +1250,7 @@ dev.off()
 ```{r Hedge_internal_T2_Stroop}
 internal.2_Stroop_splithalf <- splithalf(data = subset(Hedge_raw_Stroop, time == 2),
                                          permutations = default_permutations,
-                                         var.ACC = "Correct")
+                                         var.ACC = "correct")
 
 internal.2_Stroop <- splithalf.multiverse(input = internal.2_Stroop_splithalf,
                  specifications = specifications)
@@ -1280,10 +1291,11 @@ dev.off()
 ### Stroop: test-retest
 
 ```{r Hedge_retest_Stroop}
-retest_Stroop <- testretest.multiverse(input = Hedge_raw_Stroop,
+retest_Stroop <- testretest.multiverse(data = Hedge_raw_Stroop,
                  specifications = specifications,
                  test = "ICC2",
-                 var.participant = "subject")
+                 var.participant = "subject",
+                 var.RT = "latency")
 
 saveRDS(retest_Stroop, "multiverse_output/testretest_Stroop.rds")
 
@@ -1326,7 +1338,7 @@ dev.off()
 ```{r Hedge_internal_T1_Flanker}
 internal.1_Flanker_splithalf <- splithalf(data = subset(Hedge_raw_Flanker, time == 1),
                                          permutations = default_permutations,
-                                         var.ACC = "Correct")
+                                         var.ACC = "correct")
 
 internal.1_Flanker <- splithalf.multiverse(input = internal.1_Flanker_splithalf,
                  specifications = specifications)
@@ -1372,7 +1384,7 @@ dev.off()
 ```{r Hedge_internal_T2_Flanker}
 internal.2_Flanker_splithalf <- splithalf(data = subset(Hedge_raw_Flanker, time == 2),
                                          permutations = default_permutations,
-                                         var.ACC = "Correct")
+                                         var.ACC = "correct")
 
 internal.2_Flanker <- splithalf.multiverse(input = internal.2_Flanker_splithalf,
                  specifications = specifications)
@@ -1412,9 +1424,10 @@ dev.off()
 ### Flanker: test-retest
 
 ```{r Hedge_retest_Flanker}
-retest_Flanker <- testretest.multiverse(input = Hedge_raw_Flanker,
+retest_Flanker <- testretest.multiverse(data = Hedge_raw_Flanker,
                  specifications = specifications,
-                 test = "ICC2")
+                 test = "ICC2",
+                 var.RT = "latency")
 
 saveRDS(retest_Flanker, "multiverse_output/testretest_Flanker.rds")
 
@@ -1452,7 +1465,7 @@ dev.off()
 
 ### Overlapping time 1 and time 2 multiverses
 
-In the final two figures I overlap the time 1 and time 2 multiverses, separately for the Stroop and Flanker data. The specifications are ordered by the reliability estimates at time 1 for each measure (Figures 1 and 3). These figures allow us to compare the patterns of reliability estimates following the same data processing decisions. 
+In the next two figures I overlap the time 1 and time 2 multiverses, separately for the Stroop and Flanker data. The specifications are ordered by the reliability estimates at time 1 for each measure (Figures 1 and 3). These figures allow us to compare the patterns of reliability estimates following the same data processing decisions. 
 
 ```{r fig.show = 'asis', fig.cap="Overlapped internal consistency reliability multiverse for Stroop RT cost at times 1 and 2", fig.height = 7}
 Cairo::Cairo(file="Figures/internaloverlapstroop.png", 
@@ -1485,73 +1498,589 @@ multiverse.plot(multiverse = list(internal.1_Flanker,internal.2_Flanker),
 dev.off()
 ```
 
+
+## Dot Probe Task
+
+For ease of presentation (and to reduce the total number of figures), we visualise the Dot Probe task reliability multiverses entirely as overlapping plots.
+
+```{r DPT_angry}
+## 1
+
+internal.1_DPT_angry_splithalf <- splithalf(data = subset(DPT_angry, wave == 1),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.1_DPT_angry <- splithalf.multiverse(input = internal.1_DPT_angry_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.1_DPT_angry, "multiverse_output/internal.1_DPT_angry.rds")
+
+## 2
+
+internal.2_DPT_angry_splithalf <- splithalf(data = subset(DPT_angry, wave == 2),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.2_DPT_angry <- splithalf.multiverse(input = internal.2_DPT_angry_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.2_DPT_angry, "multiverse_output/internal.2_DPT_angry.rds")
+
+## 3
+
+internal.3_DPT_angry_splithalf <- splithalf(data = subset(DPT_angry, wave == 3),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.3_DPT_angry <- splithalf.multiverse(input = internal.3_DPT_angry_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.3_DPT_angry, "multiverse_output/internal.3_DPT_angry.rds")
+
+```
+
+### Angry faces
+
+For the angry faces condition median and 95% CIs for each wave of testing were; wave 1, `r round(internal.1_DPT_angry$CI[2], 2)`, [95% CI `r round(internal.1_DPT_angry$CI[1], 2)`, `r round(internal.1_DPT_angry$CI[3], 2)`; wave 2, `r round(internal.2_DPT_angry$CI[2], 2)`, [95% CI `r round(internal.2_DPT_angry$CI[1], 2)`, `r round(internal.2_DPT_angry$CI[3], 2)`; wave 3, `r round(internal.3_DPT_angry$CI[2], 2)`, [95% CI `r round(internal.3_DPT_angry$CI[1], 2)`, `r round(internal.3_DPT_angry$CI[3], 2)`. 
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Dot Probe attention bias (angry faces) at times 1, 2, and 3", fig.height = 7}
+Cairo::Cairo(file="Figures/DPT_angry_internal.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = list(internal.1_DPT_angry,
+                               internal.2_DPT_angry,
+                               internal.3_DPT_angry),
+                title = "DOT PROBE angry internal consistency",
+                vline = .5)
+dev.off()
+```
+
+
+\newpage
+
+
+```{r DPT_happy}
+## 1
+
+internal.1_DPT_happy_splithalf <- splithalf(data = subset(DPT_happy, wave == 1 & subject != 311018),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.1_DPT_happy <- splithalf.multiverse(input = internal.1_DPT_happy_splithalf,
+                 specifications = specifications)
+
+
+saveRDS(internal.1_DPT_happy, "multiverse_output/internal.1_DPT_happy.rds")
+
+## 2
+
+internal.2_DPT_happy_splithalf <- splithalf(data = subset(DPT_happy, wave == 2),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.2_DPT_happy <- splithalf.multiverse(input = internal.2_DPT_happy_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.2_DPT_happy, "multiverse_output/internal.2_DPT_happy.rds")
+
+## 3
+
+internal.3_DPT_happy_splithalf <- splithalf(data = subset(DPT_happy, wave == 3),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.3_DPT_happy <- splithalf.multiverse(input = internal.3_DPT_happy_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.3_DPT_happy, "multiverse_output/internal.3_DPT_happy.rds")
+
+```
+
+### Happy faces
+
+For the happy faces condition median and 95% CIs for each wave of testing were; wave 1, `r round(internal.1_DPT_happy$CI[2], 2)`, [95% CI `r round(internal.1_DPT_happy$CI[1], 2)`, `r round(internal.1_DPT_happy$CI[3], 2)`; wave 2, `r round(internal.2_DPT_happy$CI[2], 2)`, [95% CI `r round(internal.2_DPT_happy$CI[1], 2)`, `r round(internal.2_DPT_happy$CI[3], 2)`; wave 3, `r round(internal.3_DPT_happy$CI[2], 2)`, [95% CI `r round(internal.3_DPT_happy$CI[1], 2)`, `r round(internal.3_DPT_happy$CI[3], 2)`. 
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Dot Probe attention bias (happy faces) at times 1, 2, and 3", fig.height = 7}
+Cairo::Cairo(file="Figures/DPT_happy_internal.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = list(internal.1_DPT_happy,
+                               internal.2_DPT_happy,
+                               internal.3_DPT_happy),
+                title = "DOT PROBE happy internal consistency",
+                vline = .5)
+dev.off()
+```
+
+\newpage
+
+
+```{r DPT_pain}
+## 1
+
+internal.1_DPT_pain_splithalf <- splithalf(data = subset(DPT_pain, wave == 1),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.1_DPT_pain <- splithalf.multiverse(input = internal.1_DPT_pain_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.1_DPT_pain, "multiverse_output/internal.1_DPT_pain.rds")
+
+## 2
+
+internal.2_DPT_pain_splithalf <- splithalf(data = subset(DPT_pain, wave == 2),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.2_DPT_pain <- splithalf.multiverse(input = internal.2_DPT_pain_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.2_DPT_pain, "multiverse_output/internal.2_DPT_pain.rds")
+
+## 3
+
+internal.3_DPT_pain_splithalf <- splithalf(data = subset(DPT_pain, wave == 3 & subject != 383468),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.3_DPT_pain <- splithalf.multiverse(input = internal.3_DPT_pain_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.3_DPT_pain, "multiverse_output/internal.3_DPT_pain.rds")
+
+```
+
+### Pained faces
+
+For the pained faces condition median and 95% CIs for each wave of testing were; wave 1, `r round(internal.1_DPT_pain$CI[2], 2)`, [95% CI `r round(internal.1_DPT_pain$CI[1], 2)`, `r round(internal.1_DPT_pain$CI[3], 2)`; wave 2, `r round(internal.2_DPT_pain$CI[2], 2)`, [95% CI `r round(internal.2_DPT_pain$CI[1], 2)`, `r round(internal.2_DPT_pain$CI[3], 2)`; wave 3, `r round(internal.3_DPT_pain$CI[2], 2)`, [95% CI `r round(internal.3_DPT_pain$CI[1], 2)`, `r round(internal.3_DPT_pain$CI[3], 2)`. 
+
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Dot Probe attention bias (pain faces) at times 1, 2, and 3", fig.height = 7}
+Cairo::Cairo(file="Figures/DPT_pain_internal.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = list(internal.1_DPT_pain,
+                               internal.2_DPT_pain,
+                               internal.3_DPT_pain),
+                title = "DOT PROBE pain internal consistency",
+                vline = .5)
+dev.off()
+```
+
+### Dot Probe test retest
+
+```{r dot_probe_testretest, echo = FALSE}
+retest_DPT_angry <- testretest.multiverse(data = DPT_angry,
+                 specifications = specifications,
+                 test = "ICC2",
+                 var.RT = "latency",
+                 var.participant = "subject2",
+                 var.time = "wave")
+
+saveRDS(retest_DPT_angry, "multiverse_output/retest_DPT_angry.rds")
+
+retest_DPT_happy <- testretest.multiverse(data = DPT_happy,
+                 specifications = specifications,
+                 test = "ICC2",
+                 var.RT = "latency",
+                 var.participant = "subject2",
+                 var.time = "wave")
+
+saveRDS(retest_DPT_angry, "multiverse_output/retest_DPT_happy.rds")
+
+retest_DPT_pain <- testretest.multiverse(data = DPT_pain,
+                 specifications = specifications,
+                 test = "ICC2",
+                 var.RT = "latency",
+                 var.participant = "subject2",
+                 var.time = "wave")
+
+saveRDS(retest_DPT_angry, "multiverse_output/retest_DPT_pain.rds")
+
+```
+
+Test retest reliability estimates (ICC2) for each condition were: angry, `r round(retest_DPT_angry$CI[2], 2)`, 95% CI [`r round(retest_DPT_angry$CI[1], 2)`, `r round(retest_DPT_angry$CI[3], 2)`]; happy, `r round(retest_DPT_happy$CI[2], 2)`, 95% CI [`r round(retest_DPT_happy$CI[1], 2)`, `r round(retest_DPT_happy$CI[3], 2)`]; pain, `r round(retest_DPT_pain$CI[2], 2)`, 95% CI [`r round(retest_DPT_pain$CI[1], 2)`, `r round(retest_DPT_pain$CI[3], 2)`]
+
+
+```{r fig.show='asis', fig.cap="Test-retest reliability multiverse for Dot Probe attention bias for all three conditions", fig.height = 7}
+Cairo::Cairo(file="Figures/DPT_testretest_all.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(list(retest_DPT_angry,
+                     retest_DPT_happy,
+                     retest_DPT_pain),
+                title = "DOT PROBE test-retest all conditions",
+                 heights = c(5, 4))
+dev.off()
+```
+
+
+## Secondary analyses: reliability and number of trials
+
+Increasing the number of trials typically increases reliability estimates (e.g. Hedge et al. 2018; von Bastien et al. 2020). A visual inspection of the multiverses suggests that specifications involving the removal of more trials (i.e. removing trials greater than 1 standard deviation from the average) leads to higher reliability estimates. Table 1 presents the Pearson correlations between the reliability estimates and the number of trials retained in each specification. For internal consistency reliability these correlations typically ran counter to expectations of reduced trials leading to reduced reliability. In most cases the association was negative - more trials removed during data processing was associated with higher reliability estimates were observed. In contrast, for most of the test-retest reliability multiverses, removal of more trials led to lower reliability estimates.
+
+```{r}
+# getting the n participants retained and the sample estimates into one dataset
+
+internal.1_Stroop_sup <- left_join(internal.1_Stroop$estimates, internal.1_Stroop$removals) %>%
+  mutate(task = "Stroop_1",
+         measure = "internal_consistency")
+internal.2_Stroop_sup <- left_join(internal.2_Stroop$estimates, internal.2_Stroop$removals) %>%
+  mutate(task = "Stroop_2",
+         measure = "internal_consistency")
+internal.1_Flanker_sup <- left_join(internal.1_Flanker$estimates, internal.1_Flanker$removals) %>%
+  mutate(task = "Flanker_1",
+         measure = "internal_consistency")
+internal.2_Flanker_sup <- left_join(internal.2_Flanker$estimates, internal.2_Flanker$removals) %>%
+  mutate(task = "Flanker_2",
+         measure = "internal_consistency")
+internal.1_DPT_angry_sup <- left_join(internal.1_DPT_angry$estimates, internal.1_DPT_angry$removals) %>%
+  mutate(task = "DPT_angry_1",
+         measure = "internal_consistency")
+internal.2_DPT_angry_sup <- left_join(internal.2_DPT_angry$estimates, internal.2_DPT_angry$removals) %>%
+  mutate(task = "DPT_angry_2",
+         measure = "internal_consistency")
+internal.3_DPT_angry_sup <- left_join(internal.3_DPT_angry$estimates, internal.3_DPT_angry$removals) %>%
+  mutate(task = "DPT_angry_3",
+         measure = "internal_consistency")
+internal.1_DPT_happy_sup <- left_join(internal.1_DPT_happy$estimates, internal.1_DPT_happy$removals) %>%
+  mutate(task = "DPT_happy_1",
+         measure = "internal_consistency")
+internal.2_DPT_happy_sup <- left_join(internal.2_DPT_happy$estimates, internal.2_DPT_happy$removals) %>%
+  mutate(task = "DPT_happy_2",
+         measure = "internal_consistency")
+internal.3_DPT_happy_sup <- left_join(internal.3_DPT_happy$estimates, internal.3_DPT_happy$removals) %>%
+  mutate(task = "DPT_happy_3",
+         measure = "internal_consistency")
+internal.1_DPT_pain_sup <- left_join(internal.1_DPT_pain$estimates, internal.1_DPT_pain$removals) %>%
+  mutate(task = "DPT_pain_1",
+         measure = "internal_consistency")
+internal.2_DPT_pain_sup <- left_join(internal.2_DPT_pain$estimates, internal.2_DPT_pain$removals) %>%
+  mutate(task = "DPT_pain_2",
+         measure = "internal_consistency")
+internal.3_DPT_pain_sup <- left_join(internal.3_DPT_pain$estimates, internal.3_DPT_pain$removals) %>%
+  mutate(task = "DPT_pain_3",
+         measure = "internal_consistency")
+
+retest_Stroop_sup <- left_join(retest_Stroop$estimates, retest_Stroop$removals) %>%
+  mutate(task = "Stroop",
+         measure = "ICC")
+retest_Flanker_sup <- left_join(retest_Flanker$estimates, retest_Flanker$removals) %>%
+  mutate(task = "Flanker",
+         measure = "ICC")
+retest_DPT_angry_sup <- left_join(retest_DPT_angry$estimates, retest_DPT_angry$removals) %>%
+  mutate(task = "DPT_angry",
+         measure = "ICC")
+retest_DPT_happy_sup <- left_join(retest_DPT_happy$estimates, retest_DPT_happy$removals) %>%
+  mutate(task = "DPT_happy",
+         measure = "ICC")
+retest_DPT_pain_sup <- left_join(retest_DPT_pain$estimates, retest_DPT_pain$removals) %>%
+  mutate(task = "DPT_pain",
+         measure = "ICC")
+
+estimates_removals_all <- rbind(internal.1_Stroop_sup,
+internal.2_Stroop_sup,
+internal.1_Flanker_sup,
+internal.2_Flanker_sup,
+internal.1_DPT_angry_sup,
+internal.2_DPT_angry_sup,
+internal.3_DPT_angry_sup,
+internal.1_DPT_happy_sup,
+internal.2_DPT_happy_sup,
+internal.3_DPT_happy_sup,
+internal.1_DPT_pain_sup,
+internal.2_DPT_pain_sup,
+internal.3_DPT_pain_sup,
+retest_Stroop_sup,
+retest_Flanker_sup,
+retest_DPT_angry_sup,
+retest_DPT_happy_sup,
+retest_DPT_pain_sup)
+
+write.csv(estimates_removals_all,
+          "Supplimental/S1_all_estimates.csv")
+
+
+
+
+
+```
+
+```{r tableone, include=TRUE, results='asis'}
+
+sup_est <- read.csv("Supplimental/S2_all_estimates_half_trials.csv")
+
+estimates_removals_all$sup_est <- sup_est$estimate
+estimates_removals_all$Difference <- estimates_removals_all$estimate -                                        estimates_removals_all$sup_est
+
+
+estimates_removals_all$task <- gsub("DPT_", "DPT", estimates_removals_all$task)
+
+estimates_removals_all %>%
+  group_by(task, measure) %>%
+  summarise(`correlation` = round(cor(estimate, nTrial),2),
+            `95% CI low` = round(cor.test(estimate, nTrial)$conf.int[1], 2),
+            `95% CI high` = round(cor.test(estimate, nTrial)$conf.int[2], 2),
+            Difference = round(mean(Difference),2)) %>%
+  separate(task, c("task", "time")) %>%
+    mutate(ord =  ifelse(task == "Stroop", 1,
+                ifelse(task == "Flanker", 2,
+                ifelse(task == "DPTangry", 3,
+                ifelse(task == "DPThappy", 4,
+                ifelse(task == "DPTpain", 5, 0)))))) %>%
+  arrange(desc(measure), ord) %>%
+  select(-ord) %>%
+  mutate(measure = ifelse(measure == "internal_consistency", "splithalf", "ICC")) %>%
+  mutate(time = ifelse(is.na(time), "", time)) %>%
+  as.data.frame() %>%
+  papaja::apa_table(align = "lllrrrr",
+                    caption = "Correlations between reliability estimates and number of trials retained across specifications")
+
+```
+
+To investigate this further, I reran the multiverses for Stroop and Flanker data using only the first half of trials collected for each participant. I also reran the multiverses for the Dot Probe data using only the first 20 trials for each trial type (I attempted to rerun the Dot Probe data with only 14 trials for each trial type, but this led to errors under stricter specifications where there were too few trials to run the reliability estimation). To save the reader from viewing all 18 multiverses for a second time, the code and all outputs can be found in the supplementary materials. On visual inspection of the multiverse visualisations, the overall pattern of results is similar: specifications resulting in the removal of more trials tend to result in higher reliability estimates. The final column in Table 1 presents the mean difference in reliability estimates for each of the 18 multiverses (positive values indicate higher reliability estimates with the full number of trials). For internal consistency estimates: multiverses with fewer trials had lower reliability estimates, on average, for the Stroop and Flanker tasks. But, against expectations, reliability estimates increased for the Dot Probe task when the number of trials was reduced. In contrast, almost all test-retest estimates were reduced in the reduced number of trials analyses. Figure 13 presents the difference between reliability estimates in full vs reduced trials multiverses for all 18 multiverse analyses.
+
+```{r difference_multiverse}
+###
+
+full_ms <- read.csv("Supplimental/S1_all_estimates.csv")
+sup_est <- read.csv("Supplimental/S2_all_estimates_half_trials.csv")
+
+full_ms3 <- full_ms
+full_ms3$sup_est <- sup_est$estimate
+full_ms3$sup_nTrial <- sup_est$nTrial
+
+full_ms3$diff <- full_ms3$estimate - full_ms3$sup_est
+
+full_ms3$spec <- rep(1:288, length.out = nrow(full_ms))
+
+full_ms3 %>%
+  group_by(task, measure) %>%
+  summarise(m_diff = mean(diff))
+
+
+# visualised
+diff_mv <- full_ms3 %>%
+  ggplot(aes(x = spec, y = diff, colour = measure)) +
+  geom_point(size = .5) +
+  labs(x = " ",
+       y = "difference in reliability estimate") +
+  theme(legend.position = "top",
+        legend.title = element_blank(),
+        strip.text.x = element_blank(),
+        strip.text.y = element_blank(),
+        strip.background = element_blank(),
+        text = element_text(size=10)) +
+  geom_hline(yintercept = 0) +
+  ggtitle("Difference in reliability estimates") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  
+
+diff_check_dat <- full_ms3 %>%
+  mutate(ACC_cutoff = as.character(ACC_cutoff),
+         RT_min = as.character(RT_min),
+         RT_max = as.character(RT_max),
+         RT_sd_cutoff = as.character(RT_sd_cutoff),
+         split_by = as.character(split_by),
+         averaging_method = as.character(averaging_method)) %>%
+  pivot_longer(cols = c(ACC_cutoff,
+                        RT_min,
+                        RT_max,
+                        RT_sd_cutoff,
+                        split_by,
+                        averaging_method),
+               names_to = "Bigdecision",
+               values_to = "Decision") %>%
+  as.data.frame()
+
+diff_check_dat$Bigdecision <- factor(diff_check_dat$Bigdecision, 
+                                     levels = c("ACC_cutoff",
+                                                "RT_min",
+                                                "RT_max",
+                                                "RT_sd_cutoff",
+                                                "split_by",
+                                                "averaging_method"))
+
+diff_check <- diff_check_dat %>%
+  ggplot(aes(x = spec, y = Decision, colour = Bigdecision)) +
+        facet_grid(Bigdecision ~ ., scales = "free", space = "free", drop = ) +
+        geom_point(aes(colour = Bigdecision), shape = 108, size = 4) +
+        labs(x = "specification number") +
+        theme_minimal() +
+        theme(legend.position = "none",
+              strip.text.x = element_blank(),
+              strip.text.y = element_blank(),
+              strip.background = element_blank(),
+              text = element_text(size=10))
+  
+# diff_mv / diff_check + plot_layout(heights = c(3, 4))
+
+
+```
+
+```{r fig.show='asis', fig.cap="Difference in reliability estimates from all trials to reduced trials. Note: red = angry, green = happy, blue = pained", fig.height = 7}
+Cairo::Cairo(file="Figures/Difference_multiverse.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+
+diff_mv / diff_check + plot_layout(heights = c(5, 4))
+
+dev.off()
+```
+
 # Discussion
 
 ```{r collate estimates for paper}
 
-# consider changing this to calculate ranges rather than 
-internal_min <- c(min(internal.1_Stroop$estimates$estimate),
-  min(internal.2_Stroop$estimates$estimate),
-  min(internal.1_Flanker$estimates$estimate),
-  min(internal.2_Flanker$estimates$estimate))
+#estimates_removals_all <- read.csv("Supplimental/S1_all_estimates.csv")
+ 
+all_stroop_internal <- estimates_removals_all %>%
+   filter(grepl("Stroop",task),
+          measure == "internal_consistency") %>%
+   summarise(min = round(min(estimate),2),
+             max = round(max(estimate),2))
+ 
+all_stroop_testretest <- estimates_removals_all %>%
+   filter(grepl("Stroop",task),
+          measure == "ICC") %>%
+   summarise(min = round(min(estimate),2),
+             max = round(max(estimate),2))
+ 
+all_flanker_internal <- estimates_removals_all %>%
+   filter(grepl("Flanker",task),
+          measure == "internal_consistency") %>%
+   summarise(min = round(min(estimate),2),
+             max = round(max(estimate),2))
+  
+all_flanker_testretest <- estimates_removals_all %>%
+   filter(grepl("Flanker",task),
+          measure == "ICC") %>%
+   summarise(min = round(min(estimate),2),
+             max = round(max(estimate),2))
+   
+all_dpt_internal <- estimates_removals_all %>%
+   filter(grepl("DPT",task),
+          measure == "internal_consistency") %>%
+   summarise(min = round(min(estimate),2),
+             max = round(max(estimate),2))
+    
+all_dpt_testretest <- estimates_removals_all %>%
+   filter(grepl("DPT",task),
+          measure == "ICC") %>%
+   summarise(min = round(min(estimate),2),
+             max = round(max(estimate),2))
 
-internal_max <- c(max(internal.1_Stroop$estimates$estimate),
-  max(internal.2_Stroop$estimates$estimate),
-  max(internal.1_Flanker$estimates$estimate),
-  max(internal.2_Flanker$estimates$estimate))
-
-internal_range <- round(internal_max - internal_min, 2)
-
-
-testretest_min <- c(min(retest_Stroop$estimates$estimate),
-  min(retest_Flanker$estimates$estimate))
-
-testretest_max <- c(max(retest_Stroop$estimates$estimate),
-  max(retest_Flanker$estimates$estimate))
-
-
-testretest_range <- round(testretest_max - testretest_min, 2)
+# internal_min <- c(min(internal.1_Stroop$estimates$estimate),
+#   min(internal.2_Stroop$estimates$estimate),
+#   min(internal.1_Flanker$estimates$estimate),
+#   min(internal.2_Flanker$estimates$estimate))
+# 
+# internal_max <- c(max(internal.1_Stroop$estimates$estimate),
+#   max(internal.2_Stroop$estimates$estimate),
+#   max(internal.1_Flanker$estimates$estimate),
+#   max(internal.2_Flanker$estimates$estimate))
+# 
+# internal_range <- round(internal_max - internal_min, 2)
+# 
+# 
+# testretest_min <- c(min(retest_Stroop$estimates$estimate),
+#   min(retest_Flanker$estimates$estimate))
+# 
+# testretest_max <- c(max(retest_Stroop$estimates$estimate),
+#   max(retest_Flanker$estimates$estimate))
+# 
+# 
+# testretest_range <- round(testretest_max - testretest_min, 2)
 
 ```
 
-In the results section I presented visualisations of six multiverse analyses and an additional two visualisations overlapping the internal consistency multiverses. The range of reliability estimates was `r min(internal_range)`-`r max(internal_range)`  for internal consistency and `r min(testretest_range)`-`r max(testretest_range)` for test-retest. In the introduction, I reminded the reader that reliability estimates are a product of the sample and the population they are drawn from, the task (including any differences in implementation), and the circumstances in which the measurement was obtained; i.e. reliability is not an inherent quality of the task itself. The first conclusion to take from these multiverse analyses is that data processing specifications are also an integral part of this list. 
+Across 18 reliability multiverse analyses, and their colourful visualisations, we explored the influence of data pre-processing specifications on measure reliability. To briefly summarise: Internal consistency reliability estimates ranged from `r all_stroop_internal$min` to `r all_stroop_internal$max` in the Stroop data, `r all_flanker_internal$min` to `r all_flanker_internal$max` in the Flanker data, and `r all_dpt_internal$min` to `r all_dpt_internal$max` in the Dot Probe data. Test-retest reliability estimates ranged from `r all_stroop_testretest$min` to `r all_stroop_testretest$max` in the Stroop data, `r all_flanker_testretest$min` to `r all_flanker_testretest$max` in the Flanker data, and `r all_dpt_testretest$min` to `r all_dpt_testretest$max` in the Dot Probe data. From the introduction we remember that reliability estimates are a product of: the sample and the population they are drawn from, the task (including any differences in implementation), and the circumstances in which the measurement was obtained, i.e. reliability is not an inherent quality of the task itself. The first conclusion we can draw from these multiverse analyses is that data processing specifications are also an integral part of this list.
 
-At the onset of this project, I thought it reasonable to assume that a particular feature of the data processing path might result in consistently higher (and lower) reliability estimates. The clearest indication we can take from these analyses is that there is no single set of data processing specifications, or combination of data processing decisions, that lead to improved reliability. The wide ranges of estimates are an additional cause for concern. Seemingly arbitrary data processing decisions can lead to differences of more than .3 in the reliability of a measure. These decisions are equally reasonable and logical choices, and we should not expect them to have meaningful impact on the theoretical questions being asked of the data. The reliability multiverse analyses presented here demonstrate this using data from a Stroop and a Flanker task. As well as across tasks, overlapping the time 1 and time 2 multiverses for both tasks highlights that even the same set of specifications does not lead to directly comparable internal consistency reliability estimates over time. data processing decisions appear to be extremely important contributors to measure reliability, but their influence is unpredictable and arbitrary. 
+At the onset of this project, I thought it reasonable to assume that a particular feature of the data processing path might result in consistently higher (and lower) reliability estimates. The clearest indication we can take from these analyses is that there is no single set of data processing specifications, or combination of data processing decisions, that lead to improved reliability. The wide ranges of estimates are an additional cause for concern. Seemingly arbitrary data processing decisions can lead to differences of more than .3 in the reliability of a measure. These decisions are equally reasonable and logical choices, and we should not expect them to have meaningful impact on the theoretical questions being asked of the data. The reliability multiverse analyses presented here demonstrate this using data from a Stroop and a Flanker task. As well as across tasks, overlapping the time 1 and time 2 multiverses for both tasks highlights that even the same set of specifications does not lead to directly comparable internal consistency reliability estimates over time. Data processing decisions appear to be extremely important contributors to measure reliability, but their influence is unpredictable and arbitrary.
 
-Despite this pessimistic outlook, there is a trend across the multiverse analyses that inspires some small hope. There is a trend for increased reliability in specifications that exclude trials based on a standard deviation cutoff away from the trial mean RT, rather than away from the participant’s grand average RT. The highest reliability estimates are also where a relative RT cut-off of one standard deviation from the mean is used. However, I have yet to read a paper that used such a conservative approach to removing outlier trials (approximately 30% of trials). I am not convinced that these small trends offer strong insight into how we should process task data to maximise reliability; further exploration is undoubtedly needed. In the core of this discussion I raise several open questions and suggest some plausible actions that could be taken to mitigate some of the risk reliability heterogeneity poses. 
+The secondary analyses give us more insight into the relationship between the number of trials retained through data processing and the resultant reliability estimates. The picture is not a simple one. Figure 13 highlights the unpredictable influence of what is essentially another multiverse specification decision – do I remove half of trials before any other data processing? While the underlying pattern of more data reduction leading to greater reliability generally holds across tasks, within tasks fewer trials led to lower reliability on average for the Stroop and Flanker tasks (as we should expect) but not the Dot Probe. More work is needed to unravel these influences, but a take-home message may be: while administering more trials to participants is typically a good thing for reliability, there may be some benefit (in terms of reliability) of removing more trials. Though, as I discuss below, pursuit of reliability alone should not be the goal.
+
+In the core of this discussion I raise several open questions and suggest some plausible actions that could be taken to mitigate some of the risk reliability heterogeneity poses.
 
 ## How do we guard against reliability heterogeneity? 
 
-Low reliability attenuates effect sizes estimated from tests in which the measure is used. It is therefore important to take reliability heterogeneity into account when comparing effect sizes [for several clear examples, see @cooper_role_2017]. It is plausible that some studies may have obtained smaller or larger effect sizes than others based, in part, on the reliability of the measurements taken. Similarly, identical observed effect sizes may represent very different ‘true’ effect sizes, if reliability is taken into account. Recently, Wiernik and Dahlke [-@wiernik_obtaining_2020] made a strong case for correcting for measurement error in meta-analyses, and provide the necessary formula and code for doing so. There are several actions we can take to begin to account for reliability heterogeneity. 
+In simple bivariate analyses, we usually think low reliability will simply attenuate estimated effect sizes [e.g. @spearman_proof_1904]. But the influence can be far less predictable (the reader may be noticing a trend of unpredictability in this paper). Low reliability can lead to elevation of effect size estimates and even reversals in direction [or examples, see @brakenhoff_random_2018; @segerstrom_expected_2020], with the influence becoming more unpredictable in more complex models. It is therefore important to take reliability heterogeneity into account when comparing effect sizes [for several clear examples, see @cooper_role_2017]. It is plausible that some studies may have obtained smaller or larger effect sizes than others based, in part, on the reliability of the measurements taken. Similarly, identical observed effect sizes may represent very different ‘true’ effect sizes, if reliability is taken into account. Recently, Wiernik and Dahlke [-@wiernik_obtaining_2020] made a strong case for correcting for measurement error in meta-analyses and provide the necessary formula and code for doing so. There are several actions we can take to begin to account for reliability heterogeneity. 
 
 ### Two simple recommendations. 
 
-To briefly reiterate two recommendations I and my colleagues have made previously: report all data processing steps taken, and report the reliability of measures analysed [@parsons_psychological_2019]. These recommendations will not ‘fix’ potential psychometric issues within one’s study, or reliability heterogeniety across studies. However, complete reporting of data processing will assist in the computational reproducibility of one’s results. Reporting psychometric information will assist in the interpretation of results, including comparisons of effect sizes, as well as provide useful information about the utility of a task in studies of individual differences. 
+To briefly reiterate two recommendations I and my colleagues have made previously: a) report all data processing steps taken, and b) report the reliability of measures analysed [@parsons_psychological_2019]. These recommendations will not ‘fix’ potential psychometric issues within one’s study, or reliability heterogeneity across studies. However, complete reporting of data processing will assist in the computational reproducibility of one’s results. Reporting psychometric information will assist in the interpretation of results, including comparisons of effect sizes, as well as provide useful information about the utility of a task in studies of individual differences.
+
+### Multiverse analyses as a robustness check
+
+One approach is running a multiverse across a justified set of data processing specifications (that yield the same theoretically justified construct of interest, see the below section on validity) and generating a distribution of effect sizes from the final analyses under these specifications. In principle this is the same as a sensitivity or robustness analysis, and act as a check on the reliability heterogeneity introduced by different (but equally justifiable) data processing specifications.
 
 ### Adopt a modelling approach. 
 
-Incorporating trial level variation into our analyses with hierarchical modelling approaches will likely be a vital step in protecting us against reliability heterogeneity. Psychological effects are often heterogeneous across individuals [@bolger_causal_2019], and factors within tasks have important effects [e.g. stimuli differences; @debruine_understanding_2019]. It follows that our models should take trial-level variation into account. Using the Stroop and Flanker data from Hedge et al. [-@hedge_reliability_2018] Rouder, Kumar, and Haaf [-@rouder_why_2019; also see @rouder_psychometrics_2018] demonstrated that hierarchical models should be used to account for error in measurement [for additional guidance on applying this modelling, see @haines_thinking_2019]. Adopting this approach would have the benefit of ‘correcting’ the effect size estimate (and standard error) for measurement error as part of the model. Rouder and colleagues demonstrate that this is also a more effective approach than ‘correcting’ the effect size estimate using e.g. Spearman’s correction for attenuation formula [@spearman_proof_1904]. Yet, even better corrections cannot fully save us from measurement error.
+Incorporating trial level variation into our analyses with hierarchical modelling approaches (aka mixed models, multilevel models) will likely be a vital step in protecting us against reliability heterogeneity. Psychological effects are often heterogeneous across individuals [@bolger_causal_2019], and factors within tasks have important effects [e.g. stimuli differences, @debruine_understanding_2019]. It follows that our models should take trial-level variation into account. More than this, using models that capture the theorized data generating process, including relevant distributions (e.g. response time distributions are typically very right skewed), likely have a better chance of capturing the process of interest in the first place. Using the Stroop and Flanker data from Hedge et al. [-@hedge_reliability_2018] Rouder, Kumar, and Haaf [-@rouder_why_2019; also see @rouder_psychometrics_2018] demonstrated that hierarchical models should be used to account for error in measurement [for additional guidance on applying this modelling, see @haines_thinking_2019]. Adopting this approach has the benefit of ‘correcting’ the effect size estimate (and standard error) for measurement error as part of the model, rather than as an additional step to aid in interpretations and effect size comparisons (a step that is often missed once reliability is deemed “acceptable”, assuming that reliability is estimated in the first place). Rouder and colleagues demonstrate that this is also a more effective approach than ‘correcting’ the effect size estimate using e.g. Spearman’s correction for attenuation formula [@spearman_proof_1904]. Yet, even better corrections cannot fully save us from measurement error.
 
-The benefits of adopting multilevel approaches could be demonstrated empirically with an extension of the multiverse approach adopted here. If we were to extract outcome data from the multiverse and correlate it with another variable (held constant across the multiverses), we would expect the correlation effect size to increase with increased reliability estimates. I expect that incorporating hierarchical modelling into the multiverse would lead to reduced heterogeneity across the effect size estimates as error has been accounted for in the model. Though, we should expect the confidence interval around the estimate to reduce in size with increasing reliability – reducing error is almost always a good thing. I believe this would be a strong argument for more widespread use of hierarchical models in the analysis of behavioural measures. 
+Hierarchical measures do bring their own considerations and potential issues. Applied researchers, or those without training, may need further support to ensure the model specifications are appropriate. The model covariance structure, and appropriate priors in the case of Bayesian approaches, do have potential to introduce additional sources of bias/researcher degrees of freedom. But, given existing resources  and a growing body of training materials and work in this area, it is my view that a modelling approach is likely the best next step [@haines_theoretically_2020; @rouder_why_2019; @sullivan-toole_enhancing_2021; @debruine_understanding_2021]. An additional benefit of these approaches is that they typically avoid much of the data pre-processing aspects discussed in this paper, and thus the reliability heterogeneity they generate. 
 
 ## Limitations and room for expansion
 
-One potential limitation of this study is the focus on only two tasks. It is possible that data from other tasks tend to yield more or less consistent patterns of reliability estimates across data processing specifications. Similarly, I have only examined RT costs (i.e. a difference score between two trial types) as the outcome measure. The analyses could have examined accuracy rates, RT averages, signal detection, and a wide variety of outcome measures. It is very possible that other outcome indices would be more or less consistently reliable across the range of data processing specifications. I opted for brevity in this paper by selecting only two tasks from Hedge et al. [-@hedge_reliability_2018] and looked at only RT costs as the outcome; I welcome future work seeking to examine a wider range of tasks and outcome indices. 
+### A small number of tasks 
 
-There is a paradox in measurement reliability [see -@hedge_reliability_2018]: Experimental effects that are highly replicable (for example, the Stroop effect) may also show low reliability. Homogeneity within groups or experimental conditions allows for larger and more robust effects; researchers can opt to develop tasks that capitalise on homogeneity. Unfortunately, reliability requires robust individual differences (and vice versa). Highly reliable measures by necessity show consistent, potentially large, individual differences and would not be suitable for group differences or experimental research. 
+One limitation of this study is the focus on a small sample of tasks. It is possible that data from other tasks tend to yield more or less consistent patterns of reliability estimates across data processing specifications. Similarly, I have only examined RT costs (i.e. a difference score between two trial types) as the outcome measure. The analyses could have examined accuracy rates, RT averages, signal detection, and a wide variety of outcome measures. It is very possible that other outcome indices would be more or less consistently reliable across the range of data processing specifications. I opted for brevity in this paper by selecting only these tasks; I welcome future work seeking to examine a wider range of tasks and outcome indices.
 
-As a result, measures tend to be more appropriate for questions of a) assessing differences between groups or experimental conditions, or b) correlational or individual differences. I was primarily concerned with the use of these measures in individual differences research - hence the focus on reliability. Yet, it would be overly simplistic to assert that the discussions in this paper do not also relate to experimental differences questions. Indeed, the data processing specifications that maximise the measure's utility in individual differences analyses will also hinder the measure's utility in experimental quesitons. Further research would be needed to quantify the relative influences on correlational vs experimental analyses. Yet, large fluctuations in relative between-subjects vs within-subjects variance, due to data processing, holds importance for any research question. 
+### Extracting the influence of individual decisions
+
+The analyses here do not allow for an in depth examination of the influence of specific data processing decisions. Given lack of consistency across timepoints and measures, I am not confident that robust conclusions could be drawn about a specific decision compared to another. A plausible approach to examine this is a Vibration of Effects analysis [e.g. @klau_examining_2021] in which the variance of the final distribution of estimates can be decomposed to examine the relative influence of different categories of decisions, e.g. model specifications and data processing decisions. Using this information, we might be able to prioritise sources of measurement heterogeneity more accurately. 
+
+### Applicability to experimental vs correlational analyses
+
+There is a paradox in measurement reliability [see @hedge_reliability_2018]: Experimental effects that are highly replicable (for example, the Stroop effect) may also show low reliability. Homogeneity within groups or experimental conditions allows for larger and more robust effects; researchers can opt to develop tasks that capitalise on homogeneity. Unfortunately, reliability requires robust individual differences (and vice versa). Highly reliable measures by necessity show consistent, potentially large, individual differences and would not be suitable for group differences or experimental research. As a result, measures tend to be more appropriate for questions of a) assessing differences between groups or experimental conditions, or b) correlational or individual differences. I was primarily concerned with the use of these measures in individual differences research – hence the focus on reliability. Yet, it would be overly simplistic to assert that the discussions in this paper do not also relate to experimental differences questions. Indeed, the data processing specifications that maximise the measure’s utility in individual differences analyses can also hinder the measure’s utility in experimental questions. Further research would be needed to quantify the relative influences on correlational vs experimental analyses. Yet, large fluctuations in relative between-subjects vs within-subjects variance, due to data processing, holds importance for any research question.
+
+### Simulation studies
+
+Several valuable extensions to the current approach could be made via simulation approaches. By simulating data with a known measurement structure, we could examine variance in reliability estimates that operates purely by chance: i.e. where no systematic differences in reliability exist across pre-processing decisions. Comparing the distributions to those observed in tasks such as those analysed here would offer insight into how severe reliability heterogeneity is introduced in “real world” data. These simulations are beyond the scope of this initial paper; however hold promise to detect variance and bias relative to a ‘true’ value of reliability in the simulated data.
 
 ## What about validity?
 
-Others have previously demonstrated that measures are often used ad hoc or with little reported validation efforts [e.g. @flake_construct_2017; @hussey_hidden_2018]. This study cannot begin to assess the influence of data processing flexibility on measure validity – nor did this paper attempt to address this question. Reliability is only one piece of evidence needed to demonstrate the validity of a measure. Yet, it is an important piece of evidence as "reliability provides an upper bound for validity" [@zuo_harnessing_2019, page 3]. While we cannot directly conclude that flexibility in data processing influences measure validity, we should look to further research to investigate. One possibility would be to conduct a validity multiverse analysis similar to the "Many Analysts, One Data Set" project [@silberzahn_many_2018]. In this project, 29 teams (61 analysts total) analysed the same dataset. The teams adopted a number of different analytic approaches which resulted in a range of results. The authors concluded that, "Uncertainty in interpreting research results is therefore not just a function of statistical power or the use of questionable research practices; it is also a function of the many reasonable decisions that researchers must make in order to conduct the research" (page 354). 
+Others have previously demonstrated that measures are often used ad hoc or with little reported validation efforts [e.g. @flake_construct_2017; @hussey_hidden_2018]. This study cannot begin to assess the influence of data processing flexibility on measure validity – nor did this paper attempt to address this question. Reliability is only one piece of evidence needed to demonstrate the validity of a measure. Yet, it is an important piece of evidence as “reliability provides an upper bound for validity” [@zuo_harnessing_2019, page 3]. While we cannot directly conclude that flexibility in data processing influences measure validity, we should look to further research to investigate. One possibility would be to conduct a validity multiverse analysis similar to the “Many Analysts, One Data Set” project  [@silberzahn_many_2018]. In this project, 29 teams (61 analysts total) analysed the same dataset. The teams adopted a number of different analytic approaches which resulted in a range of results. The authors concluded that, “Uncertainty in interpreting research results is therefore not just a function of statistical power or the use of questionable research practices; it is also a function of the many reasonable decisions that researchers must make in order to conduct the research” (page 354).
+
+Another important validity consideration is the relationship between our data processing pipelines and the (latent) construct of interest. In questionnaire development, removing or adapting items might influence reliability. But, more importantly, will give rise to a different measure that may be more or less related to our latent construct of interest. For example, Fried [-@fried_52_2017] found that several common depression questionnaires captured very different clusters of symptoms, which should make us question what is meant by “depression” in the first place when using these measures. 
+
+More relevant to task measures, to maximise reliability we might seek to develop a novel version of a task that relies on average response times, instead of a difference score between average response times. While this would yield highly reliable measures, the purpose of the difference score is to isolate the process of interest. Therefore, while we have maximized reliability, we have also influenced both the construct of interest and the validity of the measure. Perhaps this more reliable measure fails to capture the effect we intended to measure. For a more in depth discussion about balancing these theoretical, validity, and reliability considerations see von Bastian et al. [-@von_bastian_advancing_2020], Goodhew and Edwards [-@goodhew_translating_2019].
+
+With respect to the data pre-processing steps taken in this paper, it could be reasonably argued that some  pre-processing specifications yield different constructs of interest or could be more or less valid for the process of interest. Are we really interested in the construct including only very accurate participants and only 60% of trials close to the average response time? In this sense, the data pre-processing decisions a researcher might adopt are certainly not arbitrary from a validity standpoint. A reasonable approach in applied work would be to select a narrower set of processing specifications that the researcher believes are theoretically similar enough that the same construct is being measured.
 
 ## Returning to the garden
 
-My intention for this project was to provide some indication about the influence of data processing pathways on the reliability of our cognitive measurements. The influence can be profound; the multiverse analyses show large differences between the highest and lowest reliability estimates. Yet, we see little consistency in the pattern of decisions leading to higher, or lower, estimates. We have the worst of both worlds: data processing decisions are largely arbitrary, yet can have a large – relatively unpredictable – impact on the resulting reliability estimates. Briefly returning to the garden of forking paths metaphor; I imagined that this project would help illuminate the point in which our hypothetical researcher would enter the garden, based on their data processing decisions. But, our investigation has uncovered an unfortunate secret: Our researcher’s forking paths are almost entirely arbitrary and interwoven. Each path diverges wildly, leading to almost anywhere in the garden. It is as if our researcher is simply spinning in dizzy circles until they stumble somewhere along the fence of reliability. I discussed several actions researchers can take collectively to help with the issue. But, by no means were these remedies to our reliability issues, nor would they directly help issues with the validity of our measurements. 
+My intention for this project was to provide some indication about the influence of data processing pathways on the reliability of our cognitive measurements. The influence can be profound; the multiverse analyses show large differences between the highest and lowest reliability estimates. Yet, we see little consistency in the pattern of decisions leading to higher, or lower, estimates. We have the worst of both worlds: data processing decisions are largely arbitrary yet can have a large – relatively unpredictable – impact on the resulting reliability estimates. Briefly returning to the garden of forking paths metaphor; I imagined that this project would help illuminate the point in which our hypothetical researcher would enter the garden, based on their data processing decisions. But, our investigation has uncovered an unfortunate secret: Our researcher’s forking paths are almost entirely arbitrary and interwoven. Each path diverges wildly, leading to almost anywhere in the garden. It is as if our researcher is simply spinning in dizzy circles until they stumble somewhere along the fence of reliability. I discussed several actions researchers can take collectively to help with the issue. But, by no means were these remedies to our reliability issues, nor would they directly help issues with the validity of our measurements.
 
-I am concerned that we sit on the precipice of a measurement crisis. The so-called replication crisis shook much of our field into widespread and ongoing reforms. Yet, much of the focus has been on improving methodological and statistical practices. This is undoubtedly worthwhile, but largely omits discussion of reliability and validity of our measurements – despite our measurements forming the basis of any outcome or inference. This oversight feels like repairing a damaged wall at the same time as ignoring the shifting foundations under it. I hope that this paper, and similar work, highlights the issue and encourages researchers to place more emphasis on quality measurement. As a field, we can orchestrate a measurement revolution [cf. the "credibility revolution", @vazire_implications_2018] in which the quality and validity of our measurements is placed an order of importance above obtaining desired results. If the reader takes home a single message from this paper, let it be "measurement matters". 
+Thankfully, there is a growing awareness that measurement matters [@fried_measurement_2018]. A valuable term, Questionable Measurement Practices (QMPs), was recently added to our vernacular by Flake and Fried [-@flake_measurement_2020]. QMPs describe “decisions researchers make that raise doubts about the validity of the measures used in a study, and ultimately the validity of the final conclusion” (p. 458). I hope that QMPs and the importance of measurement become as widely discussed as the parallel idiom, ‘Questionable Research Practices’ (QRPs). Most importantly, wider discussion of these practices should make it clear to all researchers that we make many potentially impactful decisions in the design of our measures, our data processing or cleaning, and our data analysis.
 
+I am concerned that we sit on the precipice of a measurement crisis. The so-called replication crisis shook much of our field into widespread and ongoing reforms. Yet, much of the focus has been on improving methodological and statistical practices. This is undoubtedly worthwhile, but largely omits discussion of reliability and validity of our measurements – despite our measurements forming the basis of any outcome or inference. This oversight feels like repairing a damaged wall at the same time as ignoring the shifting foundations under it. I hope that this paper, along other related work, highlights the issue and encourages researchers to place more emphasis on quality measurement. As a field, we can orchestrate a measurement revolution (cf. the “credibility revolution,” Vazire, 2018) in which the quality and validity of our measurements is placed an order of importance above obtaining desired results. If the reader takes home a single message from this paper, please let it be “measurement matters.”
 
 
 
@@ -1564,7 +2093,7 @@ r_refs(file = "My_Library.bib")
 
 \begingroup
 \setlength{\parindent}{-0.5in}
-\setlength{\leftskip}{0.5in}
+\setlength{\leftskip}{0.1in}
 
 <div id = "refs"></div>
 \endgroup
