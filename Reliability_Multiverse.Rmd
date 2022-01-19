@@ -4,13 +4,15 @@ shorttitle        : "Reliability multiverse"
 
 author: 
   - name          : "Sam Parsons"
-    affiliation   : "1"
+    affiliation   : "1,2"
     corresponding : yes    # Define only one corresponding author
     address       : "Cognitive Neuroscience Department, Donders Institute for Brain, Cognition and Behavior, Radboud University Medical Center, Nijmegen, the Netherlands"
     email         : "sam.parsons@radboudumc.nl"
 
 affiliation:
   - id            : "1"
+    institution   : "University of Oxford"  
+  - id            : "2"
     institution   : "Radboud University Medical Center"
 
 authornote: |
@@ -1819,8 +1821,7 @@ retest_DPT_happy_sup,
 retest_DPT_pain_sup)
 
 write.csv(estimates_removals_all,
-          "Supplimental/S1_all_estimates.csv")
-
+          file = "Supplemental/S1_all_estimates.csv")
 
 
 
@@ -1829,7 +1830,7 @@ write.csv(estimates_removals_all,
 
 ```{r tableone, include=TRUE, results='asis'}
 
-sup_est <- read.csv("Supplimental/S2_all_estimates_half_trials.csv")
+sup_est <- read.csv("Supplemental/S2_all_estimates_half_trials.csv")
 
 estimates_removals_all$sup_est <- sup_est$estimate
 estimates_removals_all$Difference <- estimates_removals_all$estimate -                                        estimates_removals_all$sup_est
@@ -1864,8 +1865,8 @@ To investigate this further, I reran the multiverses for Stroop and Flanker data
 ```{r difference_multiverse}
 ###
 
-full_ms <- read.csv("Supplimental/S1_all_estimates.csv")
-sup_est <- read.csv("Supplimental/S2_all_estimates_half_trials.csv")
+full_ms <- read.csv("Supplemental/S1_all_estimates.csv")
+sup_est <- read.csv("Supplemental/S2_all_estimates_half_trials.csv")
 
 full_ms3 <- full_ms
 full_ms3$sup_est <- sup_est$estimate
@@ -1958,7 +1959,7 @@ dev.off()
 
 ```{r collate estimates for paper}
 
-#estimates_removals_all <- read.csv("Supplimental/S1_all_estimates.csv")
+#estimates_removals_all <- read.csv("Supplemental/S1_all_estimates.csv")
  
 all_stroop_internal <- estimates_removals_all %>%
    filter(grepl("Stroop",task),
