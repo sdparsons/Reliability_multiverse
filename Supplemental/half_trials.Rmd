@@ -1,0 +1,1080 @@
+---
+title             : "Supplimentary analyses Exploring reliability heterogeneity with multiverse analyses: Data processing decisions unpredictably influence measurement reliability"
+shorttitle        : "Reliability multiverse"
+
+author: 
+  - name          : "Sam Parsons"
+    affiliation   : "1,2"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Cognitive Neuroscience Department, Donders Institute for Brain, Cognition and Behavior, Radboud University Medical Center, Nijmegen, the Netherlands"
+    email         : "sam.parsons@radboudumc.nl"
+
+affiliation:
+  - id            : "1"
+    institution   : "University of Oxford"  
+  - id            : "2"
+    institution   : "Radboud University Medical Center"
+
+authornote: |
+  Submitted to Meta-Psychology. Click here to follow the fully transparent editorial process of this submission. Participate in open peer review by commenting through hypothes.is directly on this preprint.
+  
+  This work was supported by an ESRC grant [ES/R004285/1]
+  
+  I would like to thank Ana Todorovic for her insightful feedback on an earlier version of this manuscript.
+
+
+abstract: |
+  Contains supplimental analyses for the main paper. Specifically, the same analyses including only half of the trials.
+
+  
+keywords          : "reliability, multiverse, analytic flexibility, data processing"
+# wordcount         : "X"
+
+bibliography      : ["My_Library.bib", "r-references.bib"]
+
+floatsintext      : yes
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : no
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+
+header-includes:
+- \usepackage{float} #use the 'float' package
+- \usepackage{caption}
+- \usepackage{newunicodechar}
+- \floatplacement{figure}{H} #make every figure with caption = h
+- \raggedbottom
+
+---
+
+```{r setup, include = FALSE}
+# note: need to add the conditional stuff so that the correct version is loaded
+if(!"devtools" %in% rownames(installed.packages())) install.packages("devtools")
+if(!"papaja" %in% rownames(installed.packages())) devtools::install_github("crsh/papaja")
+if(!"tidyverse" %in% rownames(installed.packages())) install.packages("tidyverse")
+if(!"splithalf" %in% rownames(installed.packages())) devtools::install_github("sdparsons/splithalf")
+if(!"gridExtra" %in% rownames(installed.packages())) install.packages("gridExtra")
+if(!"psych" %in% rownames(installed.packages())) install.packages("psych")
+if(!"Cairo" %in% rownames(installed.packages())) install.packages("Cairo")
+if(!"patchwork" %in% rownames(installed.packages())) install.packages("patchwork")
+
+library("papaja")
+library("tidyverse")
+library("splithalf")
+library("gridExtra")
+library("psych")
+library("Cairo")
+library("patchwork")
+
+r_refs(file = "r-references.bib")
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(results = 'hide')
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(error = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(fig.pos = "h")
+
+```
+
+```{r Hedgeraw_Stroop, echo = FALSE, results = 'hide'}
+# time 1 - extract data for session 1
+t1_list_Stroop <- list.files(path = "../",
+                             pattern = "*Stroop1.csv", 
+                             recursive = TRUE)
+
+t1_list_Stroop <- paste("../", t1_list_Stroop, sep = "")
+
+time1_Stroop <- data.frame(Block = NULL,
+                    Trial = NULL,
+                    Arrow_direction = NULL,
+                    Condition = NULL,
+                    Correct = NULL,
+                    Reactiontime = NULL,
+                    ppid = NULL)
+
+for(i in t1_list_Stroop) {
+  temp <- read_csv(i,
+         col_names = c("Block",
+                       "Trial",
+                       "Arrow_direction",
+                       "Condition",
+                       "Correct",
+                       "Reactiontime"))
+  temp$ppid <- i
+  time1_Stroop <- rbind(time1_Stroop, temp)
+}
+
+time1_Stroop$time <- 1
+
+
+# time 2 - extract data for session 2
+t2_list_Stroop <- list.files(path = "../",,
+                             pattern = "*Stroop2.csv", 
+                             recursive = TRUE)
+
+t2_list_Stroop <- paste("../", t2_list_Stroop, sep = "")
+
+time2_Stroop <- data.frame(Block = NULL,
+                    Trial = NULL,
+                    Arrow_direction = NULL,
+                    Condition = NULL,
+                    Correct = NULL,
+                    Reactiontime = NULL,
+                    ppid = NULL)
+
+for(j in t2_list_Stroop) {
+  temp2 <- read_csv(j,
+         col_names = c("Block",
+                       "Trial",
+                       "Arrow_direction",
+                       "Condition",
+                       "Correct",
+                       "Reactiontime"))
+  temp2$ppid <- j
+  time2_Stroop <- rbind(time2_Stroop, temp2)
+}
+
+time2_Stroop$time <- 2
+
+# Note: following Hedge et al.'s data README, 
+## we removed participants 25, 34, 38, and 54
+
+# remove superflous characters in the participant id variable
+time1_Stroop$ppid <- time1_Stroop$ppid %>%
+  gsub("RawData/Study1-Stroop/Study", "", .) %>%
+  gsub("RawData/Study2-Stroop/Study", "", .) %>%
+  gsub("Stroop1.csv", "", .) %>%
+  gsub("Stroop2.csv", "", .)
+
+time2_Stroop$ppid <- time2_Stroop$ppid %>%
+  gsub("RawData/Study1-Stroop/Study", "", .) %>%
+  gsub("RawData/Study2-Stroop/Study", "", .) %>%
+  gsub("Stroop1.csv", "", .) %>%
+  gsub("Stroop2.csv", "", .)
+
+# removing participants and recoding the condition variable
+time1_Stroop <- time1_Stroop %>%
+  filter(Condition != 1,
+         ppid != "P25", 
+         ppid != "P34",
+         ppid != "P38",
+         ppid != "P54") %>%
+  mutate(Condition = ifelse(Condition == 0, "congruent", "incongruent"))
+
+
+time2_Stroop <- time2_Stroop %>%
+  filter(Condition != 1,
+         ppid != "P25", 
+         ppid != "P34",
+         ppid != "P38",
+         ppid != "P54") %>%
+  mutate(Condition = ifelse(Condition == 0, "congruent", "incongruent"))
+
+Hedge_raw_Stroop <- rbind(time1_Stroop, time2_Stroop)
+
+# note: the original data uses seconds for the raw data and ms for the summary data, so here we convert the raw data to millisecond
+
+Hedge_raw_Stroop$Reactiontime <- Hedge_raw_Stroop$Reactiontime * 1000
+
+Hedge_raw_Stroop <- Hedge_raw_Stroop %>%
+  rename(subject = ppid,
+         congruency = Condition,
+         latency = Reactiontime,
+         trialnum = Trial,
+         correct = Correct,
+         blockcode = Block
+         ) %>%
+  mutate(congruency = ifelse(congruency == "incongruent", "Incongruent",
+                      ifelse(congruency == "congruent", "Congruent","NA"))) %>%
+  as.data.frame()
+
+```
+
+```{r Hedgeraw_Flanker, echo = FALSE, results = 'hide'}
+# time 1 - extract data for session 1
+t1_list_Flanker <- list.files(path = "../",
+                              pattern = "*Flanker1.csv", 
+                              recursive = TRUE)
+
+t1_list_Flanker <- paste("../", t1_list_Flanker, sep = "")
+
+time1_Flanker <- data.frame(Block = NULL,
+                    Trial = NULL,
+                    Arrow_direction = NULL,
+                    Condition = NULL,
+                    Correct = NULL,
+                    Reactiontime = NULL,
+                    ppid = NULL)
+
+for(i in t1_list_Flanker) {
+  temp <- read_csv(i,
+         col_names = c("Block",
+                       "Trial",
+                       "Arrow_direction",
+                       "Condition",
+                       "Correct",
+                       "Reactiontime"))
+  temp$ppid <- i
+  time1_Flanker <- rbind(time1_Flanker, temp)
+}
+
+time1_Flanker$time <- 1
+
+
+# time 2 - extract data for session 2
+t2_list_Flanker <- list.files(path = "../",
+                              pattern = "*Flanker2.csv", 
+                              recursive = TRUE)
+
+t2_list_Flanker <- paste("../", t2_list_Flanker, sep = "")
+
+time2_Flanker <- data.frame(Block = NULL,
+                    Trial = NULL,
+                    Arrow_direction = NULL,
+                    Condition = NULL,
+                    Correct = NULL,
+                    Reactiontime = NULL,
+                    ppid = NULL)
+
+for(j in t2_list_Flanker) {
+  temp2 <- read_csv(j,
+         col_names = c("Block",
+                       "Trial",
+                       "Arrow_direction",
+                       "Condition",
+                       "Correct",
+                       "Reactiontime"))
+  temp2$ppid <- j
+  time2_Flanker <- rbind(time2_Flanker, temp2)
+}
+
+time2_Flanker$time <- 2
+
+# Note: following Hedge et al.'s data README, 
+## we removed participants 25, 34, 38, and 54
+
+# remove superflous characters in the participant id variable
+time1_Flanker$ppid <- time1_Flanker$ppid %>%
+  gsub("RawData/Study1-Flanker/Study", "", .) %>%
+  gsub("RawData/Study2-Flanker/Study", "", .) %>%
+  gsub("Flanker1.csv", "", .) %>%
+  gsub("Flanker2.csv", "", .)
+
+time2_Flanker$ppid <- time2_Flanker$ppid %>%
+  gsub("RawData/Study1-Flanker/Study", "", .) %>%
+  gsub("RawData/Study2-Flanker/Study", "", .) %>%
+  gsub("Flanker1.csv", "", .) %>%
+  gsub("Flanker2.csv", "", .)
+
+# removing participants and recoding the condition variable
+time1_Flanker <- time1_Flanker %>%
+  filter(Condition != 1,
+         ppid != "P25", 
+         ppid != "P34",
+         ppid != "P38",
+         ppid != "P54") %>%
+  mutate(Condition = ifelse(Condition == 0, "congruent", "incongruent"))
+
+
+time2_Flanker <- time2_Flanker %>%
+  filter(Condition != 1,
+         ppid != "P25", 
+         ppid != "P34",
+         ppid != "P38",
+         ppid != "P54") %>%
+  mutate(Condition = ifelse(Condition == 0, "congruent", "incongruent"))
+
+Hedge_raw_Flanker <- rbind(time1_Flanker, time2_Flanker)
+
+# note: the original data uses seconds for the raw data and ms for the summary data, so here we convert the raw data to millisecond
+
+Hedge_raw_Flanker$Reactiontime <- Hedge_raw_Flanker$Reactiontime * 1000
+
+Hedge_raw_Flanker <- Hedge_raw_Flanker %>%
+  rename(subject = ppid,
+         congruency = Condition,
+         latency = Reactiontime,
+         trialnum = Trial,
+         correct = Correct,
+         blockcode = Block
+         ) %>%
+  mutate(congruency = ifelse(congruency == "incongruent", "Incongruent",
+                      ifelse(congruency == "congruent", "Congruent","NA"))) %>%
+  as.data.frame()
+
+```
+
+```{r DotProbe, echo = FALSE, results = 'hide'}
+DPT_all <- read.csv("../Data/CogBIAS_DPT.csv")# %>%
+  # filter(subject2 != 31006,
+  #        subject2 != 31012,
+  #        subject2 != 31019,
+  #        subject2 != 33126,
+  #        subject2 != 36287)
+
+DPT_angry <- DPT_all %>%
+  filter(blockcode == "angry")
+
+DPT_happy <- DPT_all %>%
+  filter(blockcode == "happy")
+
+DPT_pain <- DPT_all %>%
+  filter(blockcode == "pain")
+
+```
+
+```{r cutting to half the total number of trials}
+
+Hedge_raw_Stroop <- Hedge_raw_Stroop %>%
+  group_by(subject, time, congruency) %>%
+  slice_head(n = 120) %>%
+  as.data.frame()
+
+Hedge_raw_Flanker <- Hedge_raw_Flanker %>%
+  group_by(subject, time, congruency) %>%
+  slice_head(n = 120) %>%
+  as.data.frame()
+
+time1_Stroop <- time1_Stroop %>%
+  group_by(ppid, Condition) %>%
+  slice_head(n = 120) %>%
+  as.data.frame()
+
+time2_Stroop <- time2_Stroop %>%
+  group_by(ppid, Condition) %>%
+  slice_head(n = 120) %>%
+  as.data.frame()
+
+time1_Flanker <- time1_Flanker %>%
+  group_by(ppid, Condition) %>%
+  slice_head(n = 120) %>%
+  as.data.frame()
+
+time2_Flanker <- time2_Flanker %>%
+  group_by(ppid, Condition) %>%
+  slice_head(n = 120) %>%
+  as.data.frame()
+
+DPT_angry <- DPT_angry %>%
+  group_by(subject2, wave, congruency) %>%
+  slice_head(n = 20) %>%
+  as.data.frame()
+
+DPT_happy <- DPT_happy %>%
+  group_by(subject2, wave, congruency) %>%
+  slice_head(n = 20) %>%
+  as.data.frame()
+
+DPT_pain <- DPT_pain %>%
+  group_by(subject2,  wave, congruency) %>%
+  slice_head(n = 20) %>%
+  as.data.frame()
+
+
+
+DPT_angry %>%
+  group_by(subject2, wave, congruency) %>%
+  summarise(n =  n()) %>%
+  filter(n < 8)
+
+DPT_angry %>%
+  group_by(subject2, wave, congruency) %>%
+  filter(correct == 1) %>%
+  filter(latency > 200,
+         latency < 2000) %>%
+  filter(latency > (mean(latency)-sd(latency)),
+         latency < (mean(latency)+sd(latency))) %>%
+  summarise(n =  n()) %>%
+  filter(n < 6)
+
+DPT_angry %>%
+  group_by(subject2, wave, congruency) %>%
+  summarise(n =  n()) %>%
+  group_by(subject2, wave) %>%
+  summarise(nn = n()) %>%
+  filter(nn < 2)
+
+DPT_happy %>%
+  group_by(subject2, wave, congruency) %>%
+  summarise(n =  n()) %>%
+  filter(n < 8)
+
+DPT_happy %>%
+  group_by(subject2, wave, congruency) %>%
+  summarise(n =  n()) %>%
+  group_by(subject2, wave) %>%
+  summarise(nn = n()) %>%
+  filter(nn < 2)
+
+DPT_pain %>%
+  group_by(subject2, wave, congruency) %>%
+  summarise(n =  n()) %>%
+  filter(n < 8)
+
+DPT_pain %>%
+  group_by(subject2, wave, congruency) %>%
+  summarise(n =  n()) %>%
+  group_by(subject2, wave) %>%
+  summarise(nn = n()) %>%
+  filter(nn < 2)
+
+```
+
+
+```{r the specifications}
+ specifications <- list(
+  ACC_cutoff = c(0, 0.8, 0.9),  
+  RT_min           = c(0, 100, 200),
+  RT_max            = c(2000, 3000),
+  RT_sd_cutoff      = c(0, 1, 2, 3),
+  split_by          = c("subject", "trial"), 
+  averaging_method  = c("mean", "median")
+ )
+ 
+ default_permutations = 500
+
+
+
+ #   specifications <- list(
+ #     ACC_cutoff = c(0, .9),
+ #     RT_min           = c(100, 200),
+ #     RT_max            = c(2000),
+ #     RT_sd_cutoff      = c(1, 3)
+ #   )
+ # 
+ # default_permutations = 50
+
+```
+
+
+```{r Hedge_internal_T1_Stroop}
+
+# first, run splithalf
+internal.1_Stroop_splithalf <- splithalf(data = subset(Hedge_raw_Stroop, time == 1),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+# then, run splithalf.multiverse
+internal.1_Stroop <- splithalf.multiverse(input = internal.1_Stroop_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.1_Stroop, "internal_1_Stroop.rds")
+
+```
+
+```{r Hedge_internal_T1_Stroop_output}
+internal.1_Stroop$CI
+
+T1_threshold_Stroop <- threshold(multiverse = internal.1_Stroop, 
+          threshold = 0.7,
+          use = "estimate",
+          dir = "above")
+```
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Stroop RT cost at time 1", fig.height = 7}
+Cairo::Cairo(file="internal1stroop.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = internal.1_Stroop,
+         title = "Stroop Time 1",
+         vline = 0.5)
+dev.off()
+
+```
+
+```{r Hedge_internal_T2_Stroop}
+internal.2_Stroop_splithalf <- splithalf(data = subset(Hedge_raw_Stroop, time == 2),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.2_Stroop <- splithalf.multiverse(input = internal.2_Stroop_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.2_Stroop, "internal_2_Stroop.rds")
+
+```
+
+```{r Hedge_internal_T2_Stroop_output}
+internal.2_Stroop$CI
+
+T2_threshold_Stroop <- threshold(multiverse = internal.2_Stroop, 
+          threshold = 0.7,
+          use = "estimate",
+          dir = "above")
+```
+
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Stroop RT cost at time 2", fig.height = 7}
+Cairo::Cairo(file="internal2stroop.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = internal.2_Stroop,
+         title = "Stroop Time 2",
+         vline = 0.5)
+dev.off()
+
+```
+
+
+```{r Hedge_retest_Stroop}
+retest_Stroop <- testretest.multiverse(data = Hedge_raw_Stroop,
+                 specifications = specifications,
+                 test = "ICC2",
+                 var.participant = "subject",
+                 var.RT = "latency")
+
+saveRDS(retest_Stroop, "testretest_Stroop.rds")
+
+
+```
+
+```{r Hedge_retest_Stroop_output}
+retest_Stroop$CI
+
+retest_threshold_Stroop <- threshold(multiverse = retest_Stroop, 
+          threshold = 0.7,
+          use = "estimate",
+          dir = "above")
+
+```
+
+
+```{r fig.show='asis', fig.cap="Test-retest reliability multiverse for Stroop RT cost", fig.height = 7}
+Cairo::Cairo(file="reteststroop.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = retest_Stroop,
+         title = "Stroop test-retest",
+         vline = 0.5)
+dev.off()
+
+```
+
+
+```{r Hedge_internal_T1_Flanker}
+internal.1_Flanker_splithalf <- splithalf(data = subset(Hedge_raw_Flanker, time == 1),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.1_Flanker <- splithalf.multiverse(input = internal.1_Flanker_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.1_Flanker, "internal_1_Flanker.rds")
+
+
+```
+
+```{r Hedge_internal_T1_Flanker_output}
+internal.1_Flanker$CI
+
+T1_threshold_Flanker <- threshold(multiverse = internal.1_Flanker, 
+          threshold = 0.7,
+          use = "estimate",
+          dir = "above")
+```
+
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Flanker RT cost at time 1", fig.height = 7}
+# note: figure chunks are unnamed to avoid the chunk name being added to the figure label
+
+Cairo::Cairo(file="internal1flanker.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = internal.1_Flanker,
+         title = "Flanker Time 1",
+         vline = 0.5)
+dev.off()
+
+```
+
+
+```{r Hedge_internal_T2_Flanker}
+internal.2_Flanker_splithalf <- splithalf(data = subset(Hedge_raw_Flanker, time == 2),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.2_Flanker <- splithalf.multiverse(input = internal.2_Flanker_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.2_Flanker, "internal_2_Flanker.rds")
+
+```
+
+```{r Hedge_internal_T2_Flanker_output}
+internal.2_Flanker$CI
+
+T2_threshold_Flanker <- threshold(multiverse = internal.2_Flanker, 
+          threshold = 0.7,
+          use = "estimate",
+          dir = "above")
+```
+
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Flanker RT cost at time 2", fig.height = 7}
+Cairo::Cairo(file="internal2flanker.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = internal.2_Flanker,
+         title = "Flanker Time 2",
+         vline = 0.5)
+dev.off()
+```
+
+
+```{r Hedge_retest_Flanker}
+retest_Flanker <- testretest.multiverse(data = Hedge_raw_Flanker,
+                 specifications = specifications,
+                 test = "ICC2",
+                 var.RT = "latency")
+
+saveRDS(retest_Flanker, "testretest_Flanker.rds")
+
+
+```
+
+```{r Hedge_retest_Flanker_output}
+retest_Flanker$CI
+
+retest_threshold_Flanker <- threshold(multiverse = retest_Flanker, 
+          threshold = 0.7,
+          use = "estimate",
+          dir = "above")
+
+```
+
+
+```{r fig.show='asis', fig.cap="Test-retest reliability multiverse for Flanker RT cost", fig.height = 7}
+Cairo::Cairo(file="retestflanker.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = retest_Flanker,
+         title = "FLANKER test-retest",
+         vline = 0.5)
+dev.off()
+```
+
+
+```{r fig.show = 'asis', fig.cap="Overlapped internal consistency reliability multiverse for Stroop RT cost at times 1 and 2", fig.height = 7}
+Cairo::Cairo(file="internaloverlapstroop.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = list(internal.1_Stroop, internal.2_Stroop),
+                 title = "Stroop - overlapping t1 and t2 reliabilities",
+                 heights = c(5, 4))
+dev.off()
+```
+
+
+```{r fig.show = 'asis', fig.cap="Overlapped internal consistency reliability multiverse for Flanker RT cost at times 1 and 2", fig.height = 7}
+Cairo::Cairo(file="internaloverlapflanker.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = list(internal.1_Flanker,internal.2_Flanker),
+                 title = "Flanker - overlapping t1 and t2 reliabilities",
+                heights = c(5, 4))
+dev.off()
+```
+
+
+```{r DPT_angry}
+## 1
+
+internal.1_DPT_angry_splithalf <- splithalf(data = subset(DPT_angry, wave == 1),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.1_DPT_angry <- splithalf.multiverse(input = internal.1_DPT_angry_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.1_DPT_angry, "internal.1_DPT_angry.rds")
+
+## 2
+
+internal.2_DPT_angry_splithalf <- splithalf(data = subset(DPT_angry, wave == 2),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.2_DPT_angry <- splithalf.multiverse(input = internal.2_DPT_angry_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.2_DPT_angry, "internal.2_DPT_angry.rds")
+
+## 3
+
+internal.3_DPT_angry_splithalf <- splithalf(data = subset(DPT_angry, wave == 3),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.3_DPT_angry <- splithalf.multiverse(input = internal.3_DPT_angry_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.3_DPT_angry, "internal.3_DPT_angry.rds")
+
+```
+
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Dot Probe attention bias (angry faces) at times 1, 2, and 3", fig.height = 7}
+Cairo::Cairo(file="DPT_angry_internal.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = list(internal.1_DPT_angry,
+                               internal.2_DPT_angry,
+                               internal.3_DPT_angry),
+                title = "DOT PROBE angry internal consistency",
+                vline = .5)
+dev.off()
+```
+
+
+```{r DPT_happy}
+## 1
+
+internal.1_DPT_happy_splithalf <- splithalf(data = subset(DPT_happy, wave == 1 & subject != 311018),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.1_DPT_happy <- splithalf.multiverse(input = internal.1_DPT_happy_splithalf,
+                 specifications = specifications)
+
+
+saveRDS(internal.1_DPT_happy, "internal.1_DPT_happy.rds")
+
+## 2
+
+internal.2_DPT_happy_splithalf <- splithalf(data = subset(DPT_happy, wave == 2),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.2_DPT_happy <- splithalf.multiverse(input = internal.2_DPT_happy_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.2_DPT_happy, "internal.2_DPT_happy.rds")
+
+## 3
+
+internal.3_DPT_happy_splithalf <- splithalf(data = subset(DPT_happy, wave == 3),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.3_DPT_happy <- splithalf.multiverse(input = internal.3_DPT_happy_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.3_DPT_happy, "internal.3_DPT_happy.rds")
+
+```
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Dot Probe attention bias (happy faces) at times 1, 2, and 3", fig.height = 7}
+Cairo::Cairo(file="DPT_happy_internal.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = list(internal.1_DPT_happy,
+                               internal.2_DPT_happy,
+                               internal.3_DPT_happy),
+                title = "DOT PROBE happy internal consistency",
+                vline = .5)
+dev.off()
+```
+
+```{r DPT_pain}
+## 1
+
+internal.1_DPT_pain_splithalf <- splithalf(data = subset(DPT_pain, wave == 1),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.1_DPT_pain <- splithalf.multiverse(input = internal.1_DPT_pain_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.1_DPT_pain, "internal.1_DPT_pain.rds")
+
+## 2
+
+internal.2_DPT_pain_splithalf <- splithalf(data = subset(DPT_pain, wave == 2),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.2_DPT_pain <- splithalf.multiverse(input = internal.2_DPT_pain_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.2_DPT_pain, "internal.2_DPT_pain.rds")
+
+## 3
+
+internal.3_DPT_pain_splithalf <- splithalf(data = subset(DPT_pain, wave == 3 & subject != 383468),
+                                         permutations = default_permutations,
+                                         var.ACC = "correct")
+
+internal.3_DPT_pain <- splithalf.multiverse(input = internal.3_DPT_pain_splithalf,
+                 specifications = specifications)
+
+saveRDS(internal.3_DPT_pain, "internal.3_DPT_pain.rds")
+
+```
+
+
+```{r fig.show='asis', fig.cap="Internal consistency reliability multiverse for Dot Probe attention bias (pain faces) at times 1, 2, and 3", fig.height = 7}
+Cairo::Cairo(file="DPT_pain_internal.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(multiverse = list(internal.1_DPT_pain,
+                               internal.2_DPT_pain,
+                               internal.3_DPT_pain),
+                title = "DOT PROBE pain internal consistency",
+                vline = .5)
+dev.off()
+```
+
+```{r echo = FALSE}
+
+
+retest_DPT_angry <- testretest.multiverse(data = DPT_angry,
+                 specifications = specifications,
+                 test = "ICC2",
+                 var.RT = "latency",
+                 var.participant = "subject2",
+                 var.time = "wave")
+
+saveRDS(retest_DPT_angry, "retest_DPT_angry.rds")
+
+retest_DPT_happy <- testretest.multiverse(data = DPT_happy,
+                 specifications = specifications,
+                 test = "ICC2",
+                 var.RT = "latency",
+                 var.participant = "subject2",
+                 var.time = "wave")
+
+saveRDS(retest_DPT_angry, "retest_DPT_happy.rds")
+
+retest_DPT_pain <- testretest.multiverse(data = DPT_pain,
+                 specifications = specifications,
+                 test = "ICC2",
+                 var.RT = "latency",
+                 var.participant = "subject2",
+                 var.time = "wave")
+
+saveRDS(retest_DPT_angry, "retest_DPT_pain.rds")
+
+```
+
+```{r fig.show='asis', fig.cap="Test-retest reliability multiverse for Dot Probe attention bias for all three conditions. Note: red = angry, green = happy, blue = pained", fig.height = 7}
+Cairo::Cairo(file="DPT_testretest_all.png", 
+      type="png",
+      bg = "white",
+      units="in", 
+      width=10, 
+      height=8, 
+      pointsize=12, 
+      dpi=144)
+multiverse.plot(list(retest_DPT_angry,
+                     retest_DPT_happy,
+                     retest_DPT_pain),
+                title = "DOT PROBE test-retest all conditions",
+                 heights = c(5, 4))
+dev.off()
+```
+
+
+
+```{r}
+# getting the n participants retained and the sample estimates into one dataset
+
+internal.1_Stroop_sup <- left_join(internal.1_Stroop$estimates, internal.1_Stroop$removals) %>%
+  mutate(task = "Stroop_1",
+         measure = "internal_consistency")
+internal.2_Stroop_sup <- left_join(internal.2_Stroop$estimates, internal.2_Stroop$removals) %>%
+  mutate(task = "Stroop_2",
+         measure = "internal_consistency")
+internal.1_Flanker_sup <- left_join(internal.1_Flanker$estimates, internal.1_Flanker$removals) %>%
+  mutate(task = "Flanker_1",
+         measure = "internal_consistency")
+internal.2_Flanker_sup <- left_join(internal.2_Flanker$estimates, internal.2_Flanker$removals) %>%
+  mutate(task = "Flanker_2",
+         measure = "internal_consistency")
+internal.1_DPT_angry_sup <- left_join(internal.1_DPT_angry$estimates, internal.1_DPT_angry$removals) %>%
+  mutate(task = "DPT_angry_1",
+         measure = "internal_consistency")
+internal.2_DPT_angry_sup <- left_join(internal.2_DPT_angry$estimates, internal.2_DPT_angry$removals) %>%
+  mutate(task = "DPT_angry_2",
+         measure = "internal_consistency")
+internal.3_DPT_angry_sup <- left_join(internal.3_DPT_angry$estimates, internal.3_DPT_angry$removals) %>%
+  mutate(task = "DPT_angry_3",
+         measure = "internal_consistency")
+internal.1_DPT_happy_sup <- left_join(internal.1_DPT_happy$estimates, internal.1_DPT_happy$removals) %>%
+  mutate(task = "DPT_happy_1",
+         measure = "internal_consistency")
+internal.2_DPT_happy_sup <- left_join(internal.2_DPT_happy$estimates, internal.2_DPT_happy$removals) %>%
+  mutate(task = "DPT_happy_2",
+         measure = "internal_consistency")
+internal.3_DPT_happy_sup <- left_join(internal.3_DPT_happy$estimates, internal.3_DPT_happy$removals) %>%
+  mutate(task = "DPT_happy_3",
+         measure = "internal_consistency")
+internal.1_DPT_pain_sup <- left_join(internal.1_DPT_pain$estimates, internal.1_DPT_pain$removals) %>%
+  mutate(task = "DPT_pain_1",
+         measure = "internal_consistency")
+internal.2_DPT_pain_sup <- left_join(internal.2_DPT_pain$estimates, internal.2_DPT_pain$removals) %>%
+  mutate(task = "DPT_pain_2",
+         measure = "internal_consistency")
+internal.3_DPT_pain_sup <- left_join(internal.3_DPT_pain$estimates, internal.3_DPT_pain$removals) %>%
+  mutate(task = "DPT_pain_3",
+         measure = "internal_consistency")
+
+retest_Stroop_sup <- left_join(retest_Stroop$estimates, retest_Stroop$removals) %>%
+  mutate(task = "Stroop",
+         measure = "ICC")
+retest_Flanker_sup <- left_join(retest_Flanker$estimates, retest_Flanker$removals) %>%
+  mutate(task = "Flanker",
+         measure = "ICC")
+retest_DPT_angry_sup <- left_join(retest_DPT_angry$estimates, retest_DPT_angry$removals) %>%
+  mutate(task = "DPT_angry",
+         measure = "ICC")
+retest_DPT_happy_sup <- left_join(retest_DPT_happy$estimates, retest_DPT_happy$removals) %>%
+  mutate(task = "DPT_happy",
+         measure = "ICC")
+retest_DPT_pain_sup <- left_join(retest_DPT_pain$estimates, retest_DPT_pain$removals) %>%
+  mutate(task = "DPT_pain",
+         measure = "ICC")
+
+estimates_removals_all <- rbind(internal.1_Stroop_sup,
+internal.2_Stroop_sup,
+internal.1_Flanker_sup,
+internal.2_Flanker_sup,
+internal.1_DPT_angry_sup,
+internal.2_DPT_angry_sup,
+internal.3_DPT_angry_sup,
+internal.1_DPT_happy_sup,
+internal.2_DPT_happy_sup,
+internal.3_DPT_happy_sup,
+internal.1_DPT_pain_sup,
+internal.2_DPT_pain_sup,
+internal.3_DPT_pain_sup,
+retest_Stroop_sup,
+retest_Flanker_sup,
+retest_DPT_angry_sup,
+retest_DPT_happy_sup,
+retest_DPT_pain_sup)
+
+write.csv(estimates_removals_all,
+          "S2_all_estimates_half_trials.csv")
+
+
+```
+
+
+```{r tableone, include=TRUE, results='asis'}
+estimates_removals_all$task <- gsub("DPT_", "DPT", estimates_removals_all$task)
+
+estimates_removals_all %>%
+  group_by(task, measure) %>%
+  summarise(`correlation` = round(cor(estimate, nTrial),2),
+            `95% CI low` = round(cor.test(estimate, nTrial)$conf.int[1], 2),
+            `95% CI high` = round(cor.test(estimate, nTrial)$conf.int[2], 2)) %>%
+  separate(task, c("task", "time")) %>%
+    mutate(ord =  ifelse(task == "Stroop", 1,
+                ifelse(task == "Flanker", 2,
+                ifelse(task == "DPTangry", 3,
+                ifelse(task == "DPThappy", 4,
+                ifelse(task == "DPTpain", 5, 0)))))) %>%
+  arrange(desc(measure), ord) %>%
+  select(-ord) %>%
+  mutate(measure = ifelse(measure == "internal_consistency", "splithalf", "ICC")) %>%
+  mutate(time = ifelse(is.na(time), "", time)) %>%
+  as.data.frame() %>%
+  papaja::apa_table(align = "lllrrr",
+                    caption = "Correlations between reliability estimates and number of trials retained across specifications")
+
+```
+
+```{r eval = FALSE}
+# est <- read.csv("../Supplimental/S1_all_estimates.csv")
+# estimates_removals_all <- read.csv("S2_all_estimates_half_trials.csv")
+estimates_removals_all %>%
+  group_by(task, measure) %>%
+  summarise(cor = round(cor(estimate, nTrial),2),
+            cor_low = round(cor.test(estimate, nTrial)$conf.int[1], 2),
+            cor_hi = round(cor.test(estimate, nTrial)$conf.int[2], 2)) %>%
+  separate(task, c("task","condition", "time"))%>%
+  arrange(desc(measure), desc(task), time)
+
+
+
+
+```
+
+
+
+
+
+\newpage
+
+```{r create_r-references}
+r_refs(file = "My_Library.bib")
+```
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id = "refs"></div>
+\endgroup

@@ -3,12 +3,11 @@
 \PassOptionsToPackage{hyphens}{url}
 %
 \documentclass[
-  english,
   man,floatsintext]{apa6}
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
-\usepackage{ifxetex,ifluatex}
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+\usepackage{iftex}
+\ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
@@ -34,16 +33,6 @@
   \KOMAoptions{parskip=half}}
 \makeatother
 \usepackage{xcolor}
-\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
-\hypersetup{
-  pdftitle={Exploring reliability heterogeneity with multiverse analyses: Data processing decisions unpredictably influence measurement reliability},
-  pdfauthor={Sam Parsons1,2},
-  pdflang={en-EN},
-  pdfkeywords={reliability, multiverse, analytic flexibility, data processing},
-  hidelinks,
-  pdfcreator={LaTeX via pandoc}}
-\urlstyle{same} % disable monospaced font for URLs
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -70,6 +59,38 @@
   \let\oldsubparagraph\subparagraph
   \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
 \fi
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\ifLuaTeX
+\usepackage[bidi=basic]{babel}
+\else
+\usepackage[bidi=default]{babel}
+\fi
+\babelprovide[main,import]{english}
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
 % Manuscript styling
 \usepackage{upgreek}
 \captionsetup{font=singlespacing,justification=justified}
@@ -100,6 +121,20 @@
 % \setlength{\parindent}{0.5in}
 % \setlength{\parskip}{0pt plus 0pt minus 0pt}
 
+% Overwrite redefinition of paragraph and subparagraph by the default LaTeX template
+% See https://github.com/crsh/papaja/issues/292
+\makeatletter
+\renewcommand{\paragraph}{\@startsection{paragraph}{4}{\parindent}%
+  {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries\itshape\typesectitle}}
+
+\renewcommand{\subparagraph}[1]{\@startsection{subparagraph}{5}{1em}%
+  {0\baselineskip \@plus 0.2ex \@minus 0.2ex}%
+  {-\z@\relax}%
+  {\normalfont\normalsize\itshape\hspace{\parindent}{#1}\textit{\addperi}}{\relax}}
+\makeatother
+
 % \usepackage{etoolbox}
 \makeatletter
 \patchcmd{\HyOrg@maketitle}
@@ -111,7 +146,15 @@
   {\section*{\protect\normalfont{\@title}}}
   {}{\typeout{Failed to patch title.}}
 \makeatother
-\shorttitle{Reliability multiverse}
+
+\usepackage{xpatch}
+\makeatletter
+\xapptocmd\appendix
+  {\xapptocmd\section
+    {\addcontentsline{toc}{section}{\appendixname\ifoneappendix\else~\theappendix\fi\\: #1}}
+    {}{\InnerPatchFailed}%
+  }
+{}{\PatchFailed}
 \keywords{reliability, multiverse, analytic flexibility, data processing}
 \usepackage{csquotes}
 \usepackage{float}
@@ -119,44 +162,26 @@
 \usepackage{newunicodechar}
 \floatplacement{figure}{H}
 \raggedbottom
-\ifxetex
-  % Load polyglossia as late as possible: uses bidi with RTL langages (e.g. Hebrew, Arabic)
-  \usepackage{polyglossia}
-  \setmainlanguage[]{english}
-\else
-  \usepackage[main=english]{babel}
-% get rid of language-specific shorthands (see #6817):
-\let\LanguageShortHands\languageshorthands
-\def\languageshorthands#1{}
-\fi
-\ifluatex
+\ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
-\newlength{\cslhangindent}
-\setlength{\cslhangindent}{1.5em}
-\newlength{\csllabelwidth}
-\setlength{\csllabelwidth}{3em}
-\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
- {% don't indent paragraphs
-  \setlength{\parindent}{0pt}
-  % turn on hanging indent if param 1 is 1
-  \ifodd #1 \everypar{\setlength{\hangindent}{\cslhangindent}}\ignorespaces\fi
-  % set entry spacing
-  \ifnum #2 > 0
-  \setlength{\parskip}{#2\baselineskip}
-  \fi
- }%
- {}
-\usepackage{calc}
-\newcommand{\CSLBlock}[1]{#1\hfill\break}
-\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
-\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
-\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Exploring reliability heterogeneity with multiverse analyses: Data processing decisions unpredictably influence measurement reliability},
+  pdfauthor={Sam Parsons1,2},
+  pdflang={en-EN},
+  pdfkeywords={reliability, multiverse, analytic flexibility, data processing},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
 
 \title{Exploring reliability heterogeneity with multiverse analyses: Data processing decisions unpredictably influence measurement reliability}
 \author{Sam Parsons\textsuperscript{1,2}}
 \date{}
 
+
+\shorttitle{Reliability multiverse}
 
 \authornote{
 
@@ -172,7 +197,7 @@ Correspondence concerning this article should be addressed to Sam Parsons, Cogni
 
 \affiliation{\vspace{0.5cm}\textsuperscript{1} University of Oxford\\\textsuperscript{2} Radboud University Medical Center}
 
-\abstract{
+\abstract{%
 Analytic flexibility is known to influence the results of statistical tests, e.g.~effect sizes and p-values. Yet, the degree to which flexibility in data processing decisions influences measurement reliability is unknown. In this paper I attempt to address this question using a series of 36 reliability multiverse analyses, each with 288 data processing specifications, including accuracy and response time cut-offs. I used data from a Stroop task and Flanker task at two time points, as well as a Dot Probe task across three stimuli conditions and three timepoints. This allowed for broad overview of internal consistency reliability and test-retest estimates across a multiverse of data processing specifications. Largely arbitrary decisions in data processing led to differences between the highest and lowest reliability estimate of at least 0.2, but potentially exceeding 0.7. Importantly, there was no consistent pattern in reliability estimates resulting from the data processing specifications, across time as well as tasks. Together, data processing decisions are highly influential, and largely unpredictable, on measure reliability. I discuss actions researchers could take to mitigate some of the influence of reliability heterogeneity, including adopting hierarchical modelling approaches. Yet, there are no approaches that can completely save us from measurement error. Measurement matters and I call on readers to help us move from what could be a measurement crisis towards a measurement revolution.
 }
 
@@ -181,7 +206,7 @@ Analytic flexibility is known to influence the results of statistical tests, e.g
 \begin{document}
 \maketitle
 
-In this paper I was concerned with the influence analytic flexibility on measurement reliability, specifically in data processing or data cleaning. I took inspiration from numerous papers reporting the unsettlingly low reliability of Dot Probe attention bias indices (e.g. Jones, Christiansen, \& Field, 2018; Schmukle, 2005; Staugaard, 2009) and other work investigating alternative analyses and data processing strategies, with the intention of yielding a more reliable measurement (e.g. Jones, Christiansen, \& Field, 2018; Price et al., 2015). When considering the impact of researcher degrees of freedom, focus is drawn to decisions made in the beginning (task design) or at the end (data analysis) of the research process. I was interested in the middle step: data processing and measure reliability. In this paper, I explore and visualise the influence of data processing steps on reliability using a series of reliability multiverse analyses.
+In this paper I was concerned with the influence analytic flexibility on measurement reliability, specifically in data processing or data cleaning. I took inspiration from numerous papers reporting the unsettlingly low reliability of Dot Probe attention bias indices (e.g. Jones, Christiansen, \& Field, 2018; Schmukle, 2005; Staugaard, 2009) and other work investigating alternative analyses and data processing strategies, with the intention of yielding a more reliable measurement (e.g. Jones et al., 2018; Price et al., 2015). When considering the impact of researcher degrees of freedom, focus is drawn to decisions made in the beginning (task design) or at the end (data analysis) of the research process. I was interested in the middle step: data processing and measure reliability. In this paper, I explore and visualise the influence of data processing steps on reliability using a series of reliability multiverse analyses.
 
 \hypertarget{getting-up-to-speed-with-reliability}{%
 \subsection{Getting up to speed with reliability}\label{getting-up-to-speed-with-reliability}}
@@ -197,7 +222,7 @@ Strictly speaking, we cannot state that a task is unreliable; although we might 
 
 Every result presented in every research article is the culmination of many decisions made by one or more researchers; the sheer number of combinations of valid decisions is likely uncalculatable. The ``garden of forking paths'' (Gelman \& Loken, 2013) is a useful analogy to illustrate this. With each decision that must be made, however arbitrary, the researcher comes to a fork in their research path and selects one. To add a little suspense, there will be many cases when the researcher does not notice a fork in the road. Perhaps the researcher unconsciously makes the same turn as always, their feet working of their own accord. These forks in the path, the decisions researchers make (whether they are aware or not), may be reasonably combined to make a near uncountable number of paths. Each path also leads to a location; some paths end close to one another, and other times the paths diverge wildly. We can think of the end of the path as the statistical result our researcher arrives at.
 
-The researcher has to decide their path, based on the soundest justifications they can make at each fork (e.g. Lakens et al., 2018). Of course, psychological science has become fully aware of the detrimental effects of selecting one's path retrospectively, based on where the path ends or the results most exciting to the researcher (read as: \emph{p} \textless{} .05; e.g. Simmons, Nelson, \& Simonsohn, 2011). Analytic flexibility is not inherently bad. However, we must acknowledge the ramifications. The effects we observe, or do not, are potentially influenced by all of the decisions made to arrive at them. Thus, a range of possible effects may have been observed that could be more or less equally valid or justifiable based on the analytical decisions made.
+The researcher has to decide their path, based on the soundest justifications they can make at each fork (e.g. Lakens et al., 2018). Of course, psychological science has become fully aware of the detrimental effects of selecting one's path retrospectively, based on where the path ends or the results most exciting to the researcher {[}read as: \emph{p} \textless{} .05; e.g. Simmons, Nelson, and Simonsohn (2011){]}. Analytic flexibility is not inherently bad. However, we must acknowledge the ramifications. The effects we observe, or do not, are potentially influenced by all of the decisions made to arrive at them. Thus, a range of possible effects may have been observed that could be more or less equally valid or justifiable based on the analytical decisions made.
 
 In discussions of analytical flexibility, focus is usually given primarily to decisions made during statistical analysis. For example, should I control for age and gender? Do I reason that this is model more appropriate over that one? Or where should I set my alpha and how should I justify the decision? Discussions of analytical flexibility often concern issues around \emph{p}-hacking and other QRPs (intended or unintended). However, as Leek and Peng (2015) note, \emph{p}-values are the tip of the iceberg; not enough scrutiny is given to the impact of the many steps in the research pipeline that precede inference testing. I agree. In my estimation, flexibility in measurement and data handling do not receive the scrutiny they deserve. If the garden of forking paths concerns analytic flexibility, then measurement flexibility decides which gateway one enters the garden through in the first place. As an example, a recent review highlighted the lack of consensus around the processing of task data from tasks in the attention control literature, including but not limited to the data pre-processing used in this paper (Bastian et al., 2020, pp. 47--48)
 
@@ -211,7 +236,7 @@ Multiverse analyses enable us to explore how a researcher's -- sometimes arbitra
 \hypertarget{a-reliability-multiverse-from-many-data-processing-decisions}{%
 \subsection{A reliability multiverse from many data processing decisions}\label{a-reliability-multiverse-from-many-data-processing-decisions}}
 
-In this paper I report multiverse analyses exploring the influence of data processing specifications on the reliability of a calculated measurement. I used openly accessible Stroop task and Flanker task data generously shared by Hedge and colleagues (Hedge, Powell, \& Sumner, 2018) and Dot Probe task data from the CogBIAS project (Booth, Songco, Parsons, Heathcote, \& Fox, 2019; Booth et al., 2017). Following our previous work in this area (Parsons, Kruijt, \& Fox, 2019), I was interested in the stability and range of reliability estimates on cognitive-behavioural measures. Broadly, I was interested in the impact of data processing decisions on reliability. It is possible that certain analytic decisions tend to yield higher reliability estimates; it may be that particular combinations of decisions are also better, or worse, than others. Beyond that, I was interested in the range of estimates. A small range would suggest that measure reliability is relatively stable as we make potentially arbitrary data processing decisions while walking the garden of forking paths. A large range suggests hidden measurement reliability heterogeneity. This is potentially an important, and underappreciated, contributor to the replicability crisis (Loken \& Gelman, 2017). Alternatively, this could be a herald for a crisis of measurement.
+In this paper I report multiverse analyses exploring the influence of data processing specifications on the reliability of a calculated measurement. I used openly accessible Stroop task and Flanker task data generously shared by Hedge and colleagues (Hedge, Powell, \& Sumner, 2018) and Dot Probe task data from the CogBIAS project (Booth, Songco, Parsons, Heathcote, \& Fox, 2019; Booth et al., 2017). Following our previous work in this area (Parsons et al., 2019), I was interested in the stability and range of reliability estimates on cognitive-behavioural measures. Broadly, I was interested in the impact of data processing decisions on reliability. It is possible that certain analytic decisions tend to yield higher reliability estimates; it may be that particular combinations of decisions are also better, or worse, than others. Beyond that, I was interested in the range of estimates. A small range would suggest that measure reliability is relatively stable as we make potentially arbitrary data processing decisions while walking the garden of forking paths. A large range suggests hidden measurement reliability heterogeneity. This is potentially an important, and underappreciated, contributor to the replicability crisis (Loken \& Gelman, 2017). Alternatively, this could be a herald for a crisis of measurement.
 
 \hypertarget{methods}{%
 \section{Methods}\label{methods}}
@@ -221,9 +246,9 @@ In this paper I report multiverse analyses exploring the influence of data proce
 
 Stroop and Flanker task data were obtained from the online repository for Hedge, Sumner, and Powell (2018, \url{https://osf.io/cwzds/}). Full details of the data collection, study design, and procedure can be found in Hedge et al. (2018). These data are ideal for our purposes as they a) contain many trials, helping us obtain more precise estimates of reliability, and b) include two assessment time-points approximately 3-4 weeks apart, allowing us to explore both: internal consistency and test-retest reliability. The data were collected from different studies; for simplicity in this paper, the data across studies were pooled (n = 107 before any data processing -- note that this may be different from the sample size presented by Hedge et al.~due to differences in data processing).
 
-Dot Probe data were obtained from the CogBIAS project (Booth, Songco, Parsons, Heathcote, \& Fox, 2019; Booth et al., 2017). Full details of the full study and data collection can be found in Booth et al.~(2017, 2019). These data complement the Stroop and Flanker data as they provide a longer test-retest duration (approximately 1.5 years between repeated measures) across three timepoints. In addition, the task incorporated three stimuli conditions, allowing us cross-sectional comparisons of reliability stability within the same task. The Dot Probe data were pooled such that only a subset of participants completing the task at all three timepoints were retained (n = 285).
+Dot Probe data were obtained from the CogBIAS project (Booth et al., 2019, 2017). Full details of the full study and data collection can be found in Booth et al.~(2017, 2019). These data complement the Stroop and Flanker data as they provide a longer test-retest duration (approximately 1.5 years between repeated measures) across three timepoints. In addition, the task incorporated three stimuli conditions, allowing us cross-sectional comparisons of reliability stability within the same task. The Dot Probe data were pooled such that only a subset of participants completing the task at all three timepoints were retained (n = 285).
 
-Interested readers can find the data and code used to perform the multiverse analyses and generate this manuscript in the Open Science Framework repository for this project (\url{https://osf.io/haz6u/}).\footnote{I used the following R packages for all analyses and figures, and to generate this document: R {[}Version 4.1.0; R Core Team (2018){]} and the R-packages \emph{Cairo} {[}Version 1.5.12.2; Urbanek and Horner (2019){]}, \emph{dplyr} {[}Version 1.0.7; Wickham, François, Henry, and Müller (2019){]}, \emph{forcats} {[}Version 0.5.1; Wickham (2019a){]}, \emph{ggplot2} {[}Version 3.3.5; Wickham (2016){]}, \emph{gridExtra} {[}Version 2.3; Auguie (2017){]}, \emph{papaja} {[}Version 0.1.0.9997; Aust and Barth (2018){]}, \emph{patchwork} {[}Version 1.1.1; Pedersen (2019){]}, \emph{psych} {[}Version 2.1.6; Revelle (2019){]}, \emph{purrr} {[}Version 0.3.4; Henry and Wickham (2019){]}, \emph{readr} {[}Version 1.4.0; Wickham, Hester, and Francois (2018){]}, \emph{splithalf} {[}Version 0.8.1; Parsons (2019){]}, \emph{stringr} {[}Version 1.4.0; Wickham (2019b){]}, \emph{tibble} {[}Version 3.1.6; Müller and Wickham (2019){]}, \emph{tidyr} {[}Version 1.1.3; Wickham and Henry (2019){]}, and \emph{tidyverse} {[}Version 1.3.1; Wickham et al. (2019){]}}
+Interested readers can find the data and code used to perform the multiverse analyses and generate this manuscript in the Open Science Framework repository for this project (\url{https://osf.io/haz6u/}).\footnote{I used the following R packages for all analyses and figures, and to generate this document: R (Version 4.1.0; R Core Team, 2018) and the R-packages \emph{Cairo} (Version 1.5.12.2; Urbanek \& Horner, 2019), \emph{dplyr} (Version 1.0.9; Wickham, François, Henry, \& Müller, 2019), \emph{forcats} (Version 0.5.1; Wickham, 2019a), \emph{ggplot2} (Version 3.3.6; Wickham, 2016), \emph{gridExtra} (Version 2.3; Auguie, 2017), \emph{papaja} (Version 0.1.1; Aust \& Barth, 2018), \emph{patchwork} (Version 1.1.1; Pedersen, 2019), \emph{psych} (Version 2.1.6; Revelle, 2019), \emph{purrr} (Version 0.3.4; Henry \& Wickham, 2019), \emph{readr} (Version 1.4.0; Wickham, Hester, \& Francois, 2018), \emph{splithalf} (Version 0.8.1; Parsons, 2019), \emph{stringr} (Version 1.4.0; Wickham, 2019b), \emph{tibble} (Version 3.1.7; Müller \& Wickham, 2019), \emph{tidyr} (Version 1.2.0; Wickham \& Henry, 2019), \emph{tidyverse} (Version 1.3.1; Wickham et al., 2019), and \emph{tinylabels} (Version 0.2.3; Barth, 2022)}
 
 \hypertarget{stroop-task}{%
 \subsubsection{Stroop task}\label{stroop-task}}
@@ -283,7 +308,7 @@ For the core analysis I performed 18 multiverse analyses following the steps des
 \hypertarget{inferences-from-the-multiverse}{%
 \subsubsection{Inferences from the multiverse}\label{inferences-from-the-multiverse}}
 
-It is not my aim in this paper to make inferences from these reliability multiverse analyses as one would in a specification curve analysis (Simonsohn, Simmons, \& Nelson, 2015). One could use this method to perform inference testing against the curve of reliability estimates. However, it is not clear what this would add: testing whether the reliability estimates significantly differ from zero is a low bar for assessing the reliability of a measure.
+It is not my aim in this paper to make inferences from these reliability multiverse analyses as one would in a specification curve analysis (Simonsohn et al., 2015). One could use this method to perform inference testing against the curve of reliability estimates. However, it is not clear what this would add: testing whether the reliability estimates significantly differ from zero is a low bar for assessing the reliability of a measure.
 
 \hypertarget{results}{%
 \section{Results}\label{results}}
@@ -295,7 +320,7 @@ I include a visualisation for each multiverse analysis. The reliability estimate
 \hypertarget{stroop-time-1-internal-consistency}{%
 \subsubsection{Stroop Time 1: Internal Consistency}\label{stroop-time-1-internal-consistency}}
 
-The median reliability estimate was 0.76, 95\% CI {[}0.69,0.92{]}. Estimates ranged from 0.68 to 0.93. 97\% of the reliability estimates were \textgreater{} 0.7.
+The median reliability estimate was 0.76, 95\% CI {[}0.69,0.92{]}. Estimates ranged from 0.68 to 0.92. 97\% of the reliability estimates were \textgreater{} 0.7.
 
 \begin{figure}
 \centering
@@ -347,7 +372,7 @@ The median reliability estimate was 0.82, 95\% CI {[}0.65,0.92{]}. Estimates ran
 \hypertarget{flanker-time-2-internal-consistency}{%
 \subsubsection{Flanker Time 2: Internal Consistency}\label{flanker-time-2-internal-consistency}}
 
-The median reliability estimate was 0.71, 95\% CI {[}0.62,0.91{]}. Estimates ranged from 0.59 to 0.91. 57.00\% of the reliability estimates were \textgreater{} 0.7.
+The median reliability estimate was 0.71, 95\% CI {[}0.62,0.91{]}. Estimates ranged from 0.59 to 0.91. 55.00\% of the reliability estimates were \textgreater{} 0.7.
 
 \begin{figure}
 \centering
@@ -395,7 +420,7 @@ For ease of presentation (and to reduce the total number of figures), we visuali
 \hypertarget{angry-faces}{%
 \subsubsection{Angry faces}\label{angry-faces}}
 
-For the angry faces condition median and 95\% CIs for each wave of testing were; wave 1, -0.04, {[}95\% CI -0.17, 0.58; wave 2, 0, {[}95\% CI -0.22, 0.61; wave 3, 0.03, {[}95\% CI -0.08, 0.65.
+For the angry faces condition median and 95\% CIs for each wave of testing were; wave 1, -0.04, {[}95\% CI -0.17, 0.58; wave 2, 0.01, {[}95\% CI -0.21, 0.61; wave 3, 0.03, {[}95\% CI -0.08, 0.65.
 
 \begin{figure}
 \centering
@@ -421,7 +446,7 @@ For the happy faces condition median and 95\% CIs for each wave of testing were;
 \hypertarget{pained-faces}{%
 \subsubsection{Pained faces}\label{pained-faces}}
 
-For the pained faces condition median and 95\% CIs for each wave of testing were; wave 1, 0.05, {[}95\% CI -0.26, 0.65; wave 2, -0.09, {[}95\% CI -0.17, 0.60; wave 3, 0.15, {[}95\% CI -0.08, 0.68.
+For the pained faces condition median and 95\% CIs for each wave of testing were; wave 1, 0.04, {[}95\% CI -0.26, 0.65; wave 2, -0.09, {[}95\% CI -0.17, 0.60; wave 3, 0.15, {[}95\% CI -0.08, 0.68.
 
 \begin{figure}
 \centering
@@ -456,18 +481,18 @@ Increasing the number of trials typically increases reliability estimates (e.g.~
 \toprule
 task & \multicolumn{1}{c}{time} & \multicolumn{1}{c}{measure} & \multicolumn{1}{c}{correlation} & \multicolumn{1}{c}{95\% CI low} & \multicolumn{1}{c}{95\% CI high} & \multicolumn{1}{c}{Difference}\\
 \midrule
-Stroop & 1 & splithalf & -0.39 & -0.48 & -0.28 & 0.13\\
+Stroop & 1 & splithalf & -0.38 & -0.48 & -0.28 & 0.13\\
 Stroop & 2 & splithalf & -0.38 & -0.48 & -0.28 & 0.10\\
 Flanker & 1 & splithalf & -0.61 & -0.68 & -0.53 & 0.12\\
 Flanker & 2 & splithalf & -0.55 & -0.63 & -0.47 & 0.24\\
-DPTangry & 1 & splithalf & -0.54 & -0.62 & -0.45 & -0.02\\
-DPTangry & 2 & splithalf & -0.65 & -0.72 & -0.58 & -0.27\\
+DPTangry & 1 & splithalf & -0.54 & -0.62 & -0.45 & -0.03\\
+DPTangry & 2 & splithalf & -0.66 & -0.72 & -0.58 & -0.27\\
 DPTangry & 3 & splithalf & -0.27 & -0.37 & -0.16 & -0.23\\
 DPThappy & 1 & splithalf & -0.58 & -0.65 & -0.50 & -0.02\\
 DPThappy & 2 & splithalf & -0.51 & -0.59 & -0.42 & -0.22\\
 DPThappy & 3 & splithalf & -0.42 & -0.51 & -0.32 & -0.23\\
 DPTpain & 1 & splithalf & -0.59 & -0.66 & -0.51 & -0.06\\
-DPTpain & 2 & splithalf & -0.39 & -0.48 & -0.29 & -0.27\\
+DPTpain & 2 & splithalf & -0.39 & -0.49 & -0.29 & -0.27\\
 DPTpain & 3 & splithalf & -0.15 & -0.26 & -0.03 & -0.20\\
 Stroop &  & ICC & 0.37 & 0.26 & 0.46 & 0.08\\
 Flanker &  & ICC & -0.59 & -0.66 & -0.51 & 0.11\\
@@ -493,7 +518,7 @@ To investigate this further, I reran the multiverses for Stroop and Flanker data
 \hypertarget{discussion}{%
 \section{Discussion}\label{discussion}}
 
-Across 18 reliability multiverse analyses, and their colourful visualisations, we explored the influence of data pre-processing specifications on measure reliability. To briefly summarise: Internal consistency reliability estimates ranged from 0.58 to 0.93 in the Stroop data, 0.59 to 0.93 in the Flanker data, and -0.28 to 0.68 in the Dot Probe data. Test-retest reliability estimates ranged from 0.47 to 0.63 in the Stroop data, 0.29 to 0.72 in the Flanker data, and 0 to 0.11 in the Dot Probe data. From the introduction we remember that reliability estimates are a product of: the sample and the population they are drawn from, the task (including any differences in implementation), and the circumstances in which the measurement was obtained, i.e.~reliability is not an inherent quality of the task itself. The first conclusion we can draw from these multiverse analyses is that data processing specifications are also an integral part of this list.
+Across 18 reliability multiverse analyses, and their colourful visualisations, we explored the influence of data pre-processing specifications on measure reliability. To briefly summarise: Internal consistency reliability estimates ranged from 0.58 to 0.92 in the Stroop data, 0.59 to 0.93 in the Flanker data, and -0.28 to 0.68 in the Dot Probe data. Test-retest reliability estimates ranged from 0.47 to 0.63 in the Stroop data, 0.29 to 0.72 in the Flanker data, and 0 to 0.11 in the Dot Probe data. From the introduction we remember that reliability estimates are a product of: the sample and the population they are drawn from, the task (including any differences in implementation), and the circumstances in which the measurement was obtained, i.e.~reliability is not an inherent quality of the task itself. The first conclusion we can draw from these multiverse analyses is that data processing specifications are also an integral part of this list.
 
 At the onset of this project, I thought it reasonable to assume that a particular feature of the data processing path might result in consistently higher (and lower) reliability estimates. The clearest indication we can take from these analyses is that there is no single set of data processing specifications, or combination of data processing decisions, that lead to improved reliability. The wide ranges of estimates are an additional cause for concern. Seemingly arbitrary data processing decisions can lead to differences of more than .3 in the reliability of a measure. These decisions are equally reasonable and logical choices, and we should not expect them to have meaningful impact on the theoretical questions being asked of the data. The reliability multiverse analyses presented here demonstrate this using data from a Stroop and a Flanker task. As well as across tasks, overlapping the time 1 and time 2 multiverses for both tasks highlights that even the same set of specifications does not lead to directly comparable internal consistency reliability estimates over time. Data processing decisions appear to be extremely important contributors to measure reliability, but their influence is unpredictable and arbitrary.
 
@@ -509,7 +534,7 @@ In simple bivariate analyses, we usually think low reliability will simply atten
 \hypertarget{two-simple-recommendations.}{%
 \subsubsection{Two simple recommendations.}\label{two-simple-recommendations.}}
 
-To briefly reiterate two recommendations I and my colleagues have made previously: a) report all data processing steps taken, and b) report the reliability of measures analysed (Parsons, Kruijt, \& Fox, 2019). These recommendations will not `fix' potential psychometric issues within one's study, or reliability heterogeneity across studies. However, complete reporting of data processing will assist in the computational reproducibility of one's results. Reporting psychometric information will assist in the interpretation of results, including comparisons of effect sizes, as well as provide useful information about the utility of a task in studies of individual differences.
+To briefly reiterate two recommendations I and my colleagues have made previously: a) report all data processing steps taken, and b) report the reliability of measures analysed (Parsons et al., 2019). These recommendations will not `fix' potential psychometric issues within one's study, or reliability heterogeneity across studies. However, complete reporting of data processing will assist in the computational reproducibility of one's results. Reporting psychometric information will assist in the interpretation of results, including comparisons of effect sizes, as well as provide useful information about the utility of a task in studies of individual differences.
 
 \hypertarget{multiverse-analyses-as-a-robustness-check}{%
 \subsubsection{Multiverse analyses as a robustness check}\label{multiverse-analyses-as-a-robustness-check}}
@@ -519,9 +544,9 @@ One approach is running a multiverse across a justified set of data processing s
 \hypertarget{adopt-a-modelling-approach.}{%
 \subsubsection{Adopt a modelling approach.}\label{adopt-a-modelling-approach.}}
 
-Incorporating trial level variation into our analyses with hierarchical modelling approaches (aka mixed models, multilevel models) will likely be a vital step in protecting us against reliability heterogeneity. Psychological effects are often heterogeneous across individuals (Bolger, Zee, Rossignac-Milon, \& Hassin, 2019), and factors within tasks have important effects (e.g.~stimuli differences, DeBruine \& Barr, 2019). It follows that our models should take trial-level variation into account. More than this, using models that capture the theorized data generating process, including relevant distributions (e.g.~response time distributions are typically very right skewed), likely have a better chance of capturing the process of interest in the first place. Using the Stroop and Flanker data from Hedge et al. (2018) Rouder, Kumar, and Haaf (2019; also see Rouder \& Haaf, 2018) demonstrated that hierarchical models should be used to account for error in measurement (for additional guidance on applying this modelling, see Haines, 2019). Adopting this approach has the benefit of `correcting' the effect size estimate (and standard error) for measurement error as part of the model, rather than as an additional step to aid in interpretations and effect size comparisons (a step that is often missed once reliability is deemed ``acceptable,'' assuming that reliability is estimated in the first place). Rouder and colleagues demonstrate that this is also a more effective approach than `correcting' the effect size estimate using e.g.~Spearman's correction for attenuation formula (Spearman, 1904). Yet, even better corrections cannot fully save us from measurement error.
+Incorporating trial level variation into our analyses with hierarchical modelling approaches (aka mixed models, multilevel models) will likely be a vital step in protecting us against reliability heterogeneity. Psychological effects are often heterogeneous across individuals (Bolger, Zee, Rossignac-Milon, \& Hassin, 2019), and factors within tasks have important effects (e.g.~stimuli differences, DeBruine \& Barr, 2019). It follows that our models should take trial-level variation into account. More than this, using models that capture the theorized data generating process, including relevant distributions (e.g.~response time distributions are typically very right skewed), likely have a better chance of capturing the process of interest in the first place. Using the Stroop and Flanker data from Hedge et al. (2018) Rouder, Kumar, and Haaf (2019; also see Rouder \& Haaf, 2018) demonstrated that hierarchical models should be used to account for error in measurement (for additional guidance on applying this modelling, see Haines, 2019). Adopting this approach has the benefit of `correcting' the effect size estimate (and standard error) for measurement error as part of the model, rather than as an additional step to aid in interpretations and effect size comparisons (a step that is often missed once reliability is deemed ``acceptable'', assuming that reliability is estimated in the first place). Rouder and colleagues demonstrate that this is also a more effective approach than `correcting' the effect size estimate using e.g.~Spearman's correction for attenuation formula (Spearman, 1904). Yet, even better corrections cannot fully save us from measurement error.
 
-Hierarchical measures do bring their own considerations and potential issues. Applied researchers, or those without training, may need further support to ensure the model specifications are appropriate. The model covariance structure, and appropriate priors in the case of Bayesian approaches, do have potential to introduce additional sources of bias/researcher degrees of freedom. But, given existing resources and a growing body of training materials and work in this area, it is my view that a modelling approach is likely the best next step (DeBruine \& Barr, 2021; Haines et al., 2020; Rouder, Kumar, \& Haaf, 2019; Sullivan-Toole, Haines, Dale, \& Olino, 2021). An additional benefit of these approaches is that they typically avoid much of the data pre-processing aspects discussed in this paper, and thus the reliability heterogeneity they generate.
+Hierarchical measures do bring their own considerations and potential issues. Applied researchers, or those without training, may need further support to ensure the model specifications are appropriate. The model covariance structure, and appropriate priors in the case of Bayesian approaches, do have potential to introduce additional sources of bias/researcher degrees of freedom. But, given existing resources and a growing body of training materials and work in this area, it is my view that a modelling approach is likely the best next step (DeBruine \& Barr, 2021; Haines et al., 2020; Rouder et al., 2019; Sullivan-Toole, Haines, Dale, \& Olino, 2021). An additional benefit of these approaches is that they typically avoid much of the data pre-processing aspects discussed in this paper, and thus the reliability heterogeneity they generate.
 
 \hypertarget{limitations-and-room-for-expansion}{%
 \subsection{Limitations and room for expansion}\label{limitations-and-room-for-expansion}}
@@ -539,7 +564,7 @@ The analyses here do not allow for an in depth examination of the influence of s
 \hypertarget{applicability-to-experimental-vs-correlational-analyses}{%
 \subsubsection{Applicability to experimental vs correlational analyses}\label{applicability-to-experimental-vs-correlational-analyses}}
 
-There is a paradox in measurement reliability (see Hedge, Powell, \& Sumner, 2018): Experimental effects that are highly replicable (for example, the Stroop effect) may also show low reliability. Homogeneity within groups or experimental conditions allows for larger and more robust effects; researchers can opt to develop tasks that capitalise on homogeneity. Unfortunately, reliability requires robust individual differences (and vice versa). Highly reliable measures by necessity show consistent, potentially large, individual differences and would not be suitable for group differences or experimental research. As a result, measures tend to be more appropriate for questions of a) assessing differences between groups or experimental conditions, or b) correlational or individual differences. I was primarily concerned with the use of these measures in individual differences research -- hence the focus on reliability. Yet, it would be overly simplistic to assert that the discussions in this paper do not also relate to experimental differences questions. Indeed, the data processing specifications that maximise the measure's utility in individual differences analyses can also hinder the measure's utility in experimental questions. Further research would be needed to quantify the relative influences on correlational vs experimental analyses. Yet, large fluctuations in relative between-subjects vs within-subjects variance, due to data processing, holds importance for any research question.
+There is a paradox in measurement reliability (see Hedge et al., 2018): Experimental effects that are highly replicable (for example, the Stroop effect) may also show low reliability. Homogeneity within groups or experimental conditions allows for larger and more robust effects; researchers can opt to develop tasks that capitalise on homogeneity. Unfortunately, reliability requires robust individual differences (and vice versa). Highly reliable measures by necessity show consistent, potentially large, individual differences and would not be suitable for group differences or experimental research. As a result, measures tend to be more appropriate for questions of a) assessing differences between groups or experimental conditions, or b) correlational or individual differences. I was primarily concerned with the use of these measures in individual differences research -- hence the focus on reliability. Yet, it would be overly simplistic to assert that the discussions in this paper do not also relate to experimental differences questions. Indeed, the data processing specifications that maximise the measure's utility in individual differences analyses can also hinder the measure's utility in experimental questions. Further research would be needed to quantify the relative influences on correlational vs experimental analyses. Yet, large fluctuations in relative between-subjects vs within-subjects variance, due to data processing, holds importance for any research question.
 
 \hypertarget{simulation-studies}{%
 \subsubsection{Simulation studies}\label{simulation-studies}}
@@ -549,7 +574,7 @@ Several valuable extensions to the current approach could be made via simulation
 \hypertarget{what-about-validity}{%
 \subsection{What about validity?}\label{what-about-validity}}
 
-Others have previously demonstrated that measures are often used ad hoc or with little reported validation efforts (e.g. Flake, Pek, \& Hehman, 2017; Hussey \& Hughes, 2018). This study cannot begin to assess the influence of data processing flexibility on measure validity -- nor did this paper attempt to address this question. Reliability is only one piece of evidence needed to demonstrate the validity of a measure. Yet, it is an important piece of evidence as ``reliability provides an upper bound for validity'' (Zuo, Xu, \& Milham, 2019, p. 3). While we cannot directly conclude that flexibility in data processing influences measure validity, we should look to further research to investigate. One possibility would be to conduct a validity multiverse analysis similar to the ``Many Analysts, One Data Set'' project (Silberzahn et al., 2018). In this project, 29 teams (61 analysts total) analysed the same dataset. The teams adopted a number of different analytic approaches which resulted in a range of results. The authors concluded that, ``Uncertainty in interpreting research results is therefore not just a function of statistical power or the use of questionable research practices; it is also a function of the many reasonable decisions that researchers must make in order to conduct the research'' (page 354).
+Others have previously demonstrated that measures are often used ad hoc or with little reported validation efforts (e.g. Flake et al., 2017; Hussey \& Hughes, 2018). This study cannot begin to assess the influence of data processing flexibility on measure validity -- nor did this paper attempt to address this question. Reliability is only one piece of evidence needed to demonstrate the validity of a measure. Yet, it is an important piece of evidence as ``reliability provides an upper bound for validity'' (Zuo, Xu, \& Milham, 2019, p. 3). While we cannot directly conclude that flexibility in data processing influences measure validity, we should look to further research to investigate. One possibility would be to conduct a validity multiverse analysis similar to the ``Many Analysts, One Data Set'' project (Silberzahn et al., 2018). In this project, 29 teams (61 analysts total) analysed the same dataset. The teams adopted a number of different analytic approaches which resulted in a range of results. The authors concluded that, ``Uncertainty in interpreting research results is therefore not just a function of statistical power or the use of questionable research practices; it is also a function of the many reasonable decisions that researchers must make in order to conduct the research'' (page 354).
 
 Another important validity consideration is the relationship between our data processing pipelines and the (latent) construct of interest. In questionnaire development, removing or adapting items might influence reliability. But, more importantly, will give rise to a different measure that may be more or less related to our latent construct of interest. For example, Fried (2017) found that several common depression questionnaires captured very different clusters of symptoms, which should make us question what is meant by ``depression'' in the first place when using these measures.
 
@@ -577,190 +602,193 @@ I am concerned that we sit on the precipice of a measurement crisis. The so-call
 
 \hypertarget{refs}{}
 \begin{CSLReferences}{1}{0}
-\leavevmode\hypertarget{ref-R-gridExtra}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-gridExtra}{}}%
 Auguie, B. (2017). \emph{gridExtra: Miscellaneous functions for "grid" graphics}. Retrieved from \url{https://CRAN.R-project.org/package=gridExtra}
 
-\leavevmode\hypertarget{ref-R-papaja}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-papaja}{}}%
 Aust, F., \& Barth, M. (2018). \emph{{papaja}: {Create} {APA} manuscripts with {R Markdown}}. Retrieved from \url{https://github.com/crsh/papaja}
 
-\leavevmode\hypertarget{ref-von_bastian_advancing_2020}{}%
-Bastian, C. C. von, Blais, C., Brewer, G. A., Gyurkovics, M., Hedge, C., Kałamała, P., \ldots{} Wiemers, E. A. (2020). \emph{Advancing the understanding of individual differences in attentional control: {Theoretical}, methodological, and analytical considerations} (preprint). PsyArXiv. \url{https://doi.org/10.31234/osf.io/x3b9k}
+\leavevmode\vadjust pre{\hypertarget{ref-R-tinylabels}{}}%
+Barth, M. (2022). \emph{{tinylabels}: Lightweight variable labels}. Retrieved from \url{https://cran.r-project.org/package=tinylabels}
 
-\leavevmode\hypertarget{ref-bolger_causal_2019}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-von_bastian_advancing_2020}{}}%
+Bastian, C. C. von, Blais, C., Brewer, G. A., Gyurkovics, M., Hedge, C., Kałamała, P., \ldots{} Wiemers, E. A. (2020). \emph{Advancing the understanding of individual differences in attentional control: {Theoretical}, methodological, and analytical considerations} {[}Preprint{]}. PsyArXiv. \url{https://doi.org/10.31234/osf.io/x3b9k}
+
+\leavevmode\vadjust pre{\hypertarget{ref-bolger_causal_2019}{}}%
 Bolger, N., Zee, K. S., Rossignac-Milon, M., \& Hassin, R. R. (2019). Causal processes in psychology are heterogeneous. \emph{Journal of Experimental Psychology: General}, \emph{148}(4), 601--618. \url{https://doi.org/10.1037/xge0000558}
 
-\leavevmode\hypertarget{ref-booth_cogbias_2019}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-booth_cogbias_2019}{}}%
 Booth, C., Songco, A., Parsons, S., Heathcote, L. C., \& Fox, E. (2019). The {CogBIAS} longitudinal study of adolescence: {Cohort} profile and stability and change in measures across three waves. \emph{BMC Psychology}, \emph{7}(73). \url{https://doi.org/doi.org/10.1186/s40359-019-0342-8}
 
-\leavevmode\hypertarget{ref-booth_cogbias_2017}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-booth_cogbias_2017}{}}%
 Booth, C., Songco, A., Parsons, S., Heathcote, L., Vincent, J., Keers, R., \& Fox, E. (2017). The {CogBIAS} longitudinal study protocol: Cognitive and genetic factors influencing psychological functioning in adolescence. \emph{BMC Psychology}, \emph{5}(1). \url{https://doi.org/10.1186/s40359-017-0210-3}
 
-\leavevmode\hypertarget{ref-brakenhoff_random_2018}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-brakenhoff_random_2018}{}}%
 Brakenhoff, T. B., Smeden, M. van, Visseren, F. L. J., \& Groenwold, R. H. H. (2018). Random measurement error: {Why} worry? {An} example of cardiovascular risk factors. \emph{PLOS ONE}, \emph{13}(2), e0192298. \url{https://doi.org/10.1371/journal.pone.0192298}
 
-\leavevmode\hypertarget{ref-cooper_role_2017}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-cooper_role_2017}{}}%
 Cooper, S. R., Gonthier, C., Barch, D. M., \& Braver, T. S. (2017). The role of psychometrics in individual differences research in cognition: {A} case study of the {AX}-{CPT}. \emph{Frontiers in Psychology}, \emph{8}(SEP), 1--16. \url{https://doi.org/10.3389/fpsyg.2017.01482}
 
-\leavevmode\hypertarget{ref-debruine_understanding_2019}{}%
-DeBruine, L., \& Barr, D. J. (2019). \emph{Understanding mixed effects models through data simulation} (preprint). PsyArXiv. \url{https://doi.org/10.31234/osf.io/xp5cy}
+\leavevmode\vadjust pre{\hypertarget{ref-debruine_understanding_2019}{}}%
+DeBruine, L., \& Barr, D. J. (2019). \emph{Understanding mixed effects models through data simulation} {[}Preprint{]}. PsyArXiv. \url{https://doi.org/10.31234/osf.io/xp5cy}
 
-\leavevmode\hypertarget{ref-debruine_understanding_2021}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-debruine_understanding_2021}{}}%
 DeBruine, L., \& Barr, D. J. (2021). Understanding {Mixed}-{Effects} {Models} {Through} {Data} {Simulation}. \emph{Advances in Methods and Practices in Psychological Science}, \emph{4}(1), 1--15. \url{https://doi.org/10.1177/2515245920965119}
 
-\leavevmode\hypertarget{ref-flake_measurement_2020}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-flake_measurement_2020}{}}%
 Flake, J. K., \& Fried, E. I. (2020). Measurement {Schmeasurement}: {Questionable} {Measurement} {Practices} and {How} to {Avoid} {Them}. \emph{Advances in Methods and Practices in Psychological Science}, \emph{3}(456-465), 10.
 
-\leavevmode\hypertarget{ref-flake_construct_2017}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-flake_construct_2017}{}}%
 Flake, J. K., Pek, J., \& Hehman, E. (2017). Construct {Validation} in {Social} and {Personality} {Research}: {Current} {Practice} and {Recommendations}. \emph{Social Psychological and Personality Science}, \emph{8}(4), 370--378. \url{https://doi.org/10.1177/1948550617693063}
 
-\leavevmode\hypertarget{ref-fried_52_2017}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-fried_52_2017}{}}%
 Fried, E. I. (2017). The 52 symptoms of major depression: {Lack} of content overlap among seven common depression scales. \emph{Journal of Affective Disorders}, \emph{208}, 191--197. \url{https://doi.org/10.1016/j.jad.2016.10.019}
 
-\leavevmode\hypertarget{ref-fried_measurement_2018}{}%
-Fried, E. I., \& Flake, J. K. (2018). Measurement matters. \emph{Observer}. Retrieved from \url{https://www.psychologi\%20calscience.org/observer/measurement-matters}
+\leavevmode\vadjust pre{\hypertarget{ref-fried_measurement_2018}{}}%
+Fried, E. I., \& Flake, J. K. (2018). Measurement matters. \emph{Observer}. Retrieved from \href{https://www.psychologi\%20calscience.org/observer/measurement-matters}{https://www.psychologi calscience.org/observer/measurement-matters}
 
-\leavevmode\hypertarget{ref-gawronski_response_2011-1}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-gawronski_response_2011-1}{}}%
 Gawronski, B., Deutsch, R., \& Banse, R. (2011). Response {Interference} {Tasks} as {Indirect} {Measures} of {Automatic} {Associations}. In \emph{Cognitive methods in social psychology} (pp. 78--123). New York, NY, US: The Guilford Press.
 
-\leavevmode\hypertarget{ref-gelman_garden_2013}{}%
-Gelman, A., \& Loken, E. (2013). The garden of forking paths: {Why} multiple comparisons can be a problem, even when there is no {``ﬁshing expedition''} or {``p-hacking''} and the research hypothesis was posited ahead of time, 17. Retrieved from \url{https://doi.org/dx.doi.org/10.1037/a0037714}
+\leavevmode\vadjust pre{\hypertarget{ref-gelman_garden_2013}{}}%
+Gelman, A., \& Loken, E. (2013). \emph{The garden of forking paths: {Why} multiple comparisons can be a problem, even when there is no {``ﬁshing expedition''} or {``p-hacking''} and the research hypothesis was posited ahead of time}. 17. Retrieved from \url{https://doi.org/dx.doi.org/10.1037/a0037714}
 
-\leavevmode\hypertarget{ref-goodhew_translating_2019}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-goodhew_translating_2019}{}}%
 Goodhew, S. C., \& Edwards, M. (2019). Translating experimental paradigms into individual-differences research: {Contributions}, challenges, and practical recommendations. \emph{Consciousness and Cognition}, \emph{69}, 14--25. \url{https://doi.org/10.1016/j.concog.2019.01.008}
 
-\leavevmode\hypertarget{ref-haines_thinking_2019}{}%
-Haines, N. (2019). Thinking generatively: {Why} do we use atheoretical statistical models to test substantive psychological theories? Retrieved from \url{http://haines-lab.com/post/thinking-generatively-why-do-we-use-atheoretical-statistical-models-to-test-substantive-psychological-theories/}
+\leavevmode\vadjust pre{\hypertarget{ref-haines_thinking_2019}{}}%
+Haines, N. (2019). \emph{Thinking generatively: {Why} do we use atheoretical statistical models to test substantive psychological theories?} Retrieved from \url{http://haines-lab.com/post/thinking-generatively-why-do-we-use-atheoretical-statistical-models-to-test-substantive-psychological-theories/}
 
-\leavevmode\hypertarget{ref-haines_theoretically_2020}{}%
-Haines, N., Kvam, P. D., Irving, L. H., Smith, C., Beauchaine, T. P., Pitt, M. A., \ldots{} Turner, B. (2020). \emph{Theoretically {Informed} {Generative} {Models} {Can} {Advance} the {Psychological} and {Brain} {Sciences}: {Lessons} from the {Reliability} {Paradox}} (preprint). PsyArXiv. \url{https://doi.org/10.31234/osf.io/xr7y3}
+\leavevmode\vadjust pre{\hypertarget{ref-haines_theoretically_2020}{}}%
+Haines, N., Kvam, P. D., Irving, L. H., Smith, C., Beauchaine, T. P., Pitt, M. A., \ldots{} Turner, B. (2020). \emph{Theoretically {Informed} {Generative} {Models} {Can} {Advance} the {Psychological} and {Brain} {Sciences}: {Lessons} from the {Reliability} {Paradox}} {[}Preprint{]}. PsyArXiv. \url{https://doi.org/10.31234/osf.io/xr7y3}
 
-\leavevmode\hypertarget{ref-hedge_reliability_2018}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-hedge_reliability_2018}{}}%
 Hedge, C., Powell, G., \& Sumner, P. (2018). The reliability paradox: {Why} robust cognitive tasks do not produce reliable individual differences. \emph{Behavior Research Methods}, \emph{50}(3), 1166--1186. \url{https://doi.org/10.3758/s13428-017-0935-1}
 
-\leavevmode\hypertarget{ref-R-purrr}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-purrr}{}}%
 Henry, L., \& Wickham, H. (2019). \emph{Purrr: Functional programming tools}. Retrieved from \url{https://CRAN.R-project.org/package=purrr}
 
-\leavevmode\hypertarget{ref-hussey_hidden_2018}{}%
-Hussey, I., \& Hughes, S. (2018). Hidden invalidity among fifteen commonly used measures in social and personality psychology. \url{https://doi.org/10.31234/osf.io/7rbfp}
+\leavevmode\vadjust pre{\hypertarget{ref-hussey_hidden_2018}{}}%
+Hussey, I., \& Hughes, S. (2018). \emph{Hidden invalidity among fifteen commonly used measures in social and personality psychology}. \url{https://doi.org/10.31234/osf.io/7rbfp}
 
-\leavevmode\hypertarget{ref-jones_failed_2018-1}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-jones_failed_2018-1}{}}%
 Jones, A., Christiansen, P., \& Field, M. (2018). Failed attempts to improve the reliability of the {Alcohol} {Visual} {Probe} task following empirical recommendations. \emph{Psychology of Addictive Behaviors}, \emph{32}(8), 922--932. \url{https://doi.org/10.31234/osf.io/4zsbm}
 
-\leavevmode\hypertarget{ref-klau_examining_2021}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-klau_examining_2021}{}}%
 Klau, S., Hoffmann, S., Patel, C. J., Ioannidis, J. P., \& Boulesteix, A.-L. (2021). Examining the robustness of observational associations to model, measurement and sampling uncertainty with the vibration of effects framework. \emph{International Journal of Epidemiology}, \emph{50}(1), 266--278. \url{https://doi.org/10.1093/ije/dyaa164}
 
-\leavevmode\hypertarget{ref-koo_guideline_2016}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-koo_guideline_2016}{}}%
 Koo, T. K., \& Li, M. Y. (2016). A {Guideline} of {Selecting} and {Reporting} {Intraclass} {Correlation} {Coefficients} for {Reliability} {Research}. \emph{Journal of Chiropractic Medicine}, \emph{15}(2), 155--163. \url{https://doi.org/10.1016/j.jcm.2016.02.012}
 
-\leavevmode\hypertarget{ref-lakens_justify_2018}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-lakens_justify_2018}{}}%
 Lakens, D., Adolfi, F. G., Albers, C. J., Anvari, F., Apps, M. A. J., Argamon, S. E., \ldots{} Zwaan, R. A. (2018). Justify your alpha. \emph{Nature Human Behaviour}, \emph{2}(3), 168--171. \url{https://doi.org/10.1038/s41562-018-0311-x}
 
-\leavevmode\hypertarget{ref-leek_p_2015}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-leek_p_2015}{}}%
 Leek, J. T., \& Peng, R. D. (2015). P values are just the tip of the iceberg. \emph{Nature}, \emph{520}, 612. \url{https://doi.org/10.1038/520612a}
 
-\leavevmode\hypertarget{ref-loken_measurement_2017}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-loken_measurement_2017}{}}%
 Loken, E., \& Gelman, A. (2017). Measurement error and the replication crisis. \emph{Science}, \emph{355}(6325), 584--585. \url{https://doi.org/10.1126/science.aal3618}
 
-\leavevmode\hypertarget{ref-MacLeod1986}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-MacLeod1986}{}}%
 MacLeod, C., Mathews, A., \& Tata, P. (1986). Attentional bias in emotional disorders. \emph{Journal of Abnormal Psychology}, \emph{95}(1), 15--20. \url{https://doi.org/10.1037//0021-843X.95.1.15}
 
-\leavevmode\hypertarget{ref-R-tibble}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-tibble}{}}%
 Müller, K., \& Wickham, H. (2019). \emph{Tibble: Simple data frames}. Retrieved from \url{https://CRAN.R-project.org/package=tibble}
 
-\leavevmode\hypertarget{ref-orben_association_2019}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-orben_association_2019}{}}%
 Orben, A., \& Przybylski, A. K. (2019). The association between adolescent well-being and digital technology use. \emph{Nature Human Behaviour}, \emph{3}(2), 173--182. \url{https://doi.org/10.1038/s41562-018-0506-1}
 
-\leavevmode\hypertarget{ref-R-splithalf}{}%
-Parsons, S. (2019). Splithalf; robust estimates of split half reliability. Retrieved from \url{https://doi.org/10.6084/m9.figshare.5559175.v5}
+\leavevmode\vadjust pre{\hypertarget{ref-R-splithalf}{}}%
+Parsons, S. (2019). \emph{Splithalf; robust estimates of split half reliability}. Retrieved from \url{https://doi.org/10.6084/m9.figshare.5559175.v5}
 
-\leavevmode\hypertarget{ref-parsons_splithalf_2021}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-parsons_splithalf_2021}{}}%
 Parsons, S. (2021). Splithalf: Robust estimates of split half reliability. \emph{Journal of Open Source Software}, \emph{6}(60), 3041. \url{https://doi.org/10.21105/joss.03041}
 
-\leavevmode\hypertarget{ref-parsons_psychological_2019}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-parsons_psychological_2019}{}}%
 Parsons, S., Kruijt, A.-W., \& Fox, E. (2019). Psychological {Science} {Needs} a {Standard} {Practice} of {Reporting} the {Reliability} of {Cognitive}-{Behavioral} {Measurements}. \emph{Advances in Methods and Practices in Psychological Science}, \emph{2}(4), 378--395. \url{https://doi.org/10.1177/2515245919879695}
 
-\leavevmode\hypertarget{ref-R-patchwork}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-patchwork}{}}%
 Pedersen, T. L. (2019). \emph{Patchwork: The composer of plots}. Retrieved from \url{https://CRAN.R-project.org/package=patchwork}
 
-\leavevmode\hypertarget{ref-price_empirical_2015}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-price_empirical_2015}{}}%
 Price, R. B., Kuckertz, J. M., Siegle, G. J., Ladouceur, C. D., Silk, J. S., Ryan, N. D., \ldots{} Amir, N. (2015). Empirical recommendations for improving the stability of the dot-probe task in clinical research. \emph{Psychological Assessment}, \emph{27}(2), 365--376. \url{https://doi.org/10.1037/pas0000036}
 
-\leavevmode\hypertarget{ref-quintana_gps_2019}{}%
-Quintana, D. S., \& Heathers, J. (2019). A {GPS} in the {Garden} of {Forking} {Paths} (with {Amy} {Orben}). Retrieved from \href{https://10.17605/OSF.IO/38KPE}{10.17605/OSF.IO/38KPE}
+\leavevmode\vadjust pre{\hypertarget{ref-quintana_gps_2019}{}}%
+Quintana, D. S., \& Heathers, J. (2019). \emph{A {GPS} in the {Garden} of {Forking} {Paths} (with {Amy} {Orben})}. Retrieved from \href{https://10.17605/OSF.IO/38KPE}{10.17605/OSF.IO/38KPE}
 
-\leavevmode\hypertarget{ref-R-base}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-base}{}}%
 R Core Team. (2018). \emph{R: A language and environment for statistical computing}. Vienna, Austria: R Foundation for Statistical Computing. Retrieved from \url{https://www.R-project.org/}
 
-\leavevmode\hypertarget{ref-R-psych}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-psych}{}}%
 Revelle, W. (2019). \emph{Psych: Procedures for psychological, psychometric, and personality research}. Evanston, Illinois: Northwestern University. Retrieved from \url{https://CRAN.R-project.org/package=psych}
 
-\leavevmode\hypertarget{ref-rohrer_probing_2017}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-rohrer_probing_2017}{}}%
 Rohrer, J. M., Egloff, B., \& Schmukle, S. C. (2017). Probing {Birth}-{Order} {Effects} on {Narrow} {Traits} {Using} {Specification}-{Curve} {Analysis}. \emph{Psychological Science}, \emph{28}(12), 1821--1832. \url{https://doi.org/10.1177/0956797617723726}
 
-\leavevmode\hypertarget{ref-rouder_psychometrics_2018}{}%
-Rouder, J., \& Haaf, J. M. (2018). A {Psychometrics} of {Individual} {Differences} in {Experimental} {Tasks}. \url{https://doi.org/10.31234/osf.io/f3h2k}
+\leavevmode\vadjust pre{\hypertarget{ref-rouder_psychometrics_2018}{}}%
+Rouder, J., \& Haaf, J. M. (2018). \emph{A {Psychometrics} of {Individual} {Differences} in {Experimental} {Tasks}}. \url{https://doi.org/10.31234/osf.io/f3h2k}
 
-\leavevmode\hypertarget{ref-rouder_why_2019}{}%
-Rouder, J., Kumar, A., \& Haaf, J. M. (2019). Why {Most} {Studies} of {Individual} {Differences} {With} {Inhibition} {Tasks} {Are} {Bound} {To} {Fail}. \url{https://doi.org/10.31234/osf.io/3cjr5}
+\leavevmode\vadjust pre{\hypertarget{ref-rouder_why_2019}{}}%
+Rouder, J., Kumar, A., \& Haaf, J. M. (2019). \emph{Why {Most} {Studies} of {Individual} {Differences} {With} {Inhibition} {Tasks} {Are} {Bound} {To} {Fail}}. \url{https://doi.org/10.31234/osf.io/3cjr5}
 
-\leavevmode\hypertarget{ref-roy_stoic:_2009}{}%
-Roy, S., Roy, C., Éthier-Majcher, C., Fortin, I., Belin, P., \& Gosselin, F. (2009). {STOIC}: {A} database of dynamic and static faces expressing highly recognizable emotions, 15. Retrieved from \url{http://mapageweb.umontreal.ca/gosselif/sroyetal_sub.pdf}
+\leavevmode\vadjust pre{\hypertarget{ref-roy_stoic:_2009}{}}%
+Roy, S., Roy, C., Éthier-Majcher, C., Fortin, I., Belin, P., \& Gosselin, F. (2009). \emph{{STOIC}: {A} database of dynamic and static faces expressing highly recognizable emotions}. 15. Retrieved from \url{http://mapageweb.umontreal.ca/gosselif/sroyetal_sub.pdf}
 
-\leavevmode\hypertarget{ref-schmukle_unreliability_2005}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-schmukle_unreliability_2005}{}}%
 Schmukle, S. C. (2005). Unreliability of the dot probe task. \emph{European Journal of Personality}, \emph{19}(7), 595--605. \url{https://doi.org/10.1002/per.554}
 
-\leavevmode\hypertarget{ref-segerstrom_expected_2020}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-segerstrom_expected_2020}{}}%
 Segerstrom, S. C., \& Boggero, I. A. (2020). Expected {Estimation} {Errors} in {Studies} of the {Cortisol} {Awakening} {Response}: {A} {Simulation}. \emph{Psychosomatic Medicine}, \emph{82}(8), 751--756. \url{https://doi.org/10.1097/PSY.0000000000000850}
 
-\leavevmode\hypertarget{ref-silberzahn_many_2018}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-silberzahn_many_2018}{}}%
 Silberzahn, R., Uhlmann, E. L., Martin, D. P., Anselmi, P., Aust, F., Awtrey, E., \ldots{} Nosek, B. A. (2018). Many {Analysts}, {One} {Data} {Set}: {Making} {Transparent} {How} {Variations} in {Analytic} {Choices} {Affect} {Results}. \emph{Advances in Methods and Practices in Psychological Science}, \emph{1}(3), 337--356. \url{https://doi.org/10.1177/2515245917747646}
 
-\leavevmode\hypertarget{ref-simmons_false-positive_2011}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-simmons_false-positive_2011}{}}%
 Simmons, J. P., Nelson, L. D., \& Simonsohn, U. (2011). False-{Positive} {Psychology}: {Undisclosed} {Flexibility} in {Data} {Collection} and {Analysis} {Allows} {Presenting} {Anything} as {Significant}. \emph{Psychological Science}, \emph{22}(11), 1359--1366. \url{https://doi.org/10.1177/0956797611417632}
 
-\leavevmode\hypertarget{ref-simonsohn_specification_2015}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-simonsohn_specification_2015}{}}%
 Simonsohn, U., Simmons, J. P., \& Nelson, L. D. (2015). Specification {Curve}: {Descriptive} and {Inferential} {Statistics} on {All} {Reasonable} {Specifications}. \emph{SSRN Electronic Journal}. \url{https://doi.org/10.2139/ssrn.2694998}
 
-\leavevmode\hypertarget{ref-spearman_proof_1904}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-spearman_proof_1904}{}}%
 Spearman, C. (1904). The {Proof} and {Measurement} of {Association} between {Two} {Things}. \emph{The American Journal of Psychology}, \emph{15}(1), 72. \url{https://doi.org/10.2307/1412159}
 
-\leavevmode\hypertarget{ref-staugaard_reliability_2009}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-staugaard_reliability_2009}{}}%
 Staugaard, S. R. (2009). Reliability of two versions of the dot-probe task using photographic faces. \emph{Psychology Science Quarterly}, \emph{51}(3), 339--350.
 
-\leavevmode\hypertarget{ref-steegen_increasing_2016}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-steegen_increasing_2016}{}}%
 Steegen, S., Tuerlinckx, F., Gelman, A., \& Vanpaemel, W. (2016). Increasing {Transparency} {Through} a {Multiverse} {Analysis}. \emph{Perspectives on Psychological Science}, \emph{11}(5), 702--712. \url{https://doi.org/10.1177/1745691616658637}
 
-\leavevmode\hypertarget{ref-sullivan-toole_enhancing_2021}{}%
-Sullivan-Toole, H., Haines, N., Dale, K., \& Olino, T. M. (2021). \emph{Enhancing the {Psychometric} {Properties} of the {Iowa} {Gambling} {Task} {Using} {Full} {Generative} {Modeling}} (preprint). PsyArXiv. \url{https://doi.org/10.31234/osf.io/yxbjz}
+\leavevmode\vadjust pre{\hypertarget{ref-sullivan-toole_enhancing_2021}{}}%
+Sullivan-Toole, H., Haines, N., Dale, K., \& Olino, T. M. (2021). \emph{Enhancing the {Psychometric} {Properties} of the {Iowa} {Gambling} {Task} {Using} {Full} {Generative} {Modeling}} {[}Preprint{]}. PsyArXiv. \url{https://doi.org/10.31234/osf.io/yxbjz}
 
-\leavevmode\hypertarget{ref-R-Cairo}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-Cairo}{}}%
 Urbanek, S., \& Horner, J. (2019). \emph{Cairo: R graphics device using cairo graphics library for creating high-quality bitmap (PNG, JPEG, TIFF), vector (PDF, SVG, PostScript) and display (X11 and Win32) output}. Retrieved from \url{https://CRAN.R-project.org/package=Cairo}
 
-\leavevmode\hypertarget{ref-R-ggplot2}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-ggplot2}{}}%
 Wickham, H. (2016). \emph{ggplot2: Elegant graphics for data analysis}. Springer-Verlag New York. Retrieved from \url{https://ggplot2.tidyverse.org}
 
-\leavevmode\hypertarget{ref-R-forcats}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-forcats}{}}%
 Wickham, H. (2019a). \emph{Forcats: Tools for working with categorical variables (factors)}. Retrieved from \url{https://CRAN.R-project.org/package=forcats}
 
-\leavevmode\hypertarget{ref-R-stringr}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-stringr}{}}%
 Wickham, H. (2019b). \emph{Stringr: Simple, consistent wrappers for common string operations}. Retrieved from \url{https://CRAN.R-project.org/package=stringr}
 
-\leavevmode\hypertarget{ref-R-tidyverse}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-tidyverse}{}}%
 Wickham, H., Averick, M., Bryan, J., Chang, W., McGowan, L. D., François, R., \ldots{} Yutani, H. (2019). Welcome to the {tidyverse}. \emph{Journal of Open Source Software}, \emph{4}(43), 1686. \url{https://doi.org/10.21105/joss.01686}
 
-\leavevmode\hypertarget{ref-R-dplyr}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-dplyr}{}}%
 Wickham, H., François, R., Henry, L., \& Müller, K. (2019). \emph{Dplyr: A grammar of data manipulation}. Retrieved from \url{https://CRAN.R-project.org/package=dplyr}
 
-\leavevmode\hypertarget{ref-R-tidyr}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-tidyr}{}}%
 Wickham, H., \& Henry, L. (2019). \emph{Tidyr: Tidy messy data}. Retrieved from \url{https://CRAN.R-project.org/package=tidyr}
 
-\leavevmode\hypertarget{ref-R-readr}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-R-readr}{}}%
 Wickham, H., Hester, J., \& Francois, R. (2018). \emph{Readr: Read rectangular text data}. Retrieved from \url{https://CRAN.R-project.org/package=readr}
 
-\leavevmode\hypertarget{ref-wiernik_obtaining_2020}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-wiernik_obtaining_2020}{}}%
 Wiernik, B. M., \& Dahlke, J. A. (2020). Obtaining {Unbiased} {Results} in {Meta}-{Analysis}: {The} {Importance} of {Correcting} for {Statistical} {Artifacts}. \emph{Advances in Methods and Practices in Psychological Science}. \url{https://doi.org/10.1177/2515245919885611}
 
-\leavevmode\hypertarget{ref-zuo_harnessing_2019}{}%
+\leavevmode\vadjust pre{\hypertarget{ref-zuo_harnessing_2019}{}}%
 Zuo, X.-N., Xu, T., \& Milham, M. P. (2019). Harnessing reliability for neuroscience research. \emph{Nature Human Behaviour}. \url{https://doi.org/10.1038/s41562-019-0655-x}
 
 \end{CSLReferences}

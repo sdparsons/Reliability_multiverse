@@ -120,17 +120,17 @@ splithalf.multiverse <- function(input,
                                  specifications) {
 
 
-  # you'll need something here to differentiate between internal consistency and test-retest.
-
   if(class(input) != "splithalf") {
     stop("please use a splithalf object as the input")
   }
 
-  ### new
-  subject = input$call$var.participant
-  correct = input$call$var.ACC
-
   ###
+
+  if(length(input$call$conditionlist) > 1) {
+    warning("splithalf.multiverse only extracts the first condition for the analyses. If you want to run a multiverse on more than one condition, specify these separately")
+  }
+
+
 
   # set up the output list ####################################################
 
@@ -176,11 +176,26 @@ splithalf.multiverse <- function(input,
   var.ACC = input$call$var.ACC
   var.condition = input$call$var.condition
   var.participant = input$call$var.participant
-  var.trialnum = input$call$var.trialnum
   var.compare = input$call$var.compare
   compare1 = input$call$compare1
   compare2 = input$call$compare2
   average = input$call$average
+
+
+  ### ensure that the input$data names match
+  input$data$var.RT = input$data[,var.RT]
+  input$data$var.ACC = input$data[,var.ACC]
+  input$data$var.condition = input$data[,var.condition]
+  input$data$var.participant = input$data[,var.participant]
+  input$data$var.compare = input$data[,var.compare]
+
+  if(length(input$call$conditionlist) > 1) {
+
+    input$data <- input$data %>%
+      filter(var.condition == input$call$conditionlist[1])
+
+    }
+
 
 
   # create empty objects for the purposes of binding global variables
@@ -196,6 +211,7 @@ splithalf.multiverse <- function(input,
   Incongruent <- 0
   Congruent <- 0
   RTdiff <- 0
+  . <- 0
 
 
 
@@ -217,8 +233,8 @@ splithalf.multiverse <- function(input,
 
   # calculate accuracy rates
   temp_data <- input$data %>%
-    group_by(subject) %>%
-    mutate(ACC = sum(correct) / n())
+    group_by(var.participant) %>%
+    mutate(ACC = sum(var.ACC) / n())
 
   # make all the datasets
 
@@ -232,39 +248,36 @@ splithalf.multiverse <- function(input,
   for(perm in 1:nS) {
 
     temp <- temp_data %>%
-      dplyr::filter(ACC >= specs[perm, "ACC_cutoff"]) %>%
-      dplyr::group_by(subject) %>%
-      dplyr::filter(correct == 1) %>%
-      dplyr::filter(latency >= specs[perm, "RT_min"],
-             latency <= specs[perm, "RT_max"]) %>%
+      dplyr::filter(var.ACC >= specs[perm, "ACC_cutoff"]) %>%
+      dplyr::group_by(var.participant) %>%
+      dplyr::filter(var.ACC == 1) %>%
+      dplyr::filter(var.RT >= specs[perm, "RT_min"],
+                    var.RT <= specs[perm, "RT_max"]) %>%
       dplyr::ungroup()
 
     if(specs[perm, "split_by"] == "subject")
       temp <- temp %>%
-        group_by(subject)
-    if(specs[perm, "split_by"] == "condition")
-      temp <- temp %>%
-        group_by(subject, blockcode)
+        group_by(var.participant)
     if(specs[perm, "split_by"] == "trial")
       temp <- temp %>%
-        group_by(subject, blockcode, congruency)
+        group_by(var.participant, var.compare)
 
     if(specs[perm, "RT_sd_cutoff"] != 0)
       temp <- temp %>%
-        mutate(high  = mean(latency) + (specs[perm, "RT_sd_cutoff"]*sd(latency)),
-               low   = mean(latency) - (specs[perm, "RT_sd_cutoff"]*sd(latency))) %>%
-        dplyr::filter(latency >= low, latency <= high) %>%
+        mutate(high  = mean(var.RT) + (specs[perm, "RT_sd_cutoff"]*sd(var.RT)),
+               low   = mean(var.RT) - (specs[perm, "RT_sd_cutoff"]*sd(var.RT))) %>%
+        dplyr::filter(var.RT >= low, var.RT <= high) %>%
         ungroup() %>%
         as.data.frame()
 
     perm_out[[perm]] <- temp
 
     SE_out[perm] <- temp %>%
-      group_by(subject, congruency) %>%
-      summarise(meanRT = mean(latency)) %>%
-      spread(congruency, meanRT) %>%
-      mutate(RTdiff = Incongruent - Congruent) %>%
+      group_by(var.participant, var.compare) %>%
+      summarise(meanRT = mean(var.RT)) %>%
+      spread(var.compare, meanRT) %>%
       ungroup() %>%
+      mutate(RTdiff = .[[compare1]] - .[[compare2]]) %>%
       summarise(SE = sd(RTdiff)/sqrt(n())) %>%
       as.double()
 
@@ -280,8 +293,8 @@ splithalf.multiverse <- function(input,
   nTrial <- 1:nS
 
   for(i in 1:nS) {
-    nPar[i]   <- length(unique(perm_out[[i]]$subject))
-    nTrial[i] <- length(perm_out[[i]]$trialnum)
+    nPar[i]   <- length(unique(perm_out[[i]]$var.participant))
+    nTrial[i] <- length(perm_out[[i]]$var.participant)
   }
 
   removals <- specs
@@ -289,8 +302,8 @@ splithalf.multiverse <- function(input,
   removals$nTrial <- nTrial
   removals$nTrialperPar <- removals$nTrial / removals$nPar
 
-  removals$pPar <- removals$nPar / length(unique(input$data$subject))
-  removals$pTrial <- removals$nTrial / length(input$data$trialnum)
+  removals$pPar <- removals$nPar / length(unique(input$data$var.participant))
+  removals$pTrial <- removals$nTrial / length(input$data$var.participant)
 
   outlist$removals <- removals
 
@@ -317,7 +330,6 @@ splithalf.multiverse <- function(input,
                                         var.ACC = input$call$var.ACC,
                                         var.RT = input$call$var.RT,
                                         var.participant = input$call$var.participant,
-                                        var.trialnum = input$call$var.trialnum,
                                         var.compare = input$call$var.compare,
                                         compare1 = input$call$compare1,
                                         compare2 = input$call$compare2,
@@ -362,6 +374,10 @@ splithalf.multiverse <- function(input,
 
   class(outlist) <- "multiverse"
 
+  if(length(input$call$conditionlist) > 1) {
+    print("REMINDER: splithalf.multiverse only extracts the first condition for the analyses. If you want to run a multiverse on more than one condition, specify these separately")
+  }
+
   return(outlist)
 }
 
@@ -369,26 +385,78 @@ splithalf.multiverse <- function(input,
 
 ```{r testretest.multiverse, eval = FALSE}
 
-testretest.multiverse <- function(input,
-                                  specifications,
-                                  test = "ICC2",
-                                  var.participant = "subject",
-                                  var.ACC = "correct",
-                                  var.RT = "RT") {
+testretest.multiverse <- function(data,
+                                   specifications,
+                                   test = "ICC2",
+
+                                   outcome = "RT",
+                                   score = "difference",
+
+                                   var.participant = "subject",
+                                   var.ACC = "correct",
+                                   var.RT = "RT",
+                                   var.time = "time",
+                                   var.compare = "congruency",
+                                   compare1 = "Congruent",
+                                   compare2 = "Incongruent") {
 
 
-  # you'll need something here to differentiate between internal consistency and test-retest.
+  # check that the dataframe is a data frame
+  if (is.data.frame(data) == FALSE) {
+    stop("a data frame has not been specified in data = ")
+  }
+  # check for missing variables
+  if (outcome != "RT") {
+    stop("only response time outcomes are supported. accuracy rates will be added in a future version")
+  }
+  if (score != "difference") {
+    stop(
+      "currently the only score option supported is the difference score. average scores will be added in a future version"
+    )
+  }
 
-  ### new
-  subject = var.participant
-  correct = var.ACC
+  # check that all of the variables exist in the data frame,
+  # including the trial level components
+  if (var.RT %in% colnames(data) == FALSE & outcome != "accuracy") {
+    stop("the RT varible has not been specified")
+  }
+  if (var.participant %in% colnames(data) == FALSE) {
+    stop("the participant varible has not been specified")
+  }
+  if (score == "difference" | score == "difference_of_difference") {
+    if (var.compare %in% colnames(data) == FALSE) {
+      stop("the compare varible has not been specified")
+    }
+    if (compare1 %in% unique(data[[var.compare]]) == FALSE) {
+      stop("compare1 does not exist in the compare variable")
+    }
+    if (compare2 %in% unique(data[[var.compare]]) == FALSE) {
+      stop("compare2 does not exist in the compare variable")
+    }
+
+  }
+
+
+
+
 
   ###
+
+  data$subject <- data[, var.participant]
+  data$time <- data[, var.time]
+  data$correct <- data[, var.ACC]
+  data$latency <- data[, var.RT]
+  data$congruency <- data[, var.compare]
+
+  data$congruency <- ifelse(data$congruency == compare1, "Congruent",
+                         ifelse(data$congruency == compare2, "Incongruent", NA))
+
+  data$trialnum <- 1:nrow(data)
 
 
   # set up the output list ####################################################
 
-  outlist <- list("input" = input,
+  outlist <- list("data" = data,
                   "specifications" = specifications,
                   "test" = test,
                   "reliability" = "test_retest")
@@ -403,12 +471,16 @@ testretest.multiverse <- function(input,
   congruency <- 0
   low <- 0
   high <- 0
-  RT <- 0
+  latency <- 0
   Incongruent <- 0
   Congruent <- 0
   time <- 0
   difference <- 0
   ICC <- 0
+  subject <- 0
+  correct <- 0
+  RT <- 0
+
 
   # create the full specificaiton list ########################################
 
@@ -449,7 +521,7 @@ testretest.multiverse <- function(input,
   print(paste("running", nS, "pre-processing specifications"))
 
   # calculate accuracy rates
-  temp_data <- input %>%
+  temp_data <- data %>%
     group_by(time, subject) %>%
     mutate(ACC = sum(correct) / n())
 
@@ -473,12 +545,12 @@ testretest.multiverse <- function(input,
     if(specs[perm, "split_by"] == "subject")
       temp <- temp %>%
         group_by(time, subject)
-    if(specs[perm, "split_by"] == "condition")
-      temp <- temp %>%
-        group_by(time, subject, blockcode)
+#    if(specs[perm, "split_by"] == "condition")
+#      temp <- temp %>%
+#        group_by(time, subject, blockcode)
     if(specs[perm, "split_by"] == "trial")
       temp <- temp %>%
-        group_by(time, subject, blockcode, congruency)
+        group_by(time, subject, congruency)
 
     if(specs[perm, "RT_sd_cutoff"] != 0)
       temp <- temp %>%
@@ -512,8 +584,8 @@ testretest.multiverse <- function(input,
   removals$nTrial <- nTrial
   removals$nTrialperPar <- removals$nTrial / removals$nPar
 
-  removals$pPar <- removals$nPar / length(unique(input$subject))
-  removals$pTrial <- removals$nTrial / length(input$trialnum)
+  removals$pPar <- removals$nPar / length(unique(data$subject))
+  removals$pTrial <- removals$nTrial / length(data$trialnum)
 
   outlist$removals <- removals
 
@@ -522,8 +594,6 @@ testretest.multiverse <- function(input,
   print("running reliability estimates")
 
   estimates <- list()
-
-  # internal consistency
 
   # test retest
 
@@ -549,7 +619,7 @@ testretest.multiverse <- function(input,
           group_by(time) %>%
           spread(time, difference)
 
-        estimates[[perm2]] <- ICC(tmp[,2:3])$results[icc,]
+        estimates[[perm2]] <- psych::ICC(tmp[,2:3])$results[icc,]
 
       })
       setTxtProgressBar(pb2, perm2)
@@ -561,7 +631,7 @@ testretest.multiverse <- function(input,
     for(perm2 in 1:nS) {
       capture.output({
 
-        tmp <<- perm_out[[perm2]] %>%
+        tmp <- perm_out[[perm2]] %>%
           group_by(time, subject, congruency) %>%
           summarise(RT = mean(latency)) %>%
           spread(congruency, RT) %>%
@@ -621,11 +691,11 @@ multiverse.plot <- function(multiverse,
     stop("heights must be length 3 is SE = TRUE")
   }
 
-  if(class(multiverse) == "list") {
+  if(is(multiverse, "list")) {
     x <- length(multiverse)
 
     for(i in 1:x){
-      if(class(multiverse[[i]]) != "multiverse")
+      if(!is(multiverse[[i]], "multiverse"))
         stop("not all list objects are of class multiverse")
     }
 
@@ -666,7 +736,7 @@ multiverse.plot <- function(multiverse,
   }
 
 
-  if(class(multiverse) == "multiverse"){
+  if(is(multiverse, "multiverse")){
     final2 <- multiverse$estimates
     final2 <- final2[order(final2[,"estimate"]),]
     final2$SE <- multiverse$SE
@@ -674,7 +744,7 @@ multiverse.plot <- function(multiverse,
 
   suppressWarnings({
 
-    if(class(multiverse) == "multiverse"){
+    if(is(multiverse, "multiverse")){
       final2$ns <- 1:multiverse$nS
 
       reliability_plot <- ggplot(data = final2,
@@ -697,7 +767,7 @@ multiverse.plot <- function(multiverse,
         theme(plot.title = element_text(hjust = 0.5, face = "bold"))
     }
 
-    if(class(multiverse) == "list"){
+    if(is(multiverse, "list")){
       reliability_plot <- ggplot(data = final2,
                                  aes(x = ns, y = estimate, fill = time)) +
         geom_ribbon(aes(ymin = low, ymax = high, fill = time), alpha = .1)  +
@@ -721,7 +791,7 @@ multiverse.plot <- function(multiverse,
 
   suppressWarnings({
 
-    if(class(multiverse) == "multiverse"){
+    if(is(multiverse, "multiverse")){
 
       final2$ns <- 1:multiverse$nS
 
@@ -733,7 +803,7 @@ multiverse.plot <- function(multiverse,
 
     }
 
-    if(class(multiverse) == "list"){
+    if(is(multiverse, "list")){
       final3 <- final2 %>%
         dplyr::filter(time == 1) %>%
         tidyr::gather(key = "Bigdecision",
@@ -751,7 +821,7 @@ multiverse.plot <- function(multiverse,
                                                               "averaging_method"))
 
   suppressWarnings({
-    if(class(multiverse) == "multiverse"){
+    if(is(multiverse, "multiverse")){
       dashboard <- ggplot(data = subset(final3, Bigdecision %in% multiverse$cols),
                           aes(x = ns, y = Decision, colour = Bigdecision)) +
         facet_grid(Bigdecision ~ ., scales = "free", space = "free", drop = ) +
@@ -766,7 +836,7 @@ multiverse.plot <- function(multiverse,
               text = element_text(size=10))
     }
 
-    if(class(multiverse) == "list"){
+    if(is(multiverse, "list")){
       dashboard <- ggplot(data = subset(final3, Bigdecision %in% multiverse[[1]]$cols),
                           aes(x = ns, y = Decision, colour = Bigdecision)) +
         facet_grid(Bigdecision ~ ., scales = "free", space = "free", drop = ) +
@@ -1139,14 +1209,14 @@ default_permutations = 500
 
 # this chunk is purely for testing knitting this script together with fewer specifications. Otherwise, eval should be set to FALSE for generating the manuscript
 
-  specifications <- list(
-    ACC_cutoff = c(0, .9),
-    RT_min           = c(100, 200),
-    RT_max            = c(2000),
-    RT_sd_cutoff      = c(1, 3)
-  )
-
-default_permutations = 50
+#   specifications <- list(
+#     ACC_cutoff = c(0, .9),
+#     RT_min           = c(100, 200),
+#     RT_max            = c(2000),
+#     RT_sd_cutoff      = c(1, 3)
+#   )
+# 
+# default_permutations = 50
 
 ```
 
@@ -1181,7 +1251,7 @@ multiverse.plot(multiverse = list(multiverse_1,
 
 
 ```{r echo = FALSE, eval = FALSE}
-threshold(multiverse = internal.1_Stroop,
+threshold(multiverse = multiverse_1,
           threshold = 0.7,
           use = "estimate",
           dir = "above")

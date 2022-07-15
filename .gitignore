@@ -6,5 +6,5 @@ examples/
 old_code/
 old_text/
 submission/
-multiverse_output/*
-Supplemental/*
+multiverse_output/*.rds
+Supplemental/*.rds
